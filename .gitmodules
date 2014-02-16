@@ -1,0 +1,3 @@
+[submodule "Protogame"]
+	path = Protogame
+	url = https://github.com/hach-que/Protogame.git

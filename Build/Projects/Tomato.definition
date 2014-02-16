@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Name="Tomato" Path="Tomato" Type="Library">
+  <References>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </References>
+  <Files>
+    <Compile Include="Breakpoint.cs" />
+    <Compile Include="BreakpointEventArgs.cs" />
+    <Compile Include="CodeEntry.cs" />
+    <Compile Include="DCPU.cs" />
+    <Compile Include="FastDisassembler.cs" />
+    <Compile Include="Hardware\Device.cs" />
+    <Compile Include="Hardware\GenericClock.cs" />
+    <Compile Include="Hardware\GenericKeyboard.cs" />
+    <Compile Include="Hardware\LEM1802.cs" />
+    <Compile Include="Hardware\M35FD.cs" />
+    <Compile Include="Hardware\SPC2000.cs" />
+    <Compile Include="Hardware\SPED3.cs" />
+    <Compile Include="HexTypeEditor.cs" />
+    <Compile Include="InterruptEventArgs.cs" />
+    <Compile Include="InvalidInstructionEventArgs.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </Files>
+</Project>

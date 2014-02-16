@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Name="Mir" Path="Mir" Type="App">
+  <References>
+    <Reference Include="System" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="protobuf-net" />
+    <Reference Include="Ninject" />
+    <Reference Include="MonoGame" />
+    <Reference Include="Protogame" />
+    <Reference Include="Protogame.ThirdParty" />
+    <Reference Include="Mir.Content" />
+    <Reference Include="Tomato" />
+  </References>
+  <Files>
+    <Compile Include="MirActivity.cs" />
+    <Compile Include="MirGame.cs" />
+    <Compile Include="MirWorld.cs" />
+    <Compile Include="Program.cs" />
+    <None Include="Properties\AndroidManifest.xml" />
+  </Files>
+</Project>
