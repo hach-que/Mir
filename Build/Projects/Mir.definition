@@ -15,10 +15,20 @@
     <Reference Include="Tomato" />
   </References>
   <Files>
+    <Compile Include="Events\MouseMoveAction.cs" />
+    <Compile Include="Events\MoveBackwardAction.cs" />
+    <Compile Include="Events\MoveForwardAction.cs" />
+    <Compile Include="Events\StrafeLeftAction.cs" />
+    <Compile Include="Events\StrafeRightAction.cs" />
+    <Compile Include="Events\ToggleMouseAction.cs" />
     <Compile Include="MirActivity.cs" />
     <Compile Include="MirGame.cs" />
+    <Compile Include="MirIocModule.cs" />
+    <Compile Include="MirStaticEventBinder.cs" />
     <Compile Include="MirWorld.cs" />
+    <Compile Include="PlayerEntity.cs" />
     <Compile Include="Program.cs" />
+    <EmbeddedResource Include="test.bin" />
     <None Include="Properties\AndroidManifest.xml" />
   </Files>
 </Project>

@@ -11,5 +11,12 @@ namespace Mir
         {
             this.IsMouseVisible = true;
         }
+
+        protected override void LoadContent()
+        {
+            base.LoadContent();
+
+            this.Window.Title = "Mir";
+        }
     }
 }

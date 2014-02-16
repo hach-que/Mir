@@ -13,7 +13,7 @@ namespace Mir
             this.Bind<KeyHeldEvent>(x => x.Key == Keys.S).To<MoveBackwardAction>();
             this.Bind<KeyHeldEvent>(x => x.Key == Keys.A).To<StrafeLeftAction>();
             this.Bind<KeyHeldEvent>(x => x.Key == Keys.D).To<StrafeRightAction>();
-            this.Bind<KeyPressEvent>(x => x.Key == Keys.T).To<ToggleMouseAction>();
+            this.Bind<MousePressEvent>(x => x.Button == MouseButton.Right).To<ToggleMouseAction>();
         }
     }
 }

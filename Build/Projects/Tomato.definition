@@ -27,5 +27,6 @@
     <Compile Include="InterruptEventArgs.cs" />
     <Compile Include="InvalidInstructionEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="DefaultFont.dat" />
   </Files>
 </Project>

@@ -95,7 +95,7 @@ namespace Mir
             this.m_2DRenderUtilities.RenderText(
                 renderContext,
                 new Vector2(10, 50),
-                mouseState.X + ", " + mouseState.Y,
+                "Right-click to switch between movement / camera and typing on the DCPU",
                 this.m_DefaultFont);
         }
 
@@ -196,17 +196,27 @@ namespace Mir
 
             var keyboard = Keyboard.GetState();
             var values = Enum.GetValues(typeof(Keys));
-            var names = Enum.GetNames(typeof(Keys));
             var winNames = Enum.GetNames(typeof(System.Windows.Forms.Keys));
             foreach (var id in values)
             {
                 var name = Enum.GetName(typeof(Keys), id);
                 if (!winNames.Contains(name))
                 {
-                    continue;
+                    if (name == "LeftShift" || name == "RightShift")
+                    {
+                        name = "Shift";
+                    }
+                    else if (name == "LeftControl" || name == "RightControl")
+                    {
+                        name = "Control";
+                    }
+                    else
+                    {
+                        continue;
+                    }
                 }
 
-                if (keyboard.IsKeyDown((Keys)id))
+                if (keyboard.IsKeyPressed(this, (Keys)id))
                 {
                     this.m_GenericKeyboard.KeyDown((System.Windows.Forms.Keys)Enum.Parse(typeof(System.Windows.Forms.Keys), name));
                 }

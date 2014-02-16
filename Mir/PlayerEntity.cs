@@ -8,6 +8,7 @@ namespace Mir
     {
         public PlayerEntity()
         {
+            this.CaptureMouse = true;
         }
 
         public float X
