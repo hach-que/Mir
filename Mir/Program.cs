@@ -11,8 +11,10 @@ namespace Mir
         public static void Main(string[] args)
         {
             var kernel = new StandardKernel();
-            kernel.Load<Protogame2DIoCModule>();
+            kernel.Load<Protogame3DIoCModule>();
             kernel.Load<ProtogameAssetIoCModule>();
+            kernel.Load<ProtogameEventsIoCModule>();
+            kernel.Load<MirIocModule>();
             AssetManagerClient.AcceptArgumentsAndSetup<GameAssetManagerProvider>(kernel, args);
 
             using (var game = new MirGame(kernel))

@@ -33,7 +33,7 @@ namespace Mir
             base.OnCreate(bundle);
 
             var kernel = new StandardKernel();
-            kernel.Load<Protogame2DIoCModule>();
+            kernel.Load<Protogame3DIoCModule>();
             kernel.Load<ProtogameAssetIoCModule>();
             AssetManagerClient.AcceptArgumentsAndSetup<GameAssetManagerProvider>(kernel, null);
 

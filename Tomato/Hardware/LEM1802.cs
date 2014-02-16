@@ -52,7 +52,7 @@ namespace Tomato.Hardware
         [Browsable(false)]
         public static int BlinkRate = 1000;
         [Browsable(false)]
-        private bool BlinkOn = true;
+        public bool BlinkOn = true;
 
         [Category("Device Status")]
         [TypeConverter(typeof(HexTypeEditor))]
@@ -208,7 +208,7 @@ namespace Tomato.Hardware
             0x000,0x00A,0x0A0,0x0AA,0xA00,0xA0A,0xA50,0xAAA,0x555,0x55F,0x5F5,0x5FF,0xF55,0xF5F,0xFF5,0xFFF
         };
 
-        private static ushort[] DefaultFont;
+        public static ushort[] DefaultFont;
 
         #endregion
 

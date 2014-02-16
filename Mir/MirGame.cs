@@ -4,11 +4,12 @@ namespace Mir
 
     using Protogame;
 
-    public class MirGame : CoreGame<MirWorld, Default2DWorldManager>
+    public class MirGame : CoreGame<MirWorld, Default3DWorldManager>
     {
         public MirGame(StandardKernel kernel)
             : base(kernel)
         {
+            this.IsMouseVisible = true;
         }
     }
 }
