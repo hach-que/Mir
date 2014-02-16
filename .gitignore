@@ -1,4 +1,5 @@
 *.csproj
 *.sln
 .source
-
+bin
+obj
