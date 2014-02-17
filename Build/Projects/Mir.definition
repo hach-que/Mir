@@ -21,6 +21,7 @@
     <Compile Include="Events\StrafeLeftAction.cs" />
     <Compile Include="Events\StrafeRightAction.cs" />
     <Compile Include="Events\ToggleMouseAction.cs" />
+    <Compile Include="IArea.cs" />
     <Compile Include="MirActivity.cs" />
     <Compile Include="MirGame.cs" />
     <Compile Include="MirIocModule.cs" />
@@ -28,6 +29,8 @@
     <Compile Include="MirWorld.cs" />
     <Compile Include="PlayerEntity.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="ShipEntity.cs" />
+    <Compile Include="ShipLayout.cs" />
     <EmbeddedResource Include="test.bin" />
     <None Include="Properties\AndroidManifest.xml" />
   </Files>

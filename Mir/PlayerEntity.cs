@@ -6,6 +6,12 @@ namespace Mir
 {
     public class PlayerEntity : IEntity
     {
+        private float m_RelativeX;
+
+        private float m_RelativeY;
+
+        private float m_RelativeZ;
+
         public PlayerEntity()
         {
             this.CaptureMouse = true;
@@ -13,20 +19,38 @@ namespace Mir
 
         public float X
         {
-            get;
-            set;
+            get
+            {
+                return this.ParentArea.X + this.m_RelativeX;
+            }
+            set
+            {
+                this.m_RelativeX = value - this.ParentArea.X;
+            }
         }
 
         public float Y
         {
-            get;
-            set;
+            get
+            {
+                return this.ParentArea.Y + this.m_RelativeY;
+            }
+            set
+            {
+                this.m_RelativeY = value - this.ParentArea.Y;
+            }
         }
 
         public float Z
         {
-            get;
-            set;
+            get
+            {
+                return this.ParentArea.Z + this.m_RelativeZ;
+            }
+            set
+            {
+                this.m_RelativeZ = value - this.ParentArea.Z;
+            }
         }
 
         public float Yaw
@@ -104,6 +128,12 @@ namespace Mir
         }
 
         public float WalkCounter
+        {
+            get;
+            set;
+        }
+
+        public IArea ParentArea 
         {
             get;
             set;

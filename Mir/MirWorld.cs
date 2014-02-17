@@ -50,7 +50,12 @@ namespace Mir
             this.m_DCPU.ConnectDevice(this.m_LEM1802);
             this.m_DCPU.ConnectDevice(this.m_GenericKeyboard);
 
-            this.Entities.Add(new PlayerEntity());
+            var ship = new ShipEntity();
+            var player = new PlayerEntity();
+            player.ParentArea = ship;
+
+            this.Entities.Add(ship);
+            this.Entities.Add(player);
 
             var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Mir.test.bin");
             var program = new ushort[stream.Length / 2];
