@@ -15,6 +15,7 @@
     <Reference Include="Tomato" />
   </References>
   <Files>
+    <Compile Include="Cells\StandardCell.cs" />
     <Compile Include="Events\MouseMoveAction.cs" />
     <Compile Include="Events\MoveBackwardAction.cs" />
     <Compile Include="Events\MoveForwardAction.cs" />
@@ -22,6 +23,10 @@
     <Compile Include="Events\StrafeRightAction.cs" />
     <Compile Include="Events\ToggleMouseAction.cs" />
     <Compile Include="IArea.cs" />
+    <Compile Include="IFactory.cs" />
+    <Compile Include="LayoutCell.cs" />
+    <Compile Include="LayoutDirection.cs" />
+    <Compile Include="LayoutWire.cs" />
     <Compile Include="MirActivity.cs" />
     <Compile Include="MirGame.cs" />
     <Compile Include="MirIocModule.cs" />

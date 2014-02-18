@@ -33,6 +33,7 @@ namespace Mir
         private RenderTarget2D m_DCPURenderTarget;
 
         public MirWorld(
+            IFactory factory,
             I2DRenderUtilities twoDRenderUtilities,
             I3DRenderUtilities threeDRenderUtilities,
             IAssetManagerProvider assetManagerProvider)
@@ -50,8 +51,8 @@ namespace Mir
             this.m_DCPU.ConnectDevice(this.m_LEM1802);
             this.m_DCPU.ConnectDevice(this.m_GenericKeyboard);
 
-            var ship = new ShipEntity();
-            var player = new PlayerEntity();
+            var ship = factory.CreateShipEntity();
+            var player = factory.CreatePlayerEntity();
             player.ParentArea = ship;
 
             this.Entities.Add(ship);
@@ -139,6 +140,8 @@ namespace Mir
                 Matrix.CreateTranslation(-15, 0, -20),
                 Color.Gray);
 
+            /*            
+wa
             this.m_3DRenderUtilities.RenderPlane(
                 renderContext,
                 Matrix.CreateScale(30, 0, 40) *
@@ -173,6 +176,8 @@ namespace Mir
                 Matrix.CreateRotationX(MathHelper.PiOver2) *
                 Matrix.CreateTranslation(-15, 20, -20),
                 Color.LightGray);
+
+            */
 
             // Render DCPU screen.
             this.RenderDCPU(renderContext);

@@ -141,8 +141,8 @@ namespace Mir
 
         public void Constrain()
         {
-            this.X = MathHelper.Clamp(this.X, -12, 12);
-            this.Z = MathHelper.Clamp(this.Z, -17, 17);
+            //this.X = MathHelper.Clamp(this.X, -12, 12);
+            //this.Z = MathHelper.Clamp(this.Z, -17, 17);
         }
 
         public void SetCamera(IRenderContext renderContext)
