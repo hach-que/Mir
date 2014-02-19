@@ -13,7 +13,7 @@ namespace Mir
             this.m_ShipLayout = factory.CreateShipLayout(10);
             this.m_ShipLayout.FillArea(3, 0, 3, 3, 1, 3);
             this.m_ShipLayout.FillArea(0, 0, 4, 3, 1, 1);
-            //this.m_ShipLayout.RunCorridor(0, 0, 4, LayoutDirection.Right, 6);
+            this.m_ShipLayout.RunCorridor(2, 0, 4, LayoutDirection.Right, 4);
         }
 
         public float X

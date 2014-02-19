@@ -1,6 +1,7 @@
 using System;
 using Protogame;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Mir
 {
@@ -128,22 +129,22 @@ namespace Mir
                     switch (direction)
                     {
                         case LayoutDirection.Front:
-                            current.BackOpen = true;
+                            next.BackOpen = true;
                             break;
                         case LayoutDirection.Back:
-                            current.FrontOpen = true;
+                            next.FrontOpen = true;
                             break;
                         case LayoutDirection.Above:
-                            current.BelowOpen = true;
+                            next.BelowOpen = true;
                             break;
                         case LayoutDirection.Below:
-                            current.AboveOpen = true;
+                            next.AboveOpen = true;
                             break;
                         case LayoutDirection.Left:
-                            current.RightOpen = true;
+                            next.RightOpen = true;
                             break;
                         case LayoutDirection.Right:
-                            current.LeftOpen = true;
+                            next.LeftOpen = true;
                             break;
                     }
                 }
@@ -197,6 +198,8 @@ namespace Mir
 
             renderContext.EnableTextures();
             renderContext.SetActiveTexture(this.m_TextureAsset.Texture);
+
+            renderContext.GraphicsDevice.BlendState = BlendState.Opaque;
 
             foreach (var pass in renderContext.Effect.CurrentTechnique.Passes)
             {
