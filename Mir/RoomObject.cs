@@ -2,9 +2,9 @@ using System;
 
 namespace Mir
 {
-    public class LayoutWire
+    public class RoomObject
     {
-        public LayoutWire()
+        public RoomObject()
         {
         }
     }

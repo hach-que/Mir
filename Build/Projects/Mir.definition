@@ -15,7 +15,6 @@
     <Reference Include="Tomato" />
   </References>
   <Files>
-    <Compile Include="Cells\StandardCell.cs" />
     <Compile Include="Events\MouseMoveAction.cs" />
     <Compile Include="Events\MoveBackwardAction.cs" />
     <Compile Include="Events\MoveForwardAction.cs" />
@@ -24,9 +23,6 @@
     <Compile Include="Events\ToggleMouseAction.cs" />
     <Compile Include="IArea.cs" />
     <Compile Include="IFactory.cs" />
-    <Compile Include="LayoutCell.cs" />
-    <Compile Include="LayoutDirection.cs" />
-    <Compile Include="LayoutWire.cs" />
     <Compile Include="MirActivity.cs" />
     <Compile Include="MirGame.cs" />
     <Compile Include="MirIocModule.cs" />
@@ -34,8 +30,9 @@
     <Compile Include="MirWorld.cs" />
     <Compile Include="PlayerEntity.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="Room.cs" />
+    <Compile Include="RoomObject.cs" />
     <Compile Include="ShipEntity.cs" />
-    <Compile Include="ShipLayout.cs" />
     <EmbeddedResource Include="test.bin" />
     <None Include="Properties\AndroidManifest.xml" />
   </Files>

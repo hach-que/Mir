@@ -6,9 +6,6 @@ namespace Mir
     {
         ShipEntity CreateShipEntity();
         PlayerEntity CreatePlayerEntity();
-        ShipLayout CreateShipLayout(int size);
-        LayoutCell CreateLayoutCell();
-        StandardCell CreateStandardCell();
     }
 }
 
