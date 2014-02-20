@@ -3,3 +3,6 @@
 .source
 bin
 obj
+.directory
+*.userprefs
+*.bmp
