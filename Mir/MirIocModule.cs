@@ -11,6 +11,7 @@ namespace Mir
         {
             this.Bind<IEventBinder<IGameContext>>().To<MirStaticEventBinder>();
             this.Bind<IFactory>().ToFactory();
+            this.Bind<IMeshCollider>().To<MeshCollider>();
         }
     }
 }

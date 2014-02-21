@@ -6,6 +6,8 @@ namespace Mir
     {
         ShipEntity CreateShipEntity();
         PlayerEntity CreatePlayerEntity();
+        Room CreateRoom();
+        RoomObject CreateRoomObject();
     }
 }
 

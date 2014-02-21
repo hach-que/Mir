@@ -14,6 +14,8 @@ namespace Mir
             kernel.Load<Protogame3DIoCModule>();
             kernel.Load<ProtogameAssetIoCModule>();
             kernel.Load<ProtogameEventsIoCModule>();
+            kernel.Load<ProtogameCollisionIoCModule>();
+            kernel.Load<ProtogameDeferredLightingIoCModule>();
             kernel.Load<MirIocModule>();
             AssetManagerClient.AcceptArgumentsAndSetup<GameAssetManagerProvider>(kernel, args);
 

@@ -96,8 +96,6 @@ namespace Mir
                 "Running at " + gameContext.FPS + " FPS; " + gameContext.FrameCount + " frames counted so far",
                 this.m_DefaultFont);
 
-            var mouseState = Mouse.GetState();
-
             this.m_2DRenderUtilities.RenderText(
                 renderContext,
                 new Vector2(10, 50),
@@ -134,11 +132,11 @@ namespace Mir
                 Color.Blue);
 
             // Draw the room.
-            this.m_3DRenderUtilities.RenderPlane(
+            /*this.m_3DRenderUtilities.RenderPlane(
                 renderContext,
                 Matrix.CreateScale(30, 0, 40) *
                 Matrix.CreateTranslation(-15, 0, -20),
-                Color.Gray);
+                Color.Gray);*/
 
             /*            
 wa
