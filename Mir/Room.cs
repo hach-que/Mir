@@ -97,8 +97,6 @@ namespace Mir
             renderContext.EnableTextures();
             renderContext.SetActiveTexture(this.m_TextureAsset.Texture);
 
-            renderContext.GraphicsDevice.BlendState = BlendState.Opaque;
-
             foreach (var pass in renderContext.Effect.CurrentTechnique.Passes)
             {
                 pass.Apply();

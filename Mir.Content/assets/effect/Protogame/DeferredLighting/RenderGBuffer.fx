@@ -1,154 +1,77 @@
-//-----------------------------------------------------------------------------
-// MACROS
-//-----------------------------------------------------------------------------
+float4x4 World;
+float4x4 View;
+float4x4 Projection;
+float specularIntensity = 0.8f;
+float specularPower = 0.5f;
 
-#ifdef SM4
-
-// Macros for targetting shader model 4.0 (DX11)
-
-#define TECHNIQUE(name, vsname, psname ) \
-	technique name { pass { VertexShader = compile vs_4_0_level_9_1 vsname (); PixelShader = compile ps_4_0_level_9_1 psname(); } }
-
-#define BEGIN_CONSTANTS     cbuffer Parameters : register(b0) {
-#define MATRIX_CONSTANTS
-#define END_CONSTANTS       };
-
-#define _vs(r)
-#define _ps(r)
-#define _cb(r)
-
-#define DECLARE_TEXTURE(Name, index) \
-    Texture2D<float4> Name : register(t##index); \
-    sampler Name##Sampler : register(s##index)
-
-#define DECLARE_CUBEMAP(Name, index) \
-    TextureCube<float4> Name : register(t##index); \
-    sampler Name##Sampler : register(s##index)
-
-#define SAMPLE_TEXTURE(Name, texCoord)  Name.Sample(Name##Sampler, texCoord)
-#define SAMPLE_CUBEMAP(Name, texCoord)  Name.Sample(Name##Sampler, texCoord)
-
-
-#else
-
-
-// Macros for targetting shader model 2.0 (DX9)
-
-#define TECHNIQUE(name, vsname, psname ) \
-	technique name { pass { VertexShader = compile vs_2_0 vsname (); PixelShader = compile ps_2_0 psname(); } }
-
-#define BEGIN_CONSTANTS
-#define MATRIX_CONSTANTS
-#define END_CONSTANTS
-
-#define _vs(r)  : register(vs, r)
-#define _ps(r)  : register(ps, r)
-#define _cb(r)
-
-#define DECLARE_TEXTURE(Name, index) \
-    sampler2D Name : register(s##index);
-
-#define DECLARE_CUBEMAP(Name, index) \
-    samplerCUBE Name : register(s##index);
-
-#define SAMPLE_TEXTURE(Name, texCoord)  tex2D(Name, texCoord)
-#define SAMPLE_CUBEMAP(Name, texCoord)  texCUBE(Name, texCoord)
-
-
-#endif
-
-//-----------------------------------------------------------------------------
-// END MACROS
-//-----------------------------------------------------------------------------
-
-
-DECLARE_TEXTURE(Texture, 0);
-
-BEGIN_CONSTANTS
-
-MATRIX_CONSTANTS
-
-	float4x4 WorldViewProj _vs(c0);
-
-END_CONSTANTS
-
-struct VSInputTx
+PROTOGAME_DECLARE_TEXTURE(Texture, 0) = sampler_state
 {
-    float4 Position : SV_Position;
-    float2 TexCoord : TEXCOORD0;
+    MAGFILTER = LINEAR;
+    MINFILTER = LINEAR;
+    MIPFILTER = LINEAR;
+    AddressU = Wrap;
+    AddressV = Wrap;
 };
 
-struct VSOutputTx
+struct VertexShaderInput
 {
-    float4 PositionPS : SV_Position;
-    float4 Diffuse    : COLOR0;
-    float4 Specular   : COLOR1;
-    float2 TexCoord   : TEXCOORD0;
+    float4 Position : PROTOGAME_POSITION;
+    float3 Normal : PROTOGAME_NORMAL(0);
+    float2 TexCoord : PROTOGAME_TEXCOORD(0);
 };
 
-struct CommonVSOutput
+struct VertexShaderOutput
 {
-    float4 Pos_ps;
-    float4 Diffuse;
-    float3 Specular;
-    float  FogFactor;
+    float4 Position : PROTOGAME_POSITION;
+    float2 TexCoord : PROTOGAME_TEXCOORD(0);
+    float3 Normal : PROTOGAME_TEXCOORD(1);
+    float2 Depth : PROTOGAME_TEXCOORD(2);
 };
 
-#define SetCommonVSOutputParams \
-    vout.PositionPS = cout.Pos_ps; \
-    vout.Diffuse = cout.Diffuse; \
-    vout.Specular = float4(cout.Specular, cout.FogFactor);
-
-float ComputeFogFactor(float4 position)
+struct PixelShaderOutput
 {
-	float4 FogVector = float4(0,0,0,0);
+    float4 Color : PROTOGAME_TARGET(0);
+    float4 Normal : PROTOGAME_TARGET(1);
+    float4 Depth : PROTOGAME_TARGET(2);
+};
 
-    return saturate(dot(position, FogVector));
-}
-
-void ApplyFog(inout float4 color, float fogFactor)
+VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 {
-	float3 FogColor = float3(0,0,0);
+    VertexShaderOutput output;
 
-    color.rgb = lerp(color.rgb, FogColor * color.a, fogFactor);
-}
+    float4 worldPosition = mul(input.Position, World);
+    float4 viewPosition = mul(worldPosition, View);
+    output.Position = mul(viewPosition, Projection);
 
-void AddSpecular(inout float4 color, float3 specular)
-{
-    color.rgb += specular * color.a;
-}
-
-CommonVSOutput ComputeCommonVSOutput(float4 position)
-{
-    CommonVSOutput vout;
-
-    vout.Pos_ps = mul(position, WorldViewProj);
-    vout.Diffuse = float4(1,1,1,1);
-    vout.Specular = 0;
-    vout.FogFactor = ComputeFogFactor(position);
+    output.TexCoord = input.TexCoord;
+	output.Normal = mul(input.Normal, World);
     
-    return vout;
+	output.Depth.x = output.Position.z;
+    output.Depth.y = output.Position.w;
+
+    return output;
 }
 
-VSOutputTx VSBasicTx(VSInputTx vin)
+PixelShaderOutput PixelShaderFunction(VertexShaderOutput input)
 {
-    VSOutputTx vout;
-    
-    CommonVSOutput cout = ComputeCommonVSOutput(vin.Position);
-    SetCommonVSOutputParams;
-    
-    vout.TexCoord = vin.TexCoord;
+	PixelShaderOutput output;
+	
+    output.Color = PROTOGAME_SAMPLE_TEXTURE(Texture, input.TexCoord);
+	output.Color.a = specularIntensity;
+	
+    output.Normal.rgb = 0.5f * (normalize(input.Normal) + 1.0f);
+	output.Normal.a = specularPower;
 
-    return vout;
+	output.Depth = input.Depth.x / input.Depth.y;
+    
+	return output;
 }
 
-float4 PSBasicTx(VSOutputTx pin) : SV_Target0
+technique Basic
 {
-    float4 color = SAMPLE_TEXTURE(Texture, pin.TexCoord) * pin.Diffuse;
-    
-    ApplyFog(color, pin.Specular.w);
-    
-    return color;
+	pass Pass1
+	{
+		VertexShader = compile PROTOGAME_VERTEX_SHADER VertexShaderFunction();
+		PixelShader = compile PROTOGAME_PIXEL_SHADER PixelShaderFunction();
+	}
 }
-
-TECHNIQUE(Basic, VSBasicTx, PSBasicTx)

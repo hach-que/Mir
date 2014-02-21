@@ -57,6 +57,7 @@ namespace Mir
 
             this.Entities.Add(ship);
             this.Entities.Add(player);
+            this.Entities.Add(factory.CreateLightEntity());
 
             var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Mir.test.bin");
             var program = new ushort[stream.Length / 2];
@@ -110,7 +111,10 @@ namespace Mir
                 return;
             }
 
-            gameContext.Graphics.GraphicsDevice.Clear(Color.Black);
+            var deferredRenderer = ((DeferredLighting3DWorldManager)gameContext.WorldManager).DeferredRenderer;
+
+            deferredRenderer.AddDirectionalLight(Vector3.One, new Color(1f, 1f, 1f, 0.5f));
+            deferredRenderer.AddDirectionalLight(new Vector3(-1, -1, -1), new Color(1f, 1f, 1f, 0.35f));
 
             var player = this.Entities.OfType<PlayerEntity>().First();
 

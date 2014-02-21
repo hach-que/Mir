@@ -25,6 +25,7 @@
     <Compile Include="IFactory.cs" />
     <Compile Include="IMesh.cs" />
     <Compile Include="IMeshCollider.cs" />
+    <Compile Include="LightEntity.cs" />
     <Compile Include="MeshCollider.cs" />
     <Compile Include="MirActivity.cs" />
     <Compile Include="MirGame.cs" />
