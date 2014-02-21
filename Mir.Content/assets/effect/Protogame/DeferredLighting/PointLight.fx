@@ -140,7 +140,7 @@ technique Technique1
 {
     pass Pass1
     {
-        VertexShader = compile vs_2_0 VertexShaderFunction();
-        PixelShader = compile ps_2_0 PixelShaderFunction();
+        VertexShader = compile PROTOGAME_VERTEX_SHADER VertexShaderFunction();
+        PixelShader = compile PROTOGAME_PIXEL_SHADER PixelShaderFunction();
     }
 }

@@ -1,11 +1,11 @@
 struct VertexShaderInput
 {
-    float3 Position : POSITION0;
+    float3 Position : PROTOGAME_POSITION;
 };
 
 struct VertexShaderOutput
 {
-    float4 Position : POSITION0;
+    float4 Position : PROTOGAME_POSITION;
 };
 
 VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
@@ -14,11 +14,12 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
     output.Position = float4(input.Position,1);
     return output;
 }
+
 struct PixelShaderOutput
 {
-    float4 Color : COLOR0;
-    float4 Normal : COLOR1;
-    float4 Depth : COLOR2;
+    float4 Color : PROTOGAME_TARGET(0);
+    float4 Normal : PROTOGAME_TARGET(1);
+    float4 Depth : PROTOGAME_TARGET(2);
 };
 
 PixelShaderOutput PixelShaderFunction(VertexShaderOutput input)
@@ -40,7 +41,7 @@ technique Technique1
 {
     pass Pass1
     {
-        VertexShader = compile vs_2_0 VertexShaderFunction();
-        PixelShader = compile ps_2_0 PixelShaderFunction();
+        VertexShader = compile PROTOGAME_VERTEX_SHADER VertexShaderFunction();
+        PixelShader = compile PROTOGAME_PIXEL_SHADER PixelShaderFunction();
     }
 }

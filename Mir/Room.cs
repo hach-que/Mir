@@ -97,14 +97,6 @@ namespace Mir
             renderContext.EnableTextures();
             renderContext.SetActiveTexture(this.m_TextureAsset.Texture);
 
-            var basicEffect = (BasicEffect)renderContext.Effect;
-            basicEffect.PreferPerPixelLighting = true;
-            basicEffect.LightingEnabled = true;
-            basicEffect.AmbientLightColor = new Vector3(0.5f, 0.5f, 0.5f);
-            basicEffect.DirectionalLight0.DiffuseColor = new Vector3(1f, 1f, 1f);
-            basicEffect.DirectionalLight0.Direction = new Vector3(0.7f, 0.8f, 0.9f);
-            basicEffect.DirectionalLight0.SpecularColor = Vector3.Zero;
-
             renderContext.GraphicsDevice.BlendState = BlendState.Opaque;
 
             foreach (var pass in renderContext.Effect.CurrentTechnique.Passes)

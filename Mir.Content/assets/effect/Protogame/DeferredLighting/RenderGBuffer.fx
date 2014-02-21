@@ -1,118 +1,154 @@
-float4x4 World;
-float4x4 View;
-float4x4 Projection;
-float specularIntensity = 0.8f;
-float specularPower = 0.5f;
+//-----------------------------------------------------------------------------
+// MACROS
+//-----------------------------------------------------------------------------
 
-texture Texture;
-sampler diffuseSampler = sampler_state
-{
-    Texture = (Texture);
-    MAGFILTER = LINEAR;
-    MINFILTER = LINEAR;
-    MIPFILTER = LINEAR;
-    AddressU = Wrap;
-    AddressV = Wrap;
-};
+#ifdef SM4
 
-texture SpecularMap;
-sampler specularSampler = sampler_state
-{
-    Texture = (SpecularMap);
-    MagFilter = LINEAR;
-    MinFilter = LINEAR;
-    Mipfilter = LINEAR;
-    AddressU = Wrap;
-    AddressV = Wrap;
-};
+// Macros for targetting shader model 4.0 (DX11)
 
-texture NormalMap;
-sampler normalSampler = sampler_state
-{
-    Texture = (NormalMap);
-    MagFilter = LINEAR;
-    MinFilter = LINEAR;
-    Mipfilter = LINEAR;
-    AddressU = Wrap;
-    AddressV = Wrap;
-};
+#define TECHNIQUE(name, vsname, psname ) \
+	technique name { pass { VertexShader = compile vs_4_0_level_9_1 vsname (); PixelShader = compile ps_4_0_level_9_1 psname(); } }
 
-struct VertexShaderInput
+#define BEGIN_CONSTANTS     cbuffer Parameters : register(b0) {
+#define MATRIX_CONSTANTS
+#define END_CONSTANTS       };
+
+#define _vs(r)
+#define _ps(r)
+#define _cb(r)
+
+#define DECLARE_TEXTURE(Name, index) \
+    Texture2D<float4> Name : register(t##index); \
+    sampler Name##Sampler : register(s##index)
+
+#define DECLARE_CUBEMAP(Name, index) \
+    TextureCube<float4> Name : register(t##index); \
+    sampler Name##Sampler : register(s##index)
+
+#define SAMPLE_TEXTURE(Name, texCoord)  Name.Sample(Name##Sampler, texCoord)
+#define SAMPLE_CUBEMAP(Name, texCoord)  Name.Sample(Name##Sampler, texCoord)
+
+
+#else
+
+
+// Macros for targetting shader model 2.0 (DX9)
+
+#define TECHNIQUE(name, vsname, psname ) \
+	technique name { pass { VertexShader = compile vs_2_0 vsname (); PixelShader = compile ps_2_0 psname(); } }
+
+#define BEGIN_CONSTANTS
+#define MATRIX_CONSTANTS
+#define END_CONSTANTS
+
+#define _vs(r)  : register(vs, r)
+#define _ps(r)  : register(ps, r)
+#define _cb(r)
+
+#define DECLARE_TEXTURE(Name, index) \
+    sampler2D Name : register(s##index);
+
+#define DECLARE_CUBEMAP(Name, index) \
+    samplerCUBE Name : register(s##index);
+
+#define SAMPLE_TEXTURE(Name, texCoord)  tex2D(Name, texCoord)
+#define SAMPLE_CUBEMAP(Name, texCoord)  texCUBE(Name, texCoord)
+
+
+#endif
+
+//-----------------------------------------------------------------------------
+// END MACROS
+//-----------------------------------------------------------------------------
+
+
+DECLARE_TEXTURE(Texture, 0);
+
+BEGIN_CONSTANTS
+
+MATRIX_CONSTANTS
+
+	float4x4 WorldViewProj _vs(c0);
+
+END_CONSTANTS
+
+struct VSInputTx
 {
-    float4 Position : POSITION0;
-    float3 Normal : NORMAL0;
+    float4 Position : SV_Position;
     float2 TexCoord : TEXCOORD0;
-    float3 Binormal : BINORMAL0;
-    float3 Tangent : TANGENT0;
 };
 
-struct VertexShaderOutput
+struct VSOutputTx
 {
-    float4 Position : POSITION0;
-    float2 TexCoord : TEXCOORD0;
-    float2 Depth : TEXCOORD1;
-    float3x3 tangentToWorld : TEXCOORD2;
+    float4 PositionPS : SV_Position;
+    float4 Diffuse    : COLOR0;
+    float4 Specular   : COLOR1;
+    float2 TexCoord   : TEXCOORD0;
 };
 
-VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
+struct CommonVSOutput
 {
-    VertexShaderOutput output;
-
-    float4 worldPosition = mul(float4(input.Position.xyz,1), World);
-    float4 viewPosition = mul(worldPosition, View);
-    output.Position = mul(viewPosition, Projection);
-
-    output.TexCoord = input.TexCoord;
-    output.Depth.x = output.Position.z;
-    output.Depth.y = output.Position.w;
-
-    // calculate tangent space to world space matrix using the world space tangent,
-    // binormal, and normal as basis vectors
-    output.tangentToWorld[0] = mul(input.Tangent, World);
-    output.tangentToWorld[1] = mul(input.Binormal, World);
-    output.tangentToWorld[2] = mul(input.Normal, World);
-
-    return output;
-}
-struct PixelShaderOutput
-{
-    half4 Color : COLOR0;
-    half4 Normal : COLOR1;
-    half4 Depth : COLOR2;
+    float4 Pos_ps;
+    float4 Diffuse;
+    float3 Specular;
+    float  FogFactor;
 };
 
-PixelShaderOutput PixelShaderFunction(VertexShaderOutput input)
+#define SetCommonVSOutputParams \
+    vout.PositionPS = cout.Pos_ps; \
+    vout.Diffuse = cout.Diffuse; \
+    vout.Specular = float4(cout.Specular, cout.FogFactor);
+
+float ComputeFogFactor(float4 position)
 {
-    PixelShaderOutput output;
-    output.Color = tex2D(diffuseSampler, input.TexCoord);
+	float4 FogVector = float4(0,0,0,0);
 
-    float4 specularAttributes = tex2D(specularSampler, input.TexCoord);
-    //specular Intensity
-    output.Color.a = specularAttributes.r;
-
-    // read the normal from the normal map
-    float3 normalFromMap = tex2D(normalSampler, input.TexCoord);
-    //tranform to [-1,1]
-    normalFromMap = 2.0f * normalFromMap - 1.0f;
-    //transform into world space
-    normalFromMap = mul(normalFromMap, input.tangentToWorld);
-    //normalize the result
-    normalFromMap = normalize(normalFromMap);
-    //output the normal, in [0,1] space
-    output.Normal.rgb = 0.5f * (normalFromMap + 1.0f);
-
-    //specular Power
-    output.Normal.a = specularAttributes.a;
-
-    output.Depth = input.Depth.x / input.Depth.y;
-    return output;
+    return saturate(dot(position, FogVector));
 }
 
-technique Technique1
+void ApplyFog(inout float4 color, float fogFactor)
 {
-    pass Pass1
-    {
-        VertexShader = compile vs_2_0 VertexShaderFunction();
-        PixelShader = compile ps_2_0 PixelShaderFunction();
-    }
+	float3 FogColor = float3(0,0,0);
+
+    color.rgb = lerp(color.rgb, FogColor * color.a, fogFactor);
 }
+
+void AddSpecular(inout float4 color, float3 specular)
+{
+    color.rgb += specular * color.a;
+}
+
+CommonVSOutput ComputeCommonVSOutput(float4 position)
+{
+    CommonVSOutput vout;
+
+    vout.Pos_ps = mul(position, WorldViewProj);
+    vout.Diffuse = float4(1,1,1,1);
+    vout.Specular = 0;
+    vout.FogFactor = ComputeFogFactor(position);
+    
+    return vout;
+}
+
+VSOutputTx VSBasicTx(VSInputTx vin)
+{
+    VSOutputTx vout;
+    
+    CommonVSOutput cout = ComputeCommonVSOutput(vin.Position);
+    SetCommonVSOutputParams;
+    
+    vout.TexCoord = vin.TexCoord;
+
+    return vout;
+}
+
+float4 PSBasicTx(VSOutputTx pin) : SV_Target0
+{
+    float4 color = SAMPLE_TEXTURE(Texture, pin.TexCoord) * pin.Diffuse;
+    
+    ApplyFog(color, pin.Specular.w);
+    
+    return color;
+}
+
+TECHNIQUE(Basic, VSBasicTx, PSBasicTx)
