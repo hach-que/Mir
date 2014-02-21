@@ -1,20 +1,17 @@
-using System;
-using System.Linq;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using Tomato;
-using Tomato.Hardware;
-using System.Reflection;
-
 namespace Mir
 {
+    using System;
     using System.Collections.Generic;
-
+    using System.Linq;
+    using System.Reflection;
     using Microsoft.Xna.Framework;
-
+    using Microsoft.Xna.Framework.Graphics;
+    using Microsoft.Xna.Framework.Input;
     using Protogame;
+    using Tomato;
+    using Tomato.Hardware;
 
-    public class MirWorld : IWorld
+    public class RoomEditorWorld : IWorld
     {
         private readonly I2DRenderUtilities m_2DRenderUtilities;
 
@@ -22,22 +19,22 @@ namespace Mir
 
         private readonly IAssetManager m_AssetManager;
 
-        private readonly FontAsset m_DefaultFont;
-
         private readonly DCPU m_DCPU;
 
-        private readonly LEM1802 m_LEM1802;
+        private readonly FontAsset m_DefaultFont;
 
         private readonly GenericKeyboard m_GenericKeyboard;
+
+        private readonly LEM1802 m_LEM1802;
 
         private readonly EffectAsset m_LightingEffect;
 
         private RenderTarget2D m_DCPURenderTarget;
 
-        public MirWorld(
-            IFactory factory,
-            I2DRenderUtilities twoDRenderUtilities,
-            I3DRenderUtilities threeDRenderUtilities,
+        public RoomEditorWorld(
+            IFactory factory, 
+            I2DRenderUtilities twoDRenderUtilities, 
+            I3DRenderUtilities threeDRenderUtilities, 
             IAssetManagerProvider assetManagerProvider)
         {
             this.Entities = new List<IEntity>();
@@ -61,13 +58,16 @@ namespace Mir
             this.Entities.Add(ship);
             this.Entities.Add(player);
 
+            this.Entities.Add(factory.CreateRoomEditorEntity(
+                factory.CreateRoom()));
+
             var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Mir.test.bin");
             var program = new ushort[stream.Length / 2];
-            for (int i = 0; i < program.Length; i++)
+            for (var i = 0; i < program.Length; i++)
             {
-                byte left = (byte)stream.ReadByte();
-                byte right = (byte)stream.ReadByte();
-                ushort value = (ushort)(right | (left << 8));
+                var left = (byte)stream.ReadByte();
+                var right = (byte)stream.ReadByte();
+                var value = (ushort)(right | (left << 8));
                 program[i] = value;
             }
 
@@ -87,22 +87,18 @@ namespace Mir
                 return;
             }
 
+            this.m_2DRenderUtilities.RenderText(renderContext, new Vector2(10, 10), "Hello Mir!", this.m_DefaultFont);
+
             this.m_2DRenderUtilities.RenderText(
-                renderContext,
-                new Vector2(10, 10),
-                "Hello Mir!",
+                renderContext, 
+                new Vector2(10, 30), 
+                "Running at " + gameContext.FPS + " FPS; " + gameContext.FrameCount + " frames counted so far", 
                 this.m_DefaultFont);
 
             this.m_2DRenderUtilities.RenderText(
-                renderContext,
-                new Vector2(10, 30),
-                "Running at " + gameContext.FPS + " FPS; " + gameContext.FrameCount + " frames counted so far",
-                this.m_DefaultFont);
-
-            this.m_2DRenderUtilities.RenderText(
-                renderContext,
-                new Vector2(10, 50),
-                "Right-click to switch between movement / camera and typing on the DCPU",
+                renderContext, 
+                new Vector2(10, 50), 
+                "Right-click to switch between movement / camera and typing on the DCPU", 
                 this.m_DefaultFont);
         }
 
@@ -119,79 +115,16 @@ namespace Mir
 
             player.SetCamera(renderContext);
 
-            this.m_3DRenderUtilities.RenderCube(
-                renderContext,
-                Matrix.CreateTranslation(5, 0, 5),
-                Color.Red);
-
-            this.m_3DRenderUtilities.RenderCube(
-                renderContext,
-                Matrix.CreateTranslation(5, 10, 5),
-                Color.Green);
-
-            this.m_3DRenderUtilities.RenderCube(
-                renderContext,
-                Matrix.CreateTranslation(5, 19, 5),
-                Color.Blue);
-
-            // Draw the room.
-            /*this.m_3DRenderUtilities.RenderPlane(
-                renderContext,
-                Matrix.CreateScale(30, 0, 40) *
-                Matrix.CreateTranslation(-15, 0, -20),
-                Color.Gray);*/
-
-            /*            
-wa
-            this.m_3DRenderUtilities.RenderPlane(
-                renderContext,
-                Matrix.CreateScale(30, 0, 40) *
-                Matrix.CreateRotationX(MathHelper.Pi) *
-                Matrix.CreateTranslation(-15, 20, 20),
-                Color.Gray);
-
-            this.m_3DRenderUtilities.RenderPlane(
-                renderContext,
-                Matrix.CreateScale(20, 0, 40) *
-                Matrix.CreateRotationZ(MathHelper.PiOver2) *
-                Matrix.CreateTranslation(15, 0, -20),
-                Color.DarkGray);
-
-            this.m_3DRenderUtilities.RenderPlane(
-                renderContext,
-                Matrix.CreateScale(20, 0, 40) *
-                Matrix.CreateRotationZ(-MathHelper.PiOver2) *
-                Matrix.CreateTranslation(-15, 20, -20),
-                Color.DarkGray);
-
-            this.m_3DRenderUtilities.RenderPlane(
-                renderContext,
-                Matrix.CreateScale(30, 0, 20) *
-                Matrix.CreateRotationX(-MathHelper.PiOver2) *
-                Matrix.CreateTranslation(-15, 0, 20),
-                Color.LightGray);
-
-            this.m_3DRenderUtilities.RenderPlane(
-                renderContext,
-                Matrix.CreateScale(30, 0, 20) *
-                Matrix.CreateRotationX(MathHelper.PiOver2) *
-                Matrix.CreateTranslation(-15, 20, -20),
-                Color.LightGray);
-
-            */
-
             // Render DCPU screen.
             this.RenderDCPU(renderContext);
 
             this.m_3DRenderUtilities.RenderCube(
-                renderContext,
-                Matrix.CreateScale(2.5f, 2, 2) *
-                Matrix.CreateRotationX(MathHelper.Pi) *
-                Matrix.CreateRotationY(MathHelper.Pi) *
-                Matrix.CreateRotationX(MathHelper.PiOver4) *
-                Matrix.CreateTranslation(0, 6f, 19f),
-                new TextureAsset(this.m_DCPURenderTarget),
-                Vector2.Zero,
+                renderContext, 
+                Matrix.CreateScale(2.5f, 2, 2) * Matrix.CreateRotationX(MathHelper.Pi)
+                * Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateRotationX(MathHelper.PiOver4)
+                * Matrix.CreateTranslation(5, 6f, 19f), 
+                new TextureAsset(this.m_DCPURenderTarget), 
+                Vector2.Zero, 
                 Vector2.One);
         }
 
@@ -229,12 +162,14 @@ wa
 
                 if (keyboard.IsKeyPressed(this, (Keys)id))
                 {
-                    this.m_GenericKeyboard.KeyDown((System.Windows.Forms.Keys)Enum.Parse(typeof(System.Windows.Forms.Keys), name));
+                    this.m_GenericKeyboard.KeyDown(
+                        (System.Windows.Forms.Keys)Enum.Parse(typeof(System.Windows.Forms.Keys), name));
                 }
 
                 if (keyboard.IsKeyUp((Keys)id))
                 {
-                    this.m_GenericKeyboard.KeyUp((System.Windows.Forms.Keys)Enum.Parse(typeof(System.Windows.Forms.Keys), name));
+                    this.m_GenericKeyboard.KeyUp(
+                        (System.Windows.Forms.Keys)Enum.Parse(typeof(System.Windows.Forms.Keys), name));
                 }
             }
         }
@@ -244,8 +179,8 @@ wa
             if (this.m_DCPURenderTarget == null)
             {
                 this.m_DCPURenderTarget = new RenderTarget2D(
-                    renderContext.GraphicsDevice,
-                    LEM1802.Width,
+                    renderContext.GraphicsDevice, 
+                    LEM1802.Width, 
                     LEM1802.Height);
             }
 
@@ -255,25 +190,37 @@ wa
                 return;
             }
 
-            Color[] pixels = new Color[LEM1802.Width * LEM1802.Height];
+            var pixels = new Color[LEM1802.Width * LEM1802.Height];
 
             ushort address = 0;
-            for (int y = 0; y < 12; y++)
-                for (int x = 0; x < 32; x++)
+            for (var y = 0; y < 12; y++)
+            {
+                for (var x = 0; x < 32; x++)
                 {
-                    ushort value = this.m_LEM1802.AttachedCPU.Memory[this.m_LEM1802.ScreenMap + address];
+                    var value = this.m_LEM1802.AttachedCPU.Memory[this.m_LEM1802.ScreenMap + address];
                     uint fontValue;
                     if (this.m_LEM1802.FontMap == 0)
-                        fontValue = (uint)((LEM1802.DefaultFont[(value & 0x7F) * 2] << 16) | LEM1802.DefaultFont[(value & 0x7F) * 2 + 1]);
+                    {
+                        fontValue =
+                            (uint)
+                            ((LEM1802.DefaultFont[(value & 0x7F) * 2] << 16)
+                             | LEM1802.DefaultFont[(value & 0x7F) * 2 + 1]);
+                    }
                     else
-                        fontValue = (uint)((this.m_LEM1802.AttachedCPU.Memory[this.m_LEM1802.FontMap + ((value & 0x7F) * 2)] << 16) | this.m_LEM1802.AttachedCPU.Memory[this.m_LEM1802.FontMap + ((value & 0x7F) * 2) + 1]);
+                    {
+                        fontValue =
+                            (uint)
+                            ((this.m_LEM1802.AttachedCPU.Memory[this.m_LEM1802.FontMap + ((value & 0x7F) * 2)] << 16)
+                             | this.m_LEM1802.AttachedCPU.Memory[this.m_LEM1802.FontMap + ((value & 0x7F) * 2) + 1]);
+                    }
+
                     fontValue = BitConverter.ToUInt32(BitConverter.GetBytes(fontValue).Reverse().ToArray(), 0);
 
                     var backgroundc = this.m_LEM1802.GetPaletteColor((byte)((value & 0xF00) >> 8));
                     var foregroundc = this.m_LEM1802.GetPaletteColor((byte)((value & 0xF000) >> 12));
                     var background = new Color(backgroundc.R, backgroundc.G, backgroundc.B, backgroundc.A);
                     var foreground = new Color(foregroundc.R, foregroundc.G, foregroundc.B, foregroundc.A);
-                    for (int i = 0; i < sizeof(uint) * 8; i++)
+                    for (var i = 0; i < sizeof(uint) * 8; i++)
                     {
                         var px = i / 8 + (x * LEM1802.CharWidth);
                         var py = i % 8 + (y * LEM1802.CharHeight);
@@ -285,10 +232,13 @@ wa
                         {
                             pixels[px + py * LEM1802.Width] = foreground;
                         }
+
                         fontValue >>= 1;
                     }
+
                     address++;
                 }
+            }
 
             this.m_DCPURenderTarget.SetData(pixels);
         }

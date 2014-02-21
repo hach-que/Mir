@@ -18,6 +18,8 @@
     <Compile Include="Events\MouseMoveAction.cs" />
     <Compile Include="Events\MoveBackwardAction.cs" />
     <Compile Include="Events\MoveForwardAction.cs" />
+    <Compile Include="Events\RoomEditorReleaseAction.cs" />
+    <Compile Include="Events\RoomEditorSelectAction.cs" />
     <Compile Include="Events\StrafeLeftAction.cs" />
     <Compile Include="Events\StrafeRightAction.cs" />
     <Compile Include="Events\ToggleMouseAction.cs" />
@@ -25,16 +27,16 @@
     <Compile Include="IFactory.cs" />
     <Compile Include="IMesh.cs" />
     <Compile Include="IMeshCollider.cs" />
-    <Compile Include="LightEntity.cs" />
     <Compile Include="MeshCollider.cs" />
     <Compile Include="MirActivity.cs" />
     <Compile Include="MirGame.cs" />
     <Compile Include="MirIocModule.cs" />
     <Compile Include="MirStaticEventBinder.cs" />
-    <Compile Include="MirWorld.cs" />
     <Compile Include="PlayerEntity.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Room.cs" />
+    <Compile Include="RoomEditorEntity.cs" />
+    <Compile Include="RoomEditorWorld.cs" />
     <Compile Include="RoomObject.cs" />
     <Compile Include="ShipEntity.cs" />
     <EmbeddedResource Include="test.bin" />

@@ -4,7 +4,7 @@ namespace Mir
 
     using Protogame;
 
-    public class MirGame : CoreGame<MirWorld, Default3DWorldManager>
+    public class MirGame : CoreGame<RoomEditorWorld, Default3DWorldManager>
     {
         public MirGame(StandardKernel kernel)
             : base(kernel)

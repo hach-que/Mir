@@ -4,6 +4,8 @@ using Microsoft.Xna.Framework;
 
 namespace Mir
 {
+    using System.Linq;
+
     public class ShipEntity : IEntity, IArea
     {
         private readonly Room m_Room;
@@ -11,6 +13,8 @@ namespace Mir
         private readonly IMeshCollider m_MeshCollider;
 
         private readonly I3DRenderUtilities m_3DRenderUtilities;
+
+        private RoomObject m_LastRoomObject;
 
         public ShipEntity(
             I3DRenderUtilities threedRenderUtilities,
@@ -42,21 +46,6 @@ namespace Mir
 
         public void Render(IGameContext gameContext, IRenderContext renderContext)
         {
-            if (!renderContext.Is3DContext)
-            {
-                return;
-            }
-
-            this.m_Room.Render(renderContext);
-
-            Vector3 position;
-            if (this.m_MeshCollider.Collides(gameContext.MouseRay, this.m_Room, out position))
-            {
-                this.m_3DRenderUtilities.RenderCube(
-                    renderContext,
-                    Matrix.CreateTranslation(position),
-                    Color.White);
-            }
         }
 
         public void Update(IGameContext gameContext, IUpdateContext updateContext)

@@ -21,7 +21,7 @@ namespace Mir
     /// </summary>
     public class Room : IArea, IMesh
     {
-        private readonly IEnumerable<RoomObject> m_RoomObjects;
+        private readonly List<RoomObject> m_RoomObjects;
 
         private readonly TextureAsset m_TextureAsset;
 
@@ -39,6 +39,14 @@ namespace Mir
             this.Depth = 50;
 
             this.m_TextureAsset = assetManagerProvider.GetAssetManager().Get<TextureAsset>("ship");
+
+            this.m_RoomObjects = new List<RoomObject>();
+
+            this.m_RoomObjects.Add(new RoomObject { X = 1, Y = 1, Z = 1 });
+            this.m_RoomObjects.Add(new RoomObject { X = 3, Y = 1, Z = 1 });
+            this.m_RoomObjects.Add(new RoomObject { X = 1, Y = 1, Z = 3 });
+
+            this.m_RoomObjects.Add(new RoomObject { X = 5, Y = 0, Z = 5, Width = 5, AboveTextureIndex = 8 });
         }
 
         public float X { get; set; }
@@ -65,6 +73,14 @@ namespace Mir
         private static float m_CellSize = 16f;
 
         private static float m_AtlasRatio = m_AtlasSize / m_CellSize;
+
+        public IEnumerable<RoomObject> Objects
+        {
+            get
+            {
+                return this.m_RoomObjects;
+            }
+        }
 
         public Vector2 GetTopLeftTextureUV(int idx)
         {
@@ -102,6 +118,11 @@ namespace Mir
                 pass.Apply();
 
                 this.RenderRoom(renderContext);
+
+                foreach (var obj in this.m_RoomObjects)
+                {
+                    obj.Render(renderContext);
+                }
             }
 
             renderContext.World = oldWorld;
