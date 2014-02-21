@@ -10,7 +10,6 @@ namespace Mir
         PlayerEntity CreatePlayerEntity();
         Room CreateRoom();
         RoomObject CreateRoomObject();
-        LightEntity CreateLightEntity();
     }
 }
 

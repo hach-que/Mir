@@ -30,6 +30,8 @@ namespace Mir
 
         private readonly GenericKeyboard m_GenericKeyboard;
 
+        private readonly EffectAsset m_LightingEffect;
+
         private RenderTarget2D m_DCPURenderTarget;
 
         public MirWorld(
@@ -44,6 +46,7 @@ namespace Mir
             this.m_3DRenderUtilities = threeDRenderUtilities;
             this.m_AssetManager = assetManagerProvider.GetAssetManager();
             this.m_DefaultFont = this.m_AssetManager.Get<FontAsset>("font.Default");
+            this.m_LightingEffect = this.m_AssetManager.Get<EffectAsset>("effect.Light");
 
             this.m_LEM1802 = new LEM1802();
             this.m_GenericKeyboard = new GenericKeyboard();
@@ -57,7 +60,6 @@ namespace Mir
 
             this.Entities.Add(ship);
             this.Entities.Add(player);
-            this.Entities.Add(factory.CreateLightEntity());
 
             var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Mir.test.bin");
             var program = new ushort[stream.Length / 2];
@@ -111,10 +113,7 @@ namespace Mir
                 return;
             }
 
-            var deferredRenderer = ((DeferredLighting3DWorldManager)gameContext.WorldManager).DeferredRenderer;
-
-            deferredRenderer.AddDirectionalLight(Vector3.One, new Color(1f, 1f, 1f, 0.5f));
-            deferredRenderer.AddDirectionalLight(new Vector3(-1, -1, -1), new Color(1f, 1f, 1f, 0.35f));
+            renderContext.GraphicsDevice.Clear(Color.Black);
 
             var player = this.Entities.OfType<PlayerEntity>().First();
 

@@ -11,7 +11,7 @@ cd assets
 ..\..\Protogame\ProtogameAssetTool\bin\Debug\ProtogameAssetTool.exe ^
 	-o ..\compiled ^
 	-p Windows ^
-	-p MacOSX
+	-p MacOSX ^
 	-p Linux 
 cd ..
 

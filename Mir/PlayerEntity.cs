@@ -162,7 +162,6 @@ namespace Mir
                     this.Pitch,
                     0));
 
-            renderContext.CameraPosition = pos + headAdjust;
             renderContext.View = Matrix.CreateLookAt(
                 pos + headAdjust,
                 pos + headAdjust + reference,
