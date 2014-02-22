@@ -20,9 +20,13 @@ namespace Mir
 
         private Vector3 m_SelectedMouseStartPosition;
 
+        private Vector3 m_SelectedMouseStartPositionRelative;
+
         private int m_SelectedRoomObjectStartValue1;
 
         private int m_SelectedRoomObjectStartValue2;
+
+        private float m_SelectedRoomObjectDistanceToPlayer;
 
         private RoomObject m_HoveredRoomObject;
 
@@ -63,6 +67,12 @@ namespace Mir
             this.m_SelectedRoomObject = this.m_HoveredRoomObject;
             this.m_SelectedRoomObjectFace = this.m_HoveredRoomObjectFace;
             this.m_SelectedMouseStartPosition = this.m_HoveredMouseStartPosition;
+            this.m_SelectedRoomObjectDistanceToPlayer = -1;
+            this.m_SelectedMouseStartPositionRelative = this.m_HoveredMouseStartPosition
+                                                        - new Vector3(
+                                                              this.m_HoveredRoomObject.X,
+                                                              this.m_HoveredRoomObject.Y,
+                                                              this.m_HoveredRoomObject.Z);
 
             switch (this.m_SelectedRoomObjectFace)
             {
@@ -182,6 +192,13 @@ namespace Mir
                 {
                     var world = (RoomEditorWorld)gameContext.World;
 
+                    if (this.m_SelectedRoomObjectDistanceToPlayer == -1f)
+                    {
+                        var player = world.Entities.OfType<PlayerEntity>().First();
+                        this.m_SelectedRoomObjectDistanceToPlayer =
+                            (this.m_SelectedMouseStartPosition - new Vector3(player.X, player.Y, player.Z)).Length();
+                    }
+
                     if (world.ActiveTool is SizeTool)
                     {
                         this.HandleResize(gameContext, updateContext);
@@ -207,6 +224,12 @@ namespace Mir
 
         private void HandleMove(IGameContext gameContext, IUpdateContext updateContext)
         {
+            var targetLoc = gameContext.MouseRay.Position
+                            + (gameContext.MouseRay.Direction * this.m_SelectedRoomObjectDistanceToPlayer);
+
+            this.m_SelectedRoomObject.X = (int)Math.Round(targetLoc.X - this.m_SelectedMouseStartPositionRelative.X);
+            this.m_SelectedRoomObject.Y = (int)Math.Round(targetLoc.Y - this.m_SelectedMouseStartPositionRelative.Y);
+            this.m_SelectedRoomObject.Z = (int)Math.Round(targetLoc.Z - this.m_SelectedMouseStartPositionRelative.Z);
         }
 
         private void HandleAngle(IGameContext gameContext, IUpdateContext updateContext)

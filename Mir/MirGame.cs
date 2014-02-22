@@ -17,6 +17,7 @@ namespace Mir
             base.LoadContent();
 
             this.Window.Title = "Mir";
+            this.Window.AllowUserResizing = true;
 
             this.GraphicsDevice.SamplerStates[0].Filter = Microsoft.Xna.Framework.Graphics.TextureFilter.Point;
         }
