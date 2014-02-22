@@ -8,7 +8,11 @@ namespace Mir
         {
             var world = (RoomEditorWorld)context.World;
 
-            world.UseTool();
+            var mouseEvent = @event as MousePressEvent;
+
+            var alt = mouseEvent != null && mouseEvent.Button == MouseButton.Right;
+
+            world.UseTool(alt);
         }
     }
 }

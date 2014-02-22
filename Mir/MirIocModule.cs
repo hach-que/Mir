@@ -13,6 +13,7 @@ namespace Mir
             this.Bind<IMeshCollider>().To<MeshCollider>();
 
             this.Bind<ITool>().To<SizeTool>();
+            this.Bind<ITool>().To<SizeBackTool>();
             this.Bind<ITool>().To<MoveTool>();
             this.Bind<ITool>().To<AngleTool>();
             this.Bind<ITool>().To<TextureTool>();

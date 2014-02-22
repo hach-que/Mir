@@ -130,9 +130,9 @@ namespace Mir
             }
         }
 
-        public void UseTool()
+        public void UseTool(bool alt)
         {
-            this.m_RoomEditorEntity.SelectCurrentHover();
+            this.m_RoomEditorEntity.SelectCurrentHover(alt);
         }
 
         public void ReleaseTool()

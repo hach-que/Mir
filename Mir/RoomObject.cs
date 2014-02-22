@@ -21,12 +21,12 @@ namespace Mir
             this.Height = 1;
             this.Depth = 1;
 
-            this.FrontTextureIndex = 3;
-            this.BackTextureIndex = 3;
-            this.LeftTextureIndex = 3;
-            this.RightTextureIndex = 3;
-            this.AboveTextureIndex = 3;
-            this.BelowTextureIndex = 3;
+            this.FrontTextureIndex = 0;
+            this.BackTextureIndex = 0;
+            this.LeftTextureIndex = 0;
+            this.RightTextureIndex = 0;
+            this.AboveTextureIndex = 0;
+            this.BelowTextureIndex = 0;
         }
 
         public int X { get; set; }
@@ -63,7 +63,7 @@ namespace Mir
 
         public void Render(IRenderContext renderContext)
         {
-            var vertexes = this.GetVertexPositionNormalTextures();
+            var vertexes = this.GetVertexPositionNormalTextures(false);
             var indicies = this.MeshIndicies;
 
             renderContext.GraphicsDevice.DrawUserIndexedPrimitives(
@@ -229,6 +229,31 @@ namespace Mir
             return -1;
         }
 
+        public int GetVerticalEdge(Vector3 pos)
+        {
+            if (Math.Abs(pos.X - this.X) < 0.1f && Math.Abs(pos.Z - this.Z) < 0.1f)
+            {
+                return 0;
+            }
+
+            if (Math.Abs(pos.X - (this.X + this.Width)) < 0.1f && Math.Abs(pos.Z - this.Z) < 0.1f)
+            {
+                return 1;
+            }
+
+            if (Math.Abs(pos.X - this.X) < 0.1f && Math.Abs(pos.Z - (this.Z + this.Depth)) < 0.1f)
+            {
+                return 2;
+            }
+
+            if (Math.Abs(pos.X - (this.X + this.Width)) < 0.1f && Math.Abs(pos.Z - (this.Z + this.Depth)) < 0.1f)
+            {
+                return 3;
+            }
+
+            return -1;
+        }
+
         #region TODO Unify
 
 
@@ -262,7 +287,7 @@ namespace Mir
 
         #endregion
 
-        private VertexPositionNormalTexture[] GetVertexPositionNormalTextures()
+        private VertexPositionNormalTexture[] GetVertexPositionNormalTextures(bool hitTest)
         {
             var matrix = Matrix.CreateScale(this.Width, this.Height, this.Depth)
                          * Matrix.CreateTranslation(this.X, this.Y, this.Z);
@@ -280,37 +305,47 @@ namespace Mir
             var belowTopLeftUV = this.GetTopLeftTextureUV(this.BelowTextureIndex);
             var belowBottomRightUV = this.GetBottomRightTextureUV(this.BelowTextureIndex);
 
+            var leftBackBelowMod = hitTest ? 0 : this.LeftBackEdgeMode == 2 ? 1 : 0;
+            var leftBackAboveMod = hitTest ? 0 : this.LeftBackEdgeMode == 1 ? -1 : 0;
+            var leftFrontBelowMod = hitTest ? 0 : this.LeftFrontEdgeMode == 2 ? 1 : 0;
+            var leftFrontAboveMod = hitTest ? 0 : this.LeftFrontEdgeMode == 1 ? -1 : 0;
+
+            var rightBackBelowMod = hitTest ? 0 : this.RightBackEdgeMode == 2 ? 1 : 0;
+            var rightBackAboveMod = hitTest ? 0 : this.RightBackEdgeMode == 1 ? -1 : 0;
+            var rightFrontBelowMod = hitTest ? 0 : this.RightFrontEdgeMode == 2 ? 1 : 0;
+            var rightFrontAboveMod = hitTest ? 0 : this.RightFrontEdgeMode == 1 ? -1 : 0;
+
             return new[]
             {
-                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(0, 0, 0), matrix), new Vector3(-1, 0, 0), new Vector2(leftBottomRightUV.X, leftBottomRightUV.Y)),
-                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(0, 0, 1), matrix), new Vector3(-1, 0, 0), new Vector2(leftTopLeftUV.X, leftBottomRightUV.Y)),
-                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(0, 1, 0), matrix), new Vector3(-1, 0, 0), new Vector2(leftBottomRightUV.X, leftTopLeftUV.Y)),
-                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(0, 1, 1), matrix), new Vector3(-1, 0, 0), new Vector2(leftTopLeftUV.X, leftTopLeftUV.Y)),
+                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(0, 0 + leftBackBelowMod, 0), matrix), new Vector3(-1, 0, 0), new Vector2(leftBottomRightUV.X, leftBottomRightUV.Y)),
+                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(0, 0 + leftFrontBelowMod, 1), matrix), new Vector3(-1, 0, 0), new Vector2(leftTopLeftUV.X, leftBottomRightUV.Y)),
+                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(0, 1 + leftBackAboveMod, 0), matrix), new Vector3(-1, 0, 0), new Vector2(leftBottomRightUV.X, leftTopLeftUV.Y)),
+                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(0, 1 + leftFrontAboveMod, 1), matrix), new Vector3(-1, 0, 0), new Vector2(leftTopLeftUV.X, leftTopLeftUV.Y)),
 
-                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(1, 0, 0), matrix), new Vector3(1, 0, 0), new Vector2(rightBottomRightUV.X, rightBottomRightUV.Y)),
-                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(1, 0, 1), matrix), new Vector3(1, 0, 0), new Vector2(rightTopLeftUV.X, rightBottomRightUV.Y)),
-                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(1, 1, 0), matrix), new Vector3(1, 0, 0), new Vector2(rightBottomRightUV.X, rightTopLeftUV.Y)),
-                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(1, 1, 1), matrix), new Vector3(1, 0, 0), new Vector2(leftTopLeftUV.X, leftTopLeftUV.Y)),
+                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(1, 0 + rightBackBelowMod, 0), matrix), new Vector3(1, 0, 0), new Vector2(rightBottomRightUV.X, rightBottomRightUV.Y)),
+                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(1, 0 + rightFrontBelowMod, 1), matrix), new Vector3(1, 0, 0), new Vector2(rightTopLeftUV.X, rightBottomRightUV.Y)),
+                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(1, 1 + rightBackAboveMod, 0), matrix), new Vector3(1, 0, 0), new Vector2(rightBottomRightUV.X, rightTopLeftUV.Y)),
+                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(1, 1 + rightFrontAboveMod, 1), matrix), new Vector3(1, 0, 0), new Vector2(rightTopLeftUV.X, rightTopLeftUV.Y)),
 
-                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(0, 0, 0), matrix), new Vector3(0, -1, 0), new Vector2(belowTopLeftUV.X, belowTopLeftUV.Y)),
-                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(0, 0, 1), matrix), new Vector3(0, -1, 0), new Vector2(belowTopLeftUV.X, belowBottomRightUV.Y)),
-                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(0, 1, 0), matrix), new Vector3(0, 1, 0), new Vector2(aboveTopLeftUV.X, aboveTopLeftUV.Y)),
-                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(0, 1, 1), matrix), new Vector3(0, 1, 0), new Vector2(aboveTopLeftUV.X, aboveBottomRightUV.Y)),
+                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(0, 0 + leftBackBelowMod, 0), matrix), new Vector3(0, -1, 0), new Vector2(belowTopLeftUV.X, belowTopLeftUV.Y)),
+                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(0, 0 + leftFrontBelowMod, 1), matrix), new Vector3(0, -1, 0), new Vector2(belowTopLeftUV.X, belowBottomRightUV.Y)),
+                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(0, 1 + leftBackAboveMod, 0), matrix), new Vector3(0, 1, 0), new Vector2(aboveTopLeftUV.X, aboveTopLeftUV.Y)),
+                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(0, 1 + leftFrontAboveMod, 1), matrix), new Vector3(0, 1, 0), new Vector2(aboveTopLeftUV.X, aboveBottomRightUV.Y)),
 
-                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(1, 0, 0), matrix), new Vector3(0, -1, 0), new Vector2(belowBottomRightUV.X, belowTopLeftUV.Y)),
-                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(1, 0, 1), matrix), new Vector3(0, -1, 0), new Vector2(belowBottomRightUV.X, belowBottomRightUV.Y)),
-                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(1, 1, 0), matrix), new Vector3(0, 1, 0), new Vector2(aboveBottomRightUV.X, aboveTopLeftUV.Y)),
-                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(1, 1, 1), matrix), new Vector3(0, 1, 0), new Vector2(aboveBottomRightUV.X, aboveBottomRightUV.Y)),
+                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(1, 0 + rightBackBelowMod, 0), matrix), new Vector3(0, -1, 0), new Vector2(belowBottomRightUV.X, belowTopLeftUV.Y)),
+                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(1, 0 + rightFrontBelowMod, 1), matrix), new Vector3(0, -1, 0), new Vector2(belowBottomRightUV.X, belowBottomRightUV.Y)),
+                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(1, 1 + rightBackAboveMod, 0), matrix), new Vector3(0, 1, 0), new Vector2(aboveBottomRightUV.X, aboveTopLeftUV.Y)),
+                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(1, 1 + rightFrontAboveMod, 1), matrix), new Vector3(0, 1, 0), new Vector2(aboveBottomRightUV.X, aboveBottomRightUV.Y)),
 
-                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(0, 0, 0), matrix), new Vector3(0, 0, -1), new Vector2(backTopLeftUV.X, backBottomRightUV.Y)),
-                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(0, 0, 1), matrix), new Vector3(0, 0, 1), new Vector2(frontTopLeftUV.X, frontBottomRightUV.Y)),
-                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(0, 1, 0), matrix), new Vector3(0, 0, -1), new Vector2(backTopLeftUV.X, backTopLeftUV.Y)),
-                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(0, 1, 1), matrix), new Vector3(0, 0, 1), new Vector2(frontTopLeftUV.X, frontTopLeftUV.Y)),
+                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(0, 0 + leftBackBelowMod, 0), matrix), new Vector3(0, 0, -1), new Vector2(backTopLeftUV.X, backBottomRightUV.Y)),
+                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(0, 0 + leftFrontBelowMod, 1), matrix), new Vector3(0, 0, 1), new Vector2(frontTopLeftUV.X, frontBottomRightUV.Y)),
+                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(0, 1 + leftBackAboveMod, 0), matrix), new Vector3(0, 0, -1), new Vector2(backTopLeftUV.X, backTopLeftUV.Y)),
+                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(0, 1 + leftFrontAboveMod, 1), matrix), new Vector3(0, 0, 1), new Vector2(frontTopLeftUV.X, frontTopLeftUV.Y)),
 
-                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(1, 0, 0), matrix), new Vector3(0, 0, -1), new Vector2(backBottomRightUV.X, backBottomRightUV.Y)),
-                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(1, 0, 1), matrix), new Vector3(0, 0, 1), new Vector2(frontBottomRightUV.X, frontBottomRightUV.Y)),
-                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(1, 1, 0), matrix), new Vector3(0, 0, -1), new Vector2(backBottomRightUV.X, backTopLeftUV.Y)),
-                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(1, 1, 1), matrix), new Vector3(0, 0, 1), new Vector2(frontBottomRightUV.X, frontTopLeftUV.Y)),
+                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(1, 0 + rightBackBelowMod, 0), matrix), new Vector3(0, 0, -1), new Vector2(backBottomRightUV.X, backBottomRightUV.Y)),
+                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(1, 0 + rightFrontBelowMod, 1), matrix), new Vector3(0, 0, 1), new Vector2(frontBottomRightUV.X, frontBottomRightUV.Y)),
+                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(1, 1 + rightBackAboveMod, 0), matrix), new Vector3(0, 0, -1), new Vector2(backBottomRightUV.X, backTopLeftUV.Y)),
+                new VertexPositionNormalTexture(Vector3.Transform(new Vector3(1, 1 + rightFrontAboveMod, 1), matrix), new Vector3(0, 0, 1), new Vector2(frontBottomRightUV.X, frontTopLeftUV.Y)),
             };
         }
 
@@ -318,7 +353,7 @@ namespace Mir
         {
             get
             {
-                return this.GetVertexPositionNormalTextures().Select(x => x.Position).ToArray();
+                return this.GetVertexPositionNormalTextures(true).Select(x => x.Position).ToArray();
             }
         }
 
@@ -348,6 +383,31 @@ namespace Mir
 
                 var indicies = indiciesList.ToArray();
                 return indicies;
+            }
+        }
+
+        public void RenderVerticalEdge(IRenderContext renderContext, int verticalEdge)
+        {
+            // TODO: Maybe render this a bit nicer?
+
+            switch (verticalEdge)
+            {
+                case 0:
+                    this.RenderSelection(renderContext, 0);
+                    this.RenderSelection(renderContext, 2);
+                    break;
+                case 1:
+                    this.RenderSelection(renderContext, 1);
+                    this.RenderSelection(renderContext, 2);
+                    break;
+                case 2:
+                    this.RenderSelection(renderContext, 0);
+                    this.RenderSelection(renderContext, 3);
+                    break;
+                case 3:
+                    this.RenderSelection(renderContext, 1);
+                    this.RenderSelection(renderContext, 3);
+                    break;
             }
         }
     }

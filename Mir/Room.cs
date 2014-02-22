@@ -46,7 +46,7 @@ namespace Mir
             this.m_RoomObjects.Add(new RoomObject { X = 3, Y = 1, Z = 1 });
             this.m_RoomObjects.Add(new RoomObject { X = 1, Y = 1, Z = 3 });
 
-            this.m_RoomObjects.Add(new RoomObject { X = 5, Y = 0, Z = 5, Width = 5, AboveTextureIndex = 8 });
+            this.m_RoomObjects.Add(new RoomObject { X = 5, Y = 0, Z = 5, Width = 5 });
         }
 
         public float X { get; set; }
@@ -104,7 +104,7 @@ namespace Mir
             return new Vector2(x, y);
         }
 
-        public void Render(IRenderContext renderContext)
+        public void Render(IRenderContext renderContext, RoomObject focused, bool renderFocusedTransparently)
         {
             var oldWorld = renderContext.World;
 
@@ -121,8 +121,29 @@ namespace Mir
 
                 foreach (var obj in this.m_RoomObjects)
                 {
+                    if (renderFocusedTransparently && obj == focused)
+                    {
+                        continue;
+                    }
+
                     obj.Render(renderContext);
                 }
+            }
+
+            if (renderFocusedTransparently && focused != null && this.m_RoomObjects.Contains(focused))
+            {
+                renderContext.GraphicsDevice.BlendState = BlendState.AlphaBlend;
+                ((BasicEffect)renderContext.Effect).Alpha = 0.5f;
+
+                foreach (var pass in renderContext.Effect.CurrentTechnique.Passes)
+                {
+                    pass.Apply();
+
+                    focused.Render(renderContext);
+                }
+
+                renderContext.GraphicsDevice.BlendState = BlendState.Opaque;
+                ((BasicEffect)renderContext.Effect).Alpha = 1f;
             }
 
             renderContext.World = oldWorld;

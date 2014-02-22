@@ -45,6 +45,7 @@
     <Compile Include="Tools\ITool.cs" />
     <Compile Include="Tools\MoveTool.cs" />
     <Compile Include="Tools\NewTool.cs" />
+    <Compile Include="Tools\SizeBackTool.cs" />
     <Compile Include="Tools\SizeTool.cs" />
     <Compile Include="Tools\TextureTool.cs" />
     <EmbeddedResource Include="test.bin" />
