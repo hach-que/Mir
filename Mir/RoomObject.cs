@@ -74,16 +74,16 @@ namespace Mir
                 indicies,
                 0,
                 indicies.Length / 3);
-        }
 
-        public void RenderSelection(IRenderContext renderContext, int face)
-        {
             this.m_TouchAnimIndex++;
             if (this.m_TouchAnimIndex >= this.m_TouchAnim.Length * 3)
             {
                 this.m_TouchAnimIndex = 0;
             }
+        }
 
+        public void RenderSelection(IRenderContext renderContext, int face)
+        {
             var topLeftUV = this.GetTopLeftTextureUV(this.m_TouchAnim[this.m_TouchAnimIndex / 3]);
             var bottomRightUV = this.GetBottomRightTextureUV(this.m_TouchAnim[this.m_TouchAnimIndex / 3]);
 

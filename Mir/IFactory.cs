@@ -11,5 +11,7 @@ namespace Mir
         ShipEntity CreateShipEntity();
 
         RoomEditorEntity CreateRoomEditorEntity(Room room);
+
+        DCPUEntity CreateDCPUEntity();
     }
 }

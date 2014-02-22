@@ -12,15 +12,12 @@ namespace Mir
             this.Bind<KeyHeldEvent>(x => x.Key == Keys.S).To<MoveBackwardAction>();
             this.Bind<KeyHeldEvent>(x => x.Key == Keys.A).To<StrafeLeftAction>();
             this.Bind<KeyHeldEvent>(x => x.Key == Keys.D).To<StrafeRightAction>();
-            this.Bind<MousePressEvent>(x => x.Button == MouseButton.Right).To<ToggleMouseAction>();
 
             this.Bind<MousePressEvent>(x => x.Button == MouseButton.Left)
-                .On<RoomEditorEntity>()
-                .To<RoomEditorSelectAction>();
+                .To<ToolUseAction>();
 
             this.Bind<MouseReleaseEvent>(x => x.Button == MouseButton.Left)
-                .On<RoomEditorEntity>()
-                .To<RoomEditorReleaseAction>();
+                .To<ToolReleaseAction>();
         }
     }
 }

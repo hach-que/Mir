@@ -14,7 +14,6 @@ namespace Mir
 
         public PlayerEntity()
         {
-            this.CaptureMouse = true;
         }
 
         public float X
@@ -113,12 +112,6 @@ namespace Mir
             {
                 return 0.3f;
             }
-        }
-
-        public bool CaptureMouse
-        {
-            get;
-            set;
         }
 
         public bool Walked

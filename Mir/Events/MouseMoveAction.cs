@@ -19,11 +19,6 @@ namespace Mir
 
             var player = context.World.Entities.OfType<PlayerEntity>().First();
 
-            if (!player.CaptureMouse)
-            {
-                return;
-            }
-
             player.TargetYaw -= diffX / ((float)viewport.Width * 0.75f);
             player.TargetPitch -= diffY / ((float)viewport.Height * 0.75f);
 

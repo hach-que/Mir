@@ -107,14 +107,45 @@ namespace Mir
 
             this.m_Room.Render(renderContext);
 
-            if (this.m_RoomEditorMode == RoomEditorMode.Hovering && this.m_HoveredRoomObject != null)
-            {
-                this.m_HoveredRoomObject.RenderSelection(renderContext, this.m_HoveredRoomObjectFace);
-            }
+            var world = (RoomEditorWorld)gameContext.World;
 
-            if (this.m_RoomEditorMode == RoomEditorMode.Selected && this.m_SelectedRoomObject != null)
+            if (world.ActiveTool is SizeTool || world.ActiveTool is TextureTool)
             {
-                this.m_SelectedRoomObject.RenderSelection(renderContext, this.m_SelectedRoomObjectFace);
+                if (this.m_RoomEditorMode == RoomEditorMode.Hovering && this.m_HoveredRoomObject != null)
+                {
+                    this.m_HoveredRoomObject.RenderSelection(renderContext, this.m_HoveredRoomObjectFace);
+                }
+
+                if (this.m_RoomEditorMode == RoomEditorMode.Selected && this.m_SelectedRoomObject != null)
+                {
+                    this.m_SelectedRoomObject.RenderSelection(renderContext, this.m_SelectedRoomObjectFace);
+                }
+            }
+            else if (world.ActiveTool is MoveTool || world.ActiveTool is DeleteTool)
+            {
+                if (this.m_RoomEditorMode == RoomEditorMode.Hovering && this.m_HoveredRoomObject != null)
+                {
+                    this.m_HoveredRoomObject.RenderSelection(renderContext, 0);
+                    this.m_HoveredRoomObject.RenderSelection(renderContext, 1);
+                    this.m_HoveredRoomObject.RenderSelection(renderContext, 2);
+                    this.m_HoveredRoomObject.RenderSelection(renderContext, 3);
+                    this.m_HoveredRoomObject.RenderSelection(renderContext, 4);
+                    this.m_HoveredRoomObject.RenderSelection(renderContext, 5);
+                }
+
+                if (this.m_RoomEditorMode == RoomEditorMode.Selected && this.m_SelectedRoomObject != null)
+                {
+                    this.m_SelectedRoomObject.RenderSelection(renderContext, 0);
+                    this.m_SelectedRoomObject.RenderSelection(renderContext, 1);
+                    this.m_SelectedRoomObject.RenderSelection(renderContext, 2);
+                    this.m_SelectedRoomObject.RenderSelection(renderContext, 3);
+                    this.m_SelectedRoomObject.RenderSelection(renderContext, 4);
+                    this.m_SelectedRoomObject.RenderSelection(renderContext, 5);
+                }
+            }
+            else if (world.ActiveTool is AngleTool)
+            {
+                
             }
         }
 
@@ -149,226 +180,318 @@ namespace Mir
 
                 case RoomEditorMode.Selected:
                 {
-                    switch (this.m_SelectedRoomObjectFace)
+                    var world = (RoomEditorWorld)gameContext.World;
+
+                    if (world.ActiveTool is SizeTool)
                     {
-                        case 0:
+                        this.HandleResize(gameContext, updateContext);
+                    }
+                    else if (world.ActiveTool is MoveTool)
+                    {
+                        this.HandleMove(gameContext, updateContext);
+                    }
+                    else if (world.ActiveTool is AngleTool)
+                    {
+                        this.HandleAngle(gameContext, updateContext);
+                    }
+                    else if (world.ActiveTool is TextureTool)
+                    {
+                        this.HandleTexture(gameContext, updateContext);
+                        this.ReleaseCurrentSelection();
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        private void HandleMove(IGameContext gameContext, IUpdateContext updateContext)
+        {
+        }
+
+        private void HandleAngle(IGameContext gameContext, IUpdateContext updateContext)
+        {
+        }
+
+        private void HandleTexture(IGameContext gameContext, IUpdateContext updateContext)
+        {
+            switch (this.m_SelectedRoomObjectFace)
+            {
+                case 0:
+                {
+                    this.m_SelectedRoomObject.LeftTextureIndex++;
+                    if (this.m_SelectedRoomObject.LeftTextureIndex >= 81)
+                    {
+                        this.m_SelectedRoomObject.LeftTextureIndex = 0;
+                    }
+                    break;
+                }
+                case 1:
+                {
+                    this.m_SelectedRoomObject.RightTextureIndex++;
+                    if (this.m_SelectedRoomObject.RightTextureIndex >= 81)
+                    {
+                        this.m_SelectedRoomObject.RightTextureIndex = 0;
+                    }
+                    break;
+                }
+                case 2:
+                {
+                    this.m_SelectedRoomObject.BackTextureIndex++;
+                    if (this.m_SelectedRoomObject.BackTextureIndex >= 81)
+                    {
+                        this.m_SelectedRoomObject.BackTextureIndex = 0;
+                    }
+                    break;
+                }
+                case 3:
+                {
+                    this.m_SelectedRoomObject.FrontTextureIndex++;
+                    if (this.m_SelectedRoomObject.FrontTextureIndex >= 81)
+                    {
+                        this.m_SelectedRoomObject.FrontTextureIndex = 0;
+                    }
+                    break;
+                }
+                case 4:
+                {
+                    this.m_SelectedRoomObject.BelowTextureIndex++;
+                    if (this.m_SelectedRoomObject.BelowTextureIndex >= 81)
+                    {
+                        this.m_SelectedRoomObject.BelowTextureIndex = 0;
+                    }
+                    break;
+                }
+                case 5:
+                {
+                    this.m_SelectedRoomObject.AboveTextureIndex++;
+                    if (this.m_SelectedRoomObject.AboveTextureIndex >= 81)
+                    {
+                        this.m_SelectedRoomObject.AboveTextureIndex = 0;
+                    }
+                    break;
+                }
+            }
+        }
+
+        private void HandleResize(IGameContext gameContext, IUpdateContext updateContext)
+        {
+            switch (this.m_SelectedRoomObjectFace)
+            {
+                case 0:
+                {
+                    var dir = new Vector3(-1, 0, 0);
+                    var ray = new Ray(this.m_SelectedMouseStartPosition, dir);
+
+                    var intersectionDistance = ray.Intersects(gameContext.MouseVerticalPlane);
+                    if (intersectionDistance != null)
+                    {
+                        var newWidth = this.m_SelectedRoomObjectStartValue2
+                                        + (int)Math.Round(intersectionDistance.Value);
+                        if (newWidth >= 1)
                         {
-                            var dir = new Vector3(-1, 0, 0);
-                            var ray = new Ray(this.m_SelectedMouseStartPosition, dir);
-
-                            var intersectionDistance = ray.Intersects(gameContext.MouseVerticalPlane);
-                            if (intersectionDistance != null)
-                            {
-                                var newWidth = this.m_SelectedRoomObjectStartValue2
-                                               + (int)Math.Round(intersectionDistance.Value);
-                                if (newWidth >= 1)
-                                {
-                                    this.m_SelectedRoomObject.X = this.m_SelectedRoomObjectStartValue1
-                                                                  - (int)Math.Round(intersectionDistance.Value);
-                                    this.m_SelectedRoomObject.Width = newWidth;
-                                }
-                            }
-                            else
-                            {
-                                dir = new Vector3(1, 0, 0);
-                                ray = new Ray(this.m_SelectedMouseStartPosition, dir);
-                                intersectionDistance = ray.Intersects(gameContext.MouseVerticalPlane);
-                                if (intersectionDistance != null)
-                                {
-                                    var newWidth = this.m_SelectedRoomObjectStartValue2
-                                                   - (int)Math.Round(intersectionDistance.Value);
-                                    if (newWidth >= 1)
-                                    {
-                                        this.m_SelectedRoomObject.X = this.m_SelectedRoomObjectStartValue1
-                                                                      + (int)Math.Round(intersectionDistance.Value);
-                                        this.m_SelectedRoomObject.Width = newWidth;
-                                    }
-                                }
-                            }
-
-                            break;
+                            this.m_SelectedRoomObject.X = this.m_SelectedRoomObjectStartValue1
+                                                            - (int)Math.Round(intersectionDistance.Value);
+                            this.m_SelectedRoomObject.Width = newWidth;
                         }
-
-                        case 1:
+                    }
+                    else
+                    {
+                        dir = new Vector3(1, 0, 0);
+                        ray = new Ray(this.m_SelectedMouseStartPosition, dir);
+                        intersectionDistance = ray.Intersects(gameContext.MouseVerticalPlane);
+                        if (intersectionDistance != null)
                         {
-                            var dir = new Vector3(1, 0, 0);
-                            var ray = new Ray(this.m_SelectedMouseStartPosition, dir);
-
-                            var intersectionDistance = ray.Intersects(gameContext.MouseVerticalPlane);
-                            if (intersectionDistance != null)
+                            var newWidth = this.m_SelectedRoomObjectStartValue2
+                                            - (int)Math.Round(intersectionDistance.Value);
+                            if (newWidth >= 1)
                             {
-                                var newWidth = this.m_SelectedRoomObjectStartValue1
-                                               + (int)Math.Round(intersectionDistance.Value);
-                                if (newWidth >= 1)
-                                {
-                                    this.m_SelectedRoomObject.Width = newWidth;
-                                }
+                                this.m_SelectedRoomObject.X = this.m_SelectedRoomObjectStartValue1
+                                                                + (int)Math.Round(intersectionDistance.Value);
+                                this.m_SelectedRoomObject.Width = newWidth;
                             }
-                            else
-                            {
-                                dir = new Vector3(-1, 0, 0);
-                                ray = new Ray(this.m_SelectedMouseStartPosition, dir);
-                                intersectionDistance = ray.Intersects(gameContext.MouseVerticalPlane);
-                                if (intersectionDistance != null)
-                                {
-                                    var newWidth = this.m_SelectedRoomObjectStartValue1
-                                                   - (int)Math.Round(intersectionDistance.Value);
-                                    if (newWidth >= 1)
-                                    {
-                                        this.m_SelectedRoomObject.Width = newWidth;
-                                    }
-                                }
-                            }
-
-                            break;
-                        }
-
-                        case 2:
-                        {
-                            var dir = new Vector3(0, 0, -1);
-                            var ray = new Ray(this.m_SelectedMouseStartPosition, dir);
-
-                            var intersectionDistance = ray.Intersects(gameContext.MouseVerticalPlane);
-                            if (intersectionDistance != null)
-                            {
-                                var newDepth = this.m_SelectedRoomObjectStartValue2
-                                               + (int)Math.Round(intersectionDistance.Value);
-                                if (newDepth >= 1)
-                                {
-                                    this.m_SelectedRoomObject.Z = this.m_SelectedRoomObjectStartValue1
-                                                                  - (int)Math.Round(intersectionDistance.Value);
-                                    this.m_SelectedRoomObject.Depth = newDepth;
-                                }
-                            }
-                            else
-                            {
-                                dir = new Vector3(0, 0, 1);
-                                ray = new Ray(this.m_SelectedMouseStartPosition, dir);
-                                intersectionDistance = ray.Intersects(gameContext.MouseVerticalPlane);
-                                if (intersectionDistance != null)
-                                {
-                                    var newDepth = this.m_SelectedRoomObjectStartValue2
-                                                   - (int)Math.Round(intersectionDistance.Value);
-                                    if (newDepth >= 1)
-                                    {
-                                        this.m_SelectedRoomObject.Z = this.m_SelectedRoomObjectStartValue1
-                                                                      + (int)Math.Round(intersectionDistance.Value);
-                                        this.m_SelectedRoomObject.Depth = newDepth;
-                                    }
-                                }
-                            }
-
-                            break;
-                        }
-
-                        case 3:
-                        {
-                            var dir = new Vector3(0, 0, 1);
-                            var ray = new Ray(this.m_SelectedMouseStartPosition, dir);
-
-                            var intersectionDistance = ray.Intersects(gameContext.MouseVerticalPlane);
-                            if (intersectionDistance != null)
-                            {
-                                var newDepth = this.m_SelectedRoomObjectStartValue1
-                                               + (int)Math.Round(intersectionDistance.Value);
-                                if (newDepth >= 1)
-                                {
-                                    this.m_SelectedRoomObject.Depth = newDepth;
-                                }
-                            }
-                            else
-                            {
-                                dir = new Vector3(0, 0, -1);
-                                ray = new Ray(this.m_SelectedMouseStartPosition, dir);
-                                intersectionDistance = ray.Intersects(gameContext.MouseVerticalPlane);
-                                if (intersectionDistance != null)
-                                {
-                                    var newDepth = this.m_SelectedRoomObjectStartValue1
-                                                   - (int)Math.Round(intersectionDistance.Value);
-                                    if (newDepth >= 1)
-                                    {
-                                        this.m_SelectedRoomObject.Depth = newDepth;
-                                    }
-                                }
-                            }
-
-                            break;
-                        }
-
-                        case 4:
-                        {
-                            var dir = new Vector3(0, -1, 0);
-                            var ray = new Ray(this.m_SelectedMouseStartPosition, dir);
-
-                            var intersectionDistance = ray.Intersects(gameContext.MouseVerticalPlane);
-                            if (intersectionDistance != null)
-                            {
-                                var newHeight = this.m_SelectedRoomObjectStartValue2
-                                               + (int)Math.Round(intersectionDistance.Value);
-                                if (newHeight >= 1)
-                                {
-                                    this.m_SelectedRoomObject.Y = this.m_SelectedRoomObjectStartValue1
-                                                                  - (int)Math.Round(intersectionDistance.Value);
-                                    this.m_SelectedRoomObject.Height = newHeight;
-                                }
-                            }
-                            else
-                            {
-                                dir = new Vector3(0, 1, 0);
-                                ray = new Ray(this.m_SelectedMouseStartPosition, dir);
-                                intersectionDistance = ray.Intersects(gameContext.MouseVerticalPlane);
-                                if (intersectionDistance != null)
-                                {
-                                    var newHeight = this.m_SelectedRoomObjectStartValue2
-                                                   - (int)Math.Round(intersectionDistance.Value);
-                                    if (newHeight >= 1)
-                                    {
-                                        this.m_SelectedRoomObject.Y = this.m_SelectedRoomObjectStartValue1
-                                                                      + (int)Math.Round(intersectionDistance.Value);
-                                        this.m_SelectedRoomObject.Height = newHeight;
-                                    }
-                                }
-                            }
-
-                            break;
-                        }
-
-                        case 5:
-                        {
-                            var dir = new Vector3(0, 1, 0);
-                            var ray = new Ray(this.m_SelectedMouseStartPosition, dir);
-
-                            var intersectionDistance = ray.Intersects(gameContext.MouseVerticalPlane);
-                            if (intersectionDistance != null)
-                            {
-                                var newHeight = this.m_SelectedRoomObjectStartValue1
-                                               + (int)Math.Round(intersectionDistance.Value);
-                                if (newHeight >= 1)
-                                {
-                                    this.m_SelectedRoomObject.Height = newHeight;
-                                }
-                            }
-                            else
-                            {
-                                dir = new Vector3(0, -1, 0);
-                                ray = new Ray(this.m_SelectedMouseStartPosition, dir);
-                                intersectionDistance = ray.Intersects(gameContext.MouseVerticalPlane);
-                                if (intersectionDistance != null)
-                                {
-                                    var newHeight = this.m_SelectedRoomObjectStartValue1
-                                                   - (int)Math.Round(intersectionDistance.Value);
-                                    if (newHeight >= 1)
-                                    {
-                                        this.m_SelectedRoomObject.Height = newHeight;
-                                    }
-                                }
-                            }
-
-                            break;
                         }
                     }
 
-                    break;   
+                    break;
+                }
+
+                case 1:
+                {
+                    var dir = new Vector3(1, 0, 0);
+                    var ray = new Ray(this.m_SelectedMouseStartPosition, dir);
+
+                    var intersectionDistance = ray.Intersects(gameContext.MouseVerticalPlane);
+                    if (intersectionDistance != null)
+                    {
+                        var newWidth = this.m_SelectedRoomObjectStartValue1
+                                        + (int)Math.Round(intersectionDistance.Value);
+                        if (newWidth >= 1)
+                        {
+                            this.m_SelectedRoomObject.Width = newWidth;
+                        }
+                    }
+                    else
+                    {
+                        dir = new Vector3(-1, 0, 0);
+                        ray = new Ray(this.m_SelectedMouseStartPosition, dir);
+                        intersectionDistance = ray.Intersects(gameContext.MouseVerticalPlane);
+                        if (intersectionDistance != null)
+                        {
+                            var newWidth = this.m_SelectedRoomObjectStartValue1
+                                            - (int)Math.Round(intersectionDistance.Value);
+                            if (newWidth >= 1)
+                            {
+                                this.m_SelectedRoomObject.Width = newWidth;
+                            }
+                        }
+                    }
+
+                    break;
+                }
+
+                case 2:
+                {
+                    var dir = new Vector3(0, 0, -1);
+                    var ray = new Ray(this.m_SelectedMouseStartPosition, dir);
+
+                    var intersectionDistance = ray.Intersects(gameContext.MouseVerticalPlane);
+                    if (intersectionDistance != null)
+                    {
+                        var newDepth = this.m_SelectedRoomObjectStartValue2
+                                        + (int)Math.Round(intersectionDistance.Value);
+                        if (newDepth >= 1)
+                        {
+                            this.m_SelectedRoomObject.Z = this.m_SelectedRoomObjectStartValue1
+                                                            - (int)Math.Round(intersectionDistance.Value);
+                            this.m_SelectedRoomObject.Depth = newDepth;
+                        }
+                    }
+                    else
+                    {
+                        dir = new Vector3(0, 0, 1);
+                        ray = new Ray(this.m_SelectedMouseStartPosition, dir);
+                        intersectionDistance = ray.Intersects(gameContext.MouseVerticalPlane);
+                        if (intersectionDistance != null)
+                        {
+                            var newDepth = this.m_SelectedRoomObjectStartValue2
+                                            - (int)Math.Round(intersectionDistance.Value);
+                            if (newDepth >= 1)
+                            {
+                                this.m_SelectedRoomObject.Z = this.m_SelectedRoomObjectStartValue1
+                                                                + (int)Math.Round(intersectionDistance.Value);
+                                this.m_SelectedRoomObject.Depth = newDepth;
+                            }
+                        }
+                    }
+
+                    break;
+                }
+
+                case 3:
+                {
+                    var dir = new Vector3(0, 0, 1);
+                    var ray = new Ray(this.m_SelectedMouseStartPosition, dir);
+
+                    var intersectionDistance = ray.Intersects(gameContext.MouseVerticalPlane);
+                    if (intersectionDistance != null)
+                    {
+                        var newDepth = this.m_SelectedRoomObjectStartValue1
+                                        + (int)Math.Round(intersectionDistance.Value);
+                        if (newDepth >= 1)
+                        {
+                            this.m_SelectedRoomObject.Depth = newDepth;
+                        }
+                    }
+                    else
+                    {
+                        dir = new Vector3(0, 0, -1);
+                        ray = new Ray(this.m_SelectedMouseStartPosition, dir);
+                        intersectionDistance = ray.Intersects(gameContext.MouseVerticalPlane);
+                        if (intersectionDistance != null)
+                        {
+                            var newDepth = this.m_SelectedRoomObjectStartValue1
+                                            - (int)Math.Round(intersectionDistance.Value);
+                            if (newDepth >= 1)
+                            {
+                                this.m_SelectedRoomObject.Depth = newDepth;
+                            }
+                        }
+                    }
+
+                    break;
+                }
+
+                case 4:
+                {
+                    var dir = new Vector3(0, -1, 0);
+                    var ray = new Ray(this.m_SelectedMouseStartPosition, dir);
+
+                    var intersectionDistance = ray.Intersects(gameContext.MouseVerticalPlane);
+                    if (intersectionDistance != null)
+                    {
+                        var newHeight = this.m_SelectedRoomObjectStartValue2
+                                        + (int)Math.Round(intersectionDistance.Value);
+                        if (newHeight >= 1)
+                        {
+                            this.m_SelectedRoomObject.Y = this.m_SelectedRoomObjectStartValue1
+                                                            - (int)Math.Round(intersectionDistance.Value);
+                            this.m_SelectedRoomObject.Height = newHeight;
+                        }
+                    }
+                    else
+                    {
+                        dir = new Vector3(0, 1, 0);
+                        ray = new Ray(this.m_SelectedMouseStartPosition, dir);
+                        intersectionDistance = ray.Intersects(gameContext.MouseVerticalPlane);
+                        if (intersectionDistance != null)
+                        {
+                            var newHeight = this.m_SelectedRoomObjectStartValue2
+                                            - (int)Math.Round(intersectionDistance.Value);
+                            if (newHeight >= 1)
+                            {
+                                this.m_SelectedRoomObject.Y = this.m_SelectedRoomObjectStartValue1
+                                                                + (int)Math.Round(intersectionDistance.Value);
+                                this.m_SelectedRoomObject.Height = newHeight;
+                            }
+                        }
+                    }
+
+                    break;
+                }
+
+                case 5:
+                {
+                    var dir = new Vector3(0, 1, 0);
+                    var ray = new Ray(this.m_SelectedMouseStartPosition, dir);
+
+                    var intersectionDistance = ray.Intersects(gameContext.MouseVerticalPlane);
+                    if (intersectionDistance != null)
+                    {
+                        var newHeight = this.m_SelectedRoomObjectStartValue1
+                                        + (int)Math.Round(intersectionDistance.Value);
+                        if (newHeight >= 1)
+                        {
+                            this.m_SelectedRoomObject.Height = newHeight;
+                        }
+                    }
+                    else
+                    {
+                        dir = new Vector3(0, -1, 0);
+                        ray = new Ray(this.m_SelectedMouseStartPosition, dir);
+                        intersectionDistance = ray.Intersects(gameContext.MouseVerticalPlane);
+                        if (intersectionDistance != null)
+                        {
+                            var newHeight = this.m_SelectedRoomObjectStartValue1
+                                            - (int)Math.Round(intersectionDistance.Value);
+                            if (newHeight >= 1)
+                            {
+                                this.m_SelectedRoomObject.Height = newHeight;
+                            }
+                        }
+                    }
+
+                    break;
                 }
             }
         }
