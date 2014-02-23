@@ -18,6 +18,9 @@ namespace Mir
 
             this.Bind<MouseReleaseEvent>(x => x.Button == MouseButton.Left)
                 .To<ToolReleaseAction>();
+
+            this.Bind<KeyPressEvent>(x => x.Key == Keys.LeftShift).To<ToolAlternateAction>();
+            this.Bind<KeyReleaseEvent>(x => x.Key == Keys.LeftShift).To<ToolAlternateAction>();
         }
     }
 }

@@ -12,7 +12,7 @@ namespace Mir
 
             var alt = mouseEvent != null && mouseEvent.Button == MouseButton.Right;
 
-            world.UseTool(alt);
+            world.UseTool(context, alt);
         }
     }
 }

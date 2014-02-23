@@ -130,14 +130,24 @@ namespace Mir
             }
         }
 
-        public void UseTool(bool alt)
+        public void UseTool(IGameContext gameContext, bool secondaryAlt)
         {
-            this.m_RoomEditorEntity.SelectCurrentHover(alt);
+            this.m_RoomEditorEntity.SelectCurrentHover(gameContext, secondaryAlt);
         }
 
         public void ReleaseTool()
         {
             this.m_RoomEditorEntity.ReleaseCurrentSelection();
+        }
+
+        public void ActivateAlternate()
+        {
+            this.m_RoomEditorEntity.UseAlternative = true;
+        }
+
+        public void DeactivateAlternate()
+        {
+            this.m_RoomEditorEntity.UseAlternative = false;
         }
     }
 }

@@ -7,7 +7,7 @@ namespace Mir
 
     public interface IMeshCollider
     {
-        bool Collides(Ray testRay, IEnumerable<IMesh> mesh, out Vector3 position, out IMesh hitMesh);
+        bool Collides(Ray testRay, IEnumerable<IMesh> mesh, out Vector3 position, out IMesh hitMesh, bool furthest = false);
     }
 }
 

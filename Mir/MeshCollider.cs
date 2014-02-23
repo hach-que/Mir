@@ -15,9 +15,9 @@ namespace Mir
             this.m_Collision = collision;
         }
 
-        public bool Collides(Ray testRay, IEnumerable<IMesh> meshes, out Vector3 position, out IMesh hitMesh)
+        public bool Collides(Ray testRay, IEnumerable<IMesh> meshes, out Vector3 position, out IMesh hitMesh, bool furthest = false)
         {
-            float distance = 10000f;
+            float distance = furthest ? 0f : 10000f;
             Vector3 closestPosition = Vector3.Zero;
             IMesh closestMesh = null;
 
@@ -39,11 +39,23 @@ namespace Mir
                         false);
                     if (point != null)
                     {
-                        if (tempDistance < distance && tempDistance > 0)
+                        if (!furthest)
                         {
-                            distance = tempDistance;
-                            closestPosition = point.Value;
-                            closestMesh = mesh;
+                            if (tempDistance < distance && tempDistance > 0)
+                            {
+                                distance = tempDistance;
+                                closestPosition = point.Value;
+                                closestMesh = mesh;
+                            }
+                        }
+                        else
+                        {
+                            if (tempDistance > distance && tempDistance > 0)
+                            {
+                                distance = tempDistance;
+                                closestPosition = point.Value;
+                                closestMesh = mesh;
+                            }
                         }
                     }
                 }

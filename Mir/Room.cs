@@ -74,7 +74,7 @@ namespace Mir
 
         private static float m_AtlasRatio = m_AtlasSize / m_CellSize;
 
-        public IEnumerable<RoomObject> Objects
+        public List<RoomObject> Objects
         {
             get
             {

@@ -108,7 +108,7 @@ namespace Mir
                     }
                 }
 
-                if (keyboard.IsKeyPressed(this, (Keys)id))
+                if (keyboard.IsKeyChanged(this, (Keys)id) == KeyState.Down)
                 {
                     this.m_GenericKeyboard.KeyDown(
                         (System.Windows.Forms.Keys)Enum.Parse(typeof(System.Windows.Forms.Keys), name));
