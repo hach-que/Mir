@@ -401,17 +401,17 @@
                 this.m_SelectedRoomObject.Z = (int)(this.Z);
             }
 
-            if (this.m_SelectedRoomObject.X >= this.X + this.m_Room.Width)
+            if (this.m_SelectedRoomObject.X + this.m_SelectedRoomObject.Width >= this.X + this.m_Room.Width)
             {
                 this.m_SelectedRoomObject.X = (int)(this.X + this.m_Room.Width - this.m_SelectedRoomObject.Width);
             }
 
-            if (this.m_SelectedRoomObject.Y >= this.Y + this.m_Room.Height)
+            if (this.m_SelectedRoomObject.Y + this.m_SelectedRoomObject.Height >= this.Y + this.m_Room.Height)
             {
                 this.m_SelectedRoomObject.Y = (int)(this.Y + this.m_Room.Height - this.m_SelectedRoomObject.Height);
             }
 
-            if (this.m_SelectedRoomObject.Z >= this.Z + this.m_Room.Depth)
+            if (this.m_SelectedRoomObject.Z + this.m_SelectedRoomObject.Depth >= this.Z + this.m_Room.Depth)
             {
                 this.m_SelectedRoomObject.Z = (int)(this.Z + this.m_Room.Depth - this.m_SelectedRoomObject.Depth);
             }
@@ -431,10 +431,11 @@
                     {
                         var newWidth = this.m_SelectedRoomObjectStartValue2
                                        + (int)Math.Round(intersectionDistance.Value);
-                        if (newWidth >= 1)
+                        var newX = this.m_SelectedRoomObjectStartValue1
+                                   - (int)Math.Round(intersectionDistance.Value);
+                        if (newWidth >= 1 && newX >= this.m_Room.X)
                         {
-                            this.m_SelectedRoomObject.X = this.m_SelectedRoomObjectStartValue1
-                                                          - (int)Math.Round(intersectionDistance.Value);
+                            this.m_SelectedRoomObject.X = newX;
                             this.m_SelectedRoomObject.Width = newWidth;
                         }
                     }
@@ -447,10 +448,11 @@
                         {
                             var newWidth = this.m_SelectedRoomObjectStartValue2
                                            - (int)Math.Round(intersectionDistance.Value);
-                            if (newWidth >= 1)
+                            var newX = this.m_SelectedRoomObjectStartValue1
+                                       + (int)Math.Round(intersectionDistance.Value);
+                            if (newWidth >= 1 && newX >= this.m_Room.X)
                             {
-                                this.m_SelectedRoomObject.X = this.m_SelectedRoomObjectStartValue1
-                                                              + (int)Math.Round(intersectionDistance.Value);
+                                this.m_SelectedRoomObject.X = newX;
                                 this.m_SelectedRoomObject.Width = newWidth;
                             }
                         }
@@ -469,7 +471,7 @@
                     {
                         var newWidth = this.m_SelectedRoomObjectStartValue1
                                        + (int)Math.Round(intersectionDistance.Value);
-                        if (newWidth >= 1)
+                        if (newWidth >= 1 && this.m_SelectedRoomObject.X + newWidth <= this.m_Room.X + this.m_Room.Width)
                         {
                             this.m_SelectedRoomObject.Width = newWidth;
                         }
@@ -483,7 +485,7 @@
                         {
                             var newWidth = this.m_SelectedRoomObjectStartValue1
                                            - (int)Math.Round(intersectionDistance.Value);
-                            if (newWidth >= 1)
+                            if (newWidth >= 1 && this.m_SelectedRoomObject.X + newWidth <= this.m_Room.X + this.m_Room.Width)
                             {
                                 this.m_SelectedRoomObject.Width = newWidth;
                             }
@@ -503,10 +505,11 @@
                     {
                         var newDepth = this.m_SelectedRoomObjectStartValue2
                                        + (int)Math.Round(intersectionDistance.Value);
-                        if (newDepth >= 1)
+                        var newZ = this.m_SelectedRoomObjectStartValue1
+                                   - (int)Math.Round(intersectionDistance.Value);
+                        if (newDepth >= 1 && newZ >= this.m_Room.Z)
                         {
-                            this.m_SelectedRoomObject.Z = this.m_SelectedRoomObjectStartValue1
-                                                          - (int)Math.Round(intersectionDistance.Value);
+                            this.m_SelectedRoomObject.Z = newZ;
                             this.m_SelectedRoomObject.Depth = newDepth;
                         }
                     }
@@ -519,10 +522,11 @@
                         {
                             var newDepth = this.m_SelectedRoomObjectStartValue2
                                            - (int)Math.Round(intersectionDistance.Value);
-                            if (newDepth >= 1)
+                            var newZ = this.m_SelectedRoomObjectStartValue1
+                                       + (int)Math.Round(intersectionDistance.Value);
+                            if (newDepth >= 1 && newZ >= this.m_Room.Z)
                             {
-                                this.m_SelectedRoomObject.Z = this.m_SelectedRoomObjectStartValue1
-                                                              + (int)Math.Round(intersectionDistance.Value);
+                                this.m_SelectedRoomObject.Z = newZ;
                                 this.m_SelectedRoomObject.Depth = newDepth;
                             }
                         }
@@ -541,7 +545,7 @@
                     {
                         var newDepth = this.m_SelectedRoomObjectStartValue1
                                        + (int)Math.Round(intersectionDistance.Value);
-                        if (newDepth >= 1)
+                        if (newDepth >= 1 && this.m_SelectedRoomObject.Z + newDepth <= this.m_Room.Z + this.m_Room.Depth)
                         {
                             this.m_SelectedRoomObject.Depth = newDepth;
                         }
@@ -555,7 +559,7 @@
                         {
                             var newDepth = this.m_SelectedRoomObjectStartValue1
                                            - (int)Math.Round(intersectionDistance.Value);
-                            if (newDepth >= 1)
+                            if (newDepth >= 1 && this.m_SelectedRoomObject.Z + newDepth <= this.m_Room.Z + this.m_Room.Depth)
                             {
                                 this.m_SelectedRoomObject.Depth = newDepth;
                             }
@@ -575,10 +579,11 @@
                     {
                         var newHeight = this.m_SelectedRoomObjectStartValue2
                                         + (int)Math.Round(intersectionDistance.Value);
-                        if (newHeight >= 1)
+                        var newY = this.m_SelectedRoomObjectStartValue1
+                                   - (int)Math.Round(intersectionDistance.Value);
+                        if (newHeight >= 1 && newY >= this.m_Room.Y)
                         {
-                            this.m_SelectedRoomObject.Y = this.m_SelectedRoomObjectStartValue1
-                                                          - (int)Math.Round(intersectionDistance.Value);
+                            this.m_SelectedRoomObject.Y = newY;
                             this.m_SelectedRoomObject.Height = newHeight;
                         }
                     }
@@ -591,10 +596,11 @@
                         {
                             var newHeight = this.m_SelectedRoomObjectStartValue2
                                             - (int)Math.Round(intersectionDistance.Value);
-                            if (newHeight >= 1)
+                            var newY = this.m_SelectedRoomObjectStartValue1
+                                       + (int)Math.Round(intersectionDistance.Value);
+                            if (newHeight >= 1 && newY >= this.m_Room.Y)
                             {
-                                this.m_SelectedRoomObject.Y = this.m_SelectedRoomObjectStartValue1
-                                                              + (int)Math.Round(intersectionDistance.Value);
+                                this.m_SelectedRoomObject.Y = newY;
                                 this.m_SelectedRoomObject.Height = newHeight;
                             }
                         }
@@ -613,7 +619,7 @@
                     {
                         var newHeight = this.m_SelectedRoomObjectStartValue1
                                         + (int)Math.Round(intersectionDistance.Value);
-                        if (newHeight >= 1)
+                        if (newHeight >= 1 && this.m_SelectedRoomObject.Y + newHeight <= this.m_Room.Y + this.m_Room.Height)
                         {
                             this.m_SelectedRoomObject.Height = newHeight;
                         }
@@ -627,7 +633,7 @@
                         {
                             var newHeight = this.m_SelectedRoomObjectStartValue1
                                             - (int)Math.Round(intersectionDistance.Value);
-                            if (newHeight >= 1)
+                            if (newHeight >= 1 && this.m_SelectedRoomObject.Y + newHeight <= this.m_Room.Y + this.m_Room.Height)
                             {
                                 this.m_SelectedRoomObject.Height = newHeight;
                             }
