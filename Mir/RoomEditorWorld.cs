@@ -23,6 +23,8 @@ namespace Mir
 
         private readonly FontAsset m_DefaultFont;
 
+        private readonly EffectAsset m_LightingEffect;
+
         private readonly Room m_Room;
 
         private int m_ActiveTool;
@@ -43,6 +45,7 @@ namespace Mir
             this.m_AssetManager = assetManagerProvider.GetAssetManager();
             this.m_Tools = tools;
             this.m_DefaultFont = this.m_AssetManager.Get<FontAsset>("font.Default");
+            this.m_LightingEffect = this.m_AssetManager.Get<EffectAsset>("effect.Light");
 
             var ship = factory.CreateShipEntity();
             var player = factory.CreatePlayerEntity();
@@ -96,6 +99,8 @@ namespace Mir
         {
             if (renderContext.Is3DContext)
             {
+                renderContext.PopEffect();
+
                 return;
             }
 
@@ -132,6 +137,8 @@ namespace Mir
             }
 
             renderContext.GraphicsDevice.Clear(Color.Black);
+
+            renderContext.PushEffect(this.m_LightingEffect.Effect);
 
             var player = this.Entities.OfType<PlayerEntity>().First();
 
