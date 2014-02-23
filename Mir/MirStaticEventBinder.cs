@@ -21,6 +21,8 @@ namespace Mir
 
             this.Bind<KeyPressEvent>(x => x.Key == Keys.LeftShift).To<ToolAlternateAction>();
             this.Bind<KeyReleaseEvent>(x => x.Key == Keys.LeftShift).To<ToolAlternateAction>();
+
+            this.Bind<KeyHeldEvent>(x => x.Key == Keys.E).To<TestPhysicsAction>();
         }
     }
 }

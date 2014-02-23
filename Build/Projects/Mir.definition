@@ -13,6 +13,7 @@
     <Reference Include="Protogame.ThirdParty" />
     <Reference Include="Mir.Content" />
     <Reference Include="Tomato" />
+    <Reference Include="Jitter" />
   </References>
   <Files>
     <Compile Include="DCPUEntity.cs" />
@@ -21,6 +22,7 @@
     <Compile Include="Events\MoveForwardAction.cs" />
     <Compile Include="Events\StrafeLeftAction.cs" />
     <Compile Include="Events\StrafeRightAction.cs" />
+    <Compile Include="Events\TestPhysicsAction.cs" />
     <Compile Include="Events\ToolAlternateAction.cs" />
     <Compile Include="Events\ToolReleaseAction.cs" />
     <Compile Include="Events\ToolUseAction.cs" />

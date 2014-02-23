@@ -56,6 +56,8 @@ namespace Mir
 
         public bool AcceptingInput { get; set; }
 
+        public Matrix Orientation { get; set; }
+
         public void Render(IGameContext gameContext, IRenderContext renderContext)
         {
             if (!renderContext.Is3DContext)
@@ -67,9 +69,7 @@ namespace Mir
 
             this.m_3DRenderUtilities.RenderCube(
                 renderContext,
-                Matrix.CreateScale(2.5f, 2, 2) * Matrix.CreateRotationX(MathHelper.Pi)
-                * Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateRotationX(MathHelper.PiOver4)
-                * Matrix.CreateTranslation(this.X, this.Y, this.Z),
+                Matrix.CreateScale(2, 2, 2) * this.Orientation * Matrix.CreateTranslation(this.X, this.Y, this.Z),
                 new TextureAsset(this.m_DCPURenderTarget),
                 Vector2.Zero,
                 Vector2.One);
