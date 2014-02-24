@@ -3,11 +3,14 @@
     using System;
     using System.Linq;
     using Microsoft.Xna.Framework;
-    using Microsoft.Xna.Framework.Graphics;
+    using Ninject;
+    using Ninject.Parameters;
     using Protogame;
 
     public class RoomEditorEntity : IEntity
     {
+        private readonly IKernel m_Kernel;
+
         private readonly IMeshCollider m_MeshCollider;
 
         private readonly Room m_Room;
@@ -19,6 +22,12 @@
         private int m_HoveredRoomObjectFace;
 
         private int m_HoveredRoomObjectVerticalEdge;
+
+        private bool m_IsAlternateMode;
+
+        private bool m_IsSecondaryAlternateMode;
+
+        private bool m_RenderSelectionTransparently;
 
         private RoomEditorMode m_RoomEditorMode;
 
@@ -38,14 +47,9 @@
 
         private int m_SelectedRoomObjectVerticalEdge;
 
-        private bool m_RenderSelectionTransparently;
-
-        private bool m_IsAlternateMode;
-
-        private bool m_IsSecondaryAlternateMode;
-
-        public RoomEditorEntity(IMeshCollider meshCollider, Room room)
+        public RoomEditorEntity(IKernel kernel, IMeshCollider meshCollider, Room room)
         {
+            this.m_Kernel = kernel;
             this.m_MeshCollider = meshCollider;
             this.m_Room = room;
 
@@ -59,13 +63,13 @@
             Selected
         }
 
+        public bool UseAlternative { get; set; }
+
         public float X { get; set; }
 
         public float Y { get; set; }
 
         public float Z { get; set; }
-
-        public bool UseAlternative { get; set; }
 
         public void ReleaseCurrentSelection()
         {
@@ -86,15 +90,18 @@
             }
 
             this.m_Room.Render(
-                renderContext,
-                this.m_RoomEditorMode == RoomEditorMode.Hovering ? this.m_HoveredRoomObject : this.m_SelectedRoomObject,
+                gameContext, 
+                renderContext, 
+                this.m_RoomEditorMode == RoomEditorMode.Hovering ? this.m_HoveredRoomObject : this.m_SelectedRoomObject, 
                 this.m_RenderSelectionTransparently);
 
             var world = (RoomEditorWorld)gameContext.World;
 
             if (world.ActiveTool is NewTool && this.m_HoveredMouseStartPosition != Vector3.Zero)
             {
-                var tempObject = new RoomObject();
+                var tempObject = (RoomObject)this.m_Kernel.Get(
+                    ((NewTool)world.ActiveTool).NewType,
+                    new ConstructorArgument("temporary", true));
                 tempObject.X = (int)Math.Round(this.m_HoveredMouseStartPosition.X);
                 tempObject.Y = (int)Math.Round(this.m_HoveredMouseStartPosition.Y);
                 tempObject.Z = (int)Math.Round(this.m_HoveredMouseStartPosition.Z);
@@ -114,13 +121,14 @@
                     tempObject.Z = (int)(this.Z + this.m_Room.Depth - tempObject.Depth);
                 }
 
-                tempObject.Render(renderContext);
+                tempObject.Render(gameContext, renderContext);
                 tempObject.RenderSelection(renderContext, 0);
                 tempObject.RenderSelection(renderContext, 1);
                 tempObject.RenderSelection(renderContext, 2);
                 tempObject.RenderSelection(renderContext, 3);
                 tempObject.RenderSelection(renderContext, 4);
                 tempObject.RenderSelection(renderContext, 5);
+                tempObject.OnDelete();
             }
             else if (world.ActiveTool is SizeTool || world.ActiveTool is TextureTool)
             {
@@ -176,6 +184,12 @@
 
             if (this.m_HoveredRoomObject == null && !(world.ActiveTool is NewTool))
             {
+                return;
+            }
+
+            if (this.m_HoveredRoomObject != null && this.m_HoveredRoomObject.SizeLocked && world.ActiveTool is SizeTool)
+            {
+                // Can't select this object.
                 return;
             }
 
@@ -245,7 +259,7 @@
                         out mesh))
                     {
                         var roomObject = mesh as RoomObject;
-                        if (roomObject != null)
+                        if (roomObject != null && (!roomObject.SizeLocked || !(world.ActiveTool is SizeTool)))
                         {
                             this.m_HoveredRoomObject = roomObject;
                             this.m_HoveredRoomObjectFace = this.m_HoveredRoomObject.GetFaceForTouchPosition(position);
@@ -255,16 +269,18 @@
                             if (this.UseAlternative)
                             {
                                 this.m_RenderSelectionTransparently = true;
-                                
-                                this.m_MeshCollider.Collides(
-                                        gameContext.MouseRay, 
-                                        new IMesh[] { mesh }, 
-                                        out position, 
-                                        out mesh,
-                                        furthest: true);
 
-                                this.m_HoveredRoomObjectFace = this.m_HoveredRoomObject.GetFaceForTouchPosition(position);
-                                this.m_HoveredRoomObjectVerticalEdge = this.m_HoveredRoomObject.GetVerticalEdge(position);
+                                this.m_MeshCollider.Collides(
+                                    gameContext.MouseRay, 
+                                    new[] { mesh }, 
+                                    out position, 
+                                    out mesh, 
+                                    true);
+
+                                this.m_HoveredRoomObjectFace = this.m_HoveredRoomObject.GetFaceForTouchPosition(
+                                    position);
+                                this.m_HoveredRoomObjectVerticalEdge = this.m_HoveredRoomObject.GetVerticalEdge(
+                                    position);
                             }
                         }
                         else if (roomObject == null && mesh == this.m_Room && world.ActiveTool is NewTool)
@@ -377,6 +393,12 @@
             }
         }
 
+        private void HandleDelete(IGameContext gameContext, IUpdateContext updateContext)
+        {
+            this.m_SelectedRoomObject.OnDelete();
+            this.m_Room.Objects.Remove(this.m_SelectedRoomObject);
+        }
+
         private void HandleMove(IGameContext gameContext, IUpdateContext updateContext)
         {
             var targetLoc = gameContext.MouseRay.Position
@@ -388,17 +410,17 @@
 
             if (this.m_SelectedRoomObject.X < this.X)
             {
-                this.m_SelectedRoomObject.X = (int)(this.X);
+                this.m_SelectedRoomObject.X = (int)this.X;
             }
 
             if (this.m_SelectedRoomObject.Y < this.Y)
             {
-                this.m_SelectedRoomObject.Y = (int)(this.Y);
+                this.m_SelectedRoomObject.Y = (int)this.Y;
             }
 
             if (this.m_SelectedRoomObject.Z < this.Z)
             {
-                this.m_SelectedRoomObject.Z = (int)(this.Z);
+                this.m_SelectedRoomObject.Z = (int)this.Z;
             }
 
             if (this.m_SelectedRoomObject.X + this.m_SelectedRoomObject.Width >= this.X + this.m_Room.Width)
@@ -417,6 +439,39 @@
             }
         }
 
+        private void HandleNew(IGameContext gameContext, IUpdateContext updateContext)
+        {
+            var roundedX = (int)Math.Round(this.m_SelectedMouseStartPosition.X);
+            var roundedY = (int)Math.Round(this.m_SelectedMouseStartPosition.Y);
+            var roundedZ = (int)Math.Round(this.m_SelectedMouseStartPosition.Z);
+
+            var world = (RoomEditorWorld)gameContext.World;
+
+            var tempObject = (RoomObject)this.m_Kernel.Get(
+                ((NewTool)world.ActiveTool).NewType,
+                new ConstructorArgument("temporary", false));
+            tempObject.X = roundedX;
+            tempObject.Y = roundedY;
+            tempObject.Z = roundedZ;
+
+            if (tempObject.X >= this.X + this.m_Room.Width)
+            {
+                tempObject.X = (int)(this.X + this.m_Room.Width - tempObject.Width);
+            }
+
+            if (tempObject.Y >= this.Y + this.m_Room.Height)
+            {
+                tempObject.Y = (int)(this.Y + this.m_Room.Height - tempObject.Height);
+            }
+
+            if (tempObject.Z >= this.Z + this.m_Room.Depth)
+            {
+                tempObject.Z = (int)(this.Z + this.m_Room.Depth - tempObject.Depth);
+            }
+
+            this.m_Room.Objects.Add(tempObject);
+        }
+
         private void HandleResize(IGameContext gameContext, IUpdateContext updateContext)
         {
             switch (this.m_SelectedRoomObjectFace)
@@ -431,8 +486,7 @@
                     {
                         var newWidth = this.m_SelectedRoomObjectStartValue2
                                        + (int)Math.Round(intersectionDistance.Value);
-                        var newX = this.m_SelectedRoomObjectStartValue1
-                                   - (int)Math.Round(intersectionDistance.Value);
+                        var newX = this.m_SelectedRoomObjectStartValue1 - (int)Math.Round(intersectionDistance.Value);
                         if (newWidth >= 1 && newX >= this.m_Room.X)
                         {
                             this.m_SelectedRoomObject.X = newX;
@@ -485,7 +539,8 @@
                         {
                             var newWidth = this.m_SelectedRoomObjectStartValue1
                                            - (int)Math.Round(intersectionDistance.Value);
-                            if (newWidth >= 1 && this.m_SelectedRoomObject.X + newWidth <= this.m_Room.X + this.m_Room.Width)
+                            if (newWidth >= 1
+                                && this.m_SelectedRoomObject.X + newWidth <= this.m_Room.X + this.m_Room.Width)
                             {
                                 this.m_SelectedRoomObject.Width = newWidth;
                             }
@@ -505,8 +560,7 @@
                     {
                         var newDepth = this.m_SelectedRoomObjectStartValue2
                                        + (int)Math.Round(intersectionDistance.Value);
-                        var newZ = this.m_SelectedRoomObjectStartValue1
-                                   - (int)Math.Round(intersectionDistance.Value);
+                        var newZ = this.m_SelectedRoomObjectStartValue1 - (int)Math.Round(intersectionDistance.Value);
                         if (newDepth >= 1 && newZ >= this.m_Room.Z)
                         {
                             this.m_SelectedRoomObject.Z = newZ;
@@ -559,7 +613,8 @@
                         {
                             var newDepth = this.m_SelectedRoomObjectStartValue1
                                            - (int)Math.Round(intersectionDistance.Value);
-                            if (newDepth >= 1 && this.m_SelectedRoomObject.Z + newDepth <= this.m_Room.Z + this.m_Room.Depth)
+                            if (newDepth >= 1
+                                && this.m_SelectedRoomObject.Z + newDepth <= this.m_Room.Z + this.m_Room.Depth)
                             {
                                 this.m_SelectedRoomObject.Depth = newDepth;
                             }
@@ -579,8 +634,7 @@
                     {
                         var newHeight = this.m_SelectedRoomObjectStartValue2
                                         + (int)Math.Round(intersectionDistance.Value);
-                        var newY = this.m_SelectedRoomObjectStartValue1
-                                   - (int)Math.Round(intersectionDistance.Value);
+                        var newY = this.m_SelectedRoomObjectStartValue1 - (int)Math.Round(intersectionDistance.Value);
                         if (newHeight >= 1 && newY >= this.m_Room.Y)
                         {
                             this.m_SelectedRoomObject.Y = newY;
@@ -619,7 +673,8 @@
                     {
                         var newHeight = this.m_SelectedRoomObjectStartValue1
                                         + (int)Math.Round(intersectionDistance.Value);
-                        if (newHeight >= 1 && this.m_SelectedRoomObject.Y + newHeight <= this.m_Room.Y + this.m_Room.Height)
+                        if (newHeight >= 1
+                            && this.m_SelectedRoomObject.Y + newHeight <= this.m_Room.Y + this.m_Room.Height)
                         {
                             this.m_SelectedRoomObject.Height = newHeight;
                         }
@@ -633,7 +688,8 @@
                         {
                             var newHeight = this.m_SelectedRoomObjectStartValue1
                                             - (int)Math.Round(intersectionDistance.Value);
-                            if (newHeight >= 1 && this.m_SelectedRoomObject.Y + newHeight <= this.m_Room.Y + this.m_Room.Height)
+                            if (newHeight >= 1
+                                && this.m_SelectedRoomObject.Y + newHeight <= this.m_Room.Y + this.m_Room.Height)
                             {
                                 this.m_SelectedRoomObject.Height = newHeight;
                             }
@@ -658,6 +714,7 @@
                     {
                         this.m_SelectedRoomObject.LeftTextureIndex = 0;
                     }
+
                     if (this.m_SelectedRoomObject.LeftTextureIndex < 0)
                     {
                         this.m_SelectedRoomObject.LeftTextureIndex = 80;
@@ -673,6 +730,7 @@
                     {
                         this.m_SelectedRoomObject.RightTextureIndex = 0;
                     }
+
                     if (this.m_SelectedRoomObject.RightTextureIndex < 0)
                     {
                         this.m_SelectedRoomObject.RightTextureIndex = 80;
@@ -688,6 +746,7 @@
                     {
                         this.m_SelectedRoomObject.BackTextureIndex = 0;
                     }
+
                     if (this.m_SelectedRoomObject.BackTextureIndex < 0)
                     {
                         this.m_SelectedRoomObject.BackTextureIndex = 80;
@@ -703,6 +762,7 @@
                     {
                         this.m_SelectedRoomObject.FrontTextureIndex = 0;
                     }
+
                     if (this.m_SelectedRoomObject.FrontTextureIndex < 0)
                     {
                         this.m_SelectedRoomObject.FrontTextureIndex = 80;
@@ -718,6 +778,7 @@
                     {
                         this.m_SelectedRoomObject.BelowTextureIndex = 0;
                     }
+
                     if (this.m_SelectedRoomObject.BelowTextureIndex < 0)
                     {
                         this.m_SelectedRoomObject.BelowTextureIndex = 80;
@@ -733,6 +794,7 @@
                     {
                         this.m_SelectedRoomObject.AboveTextureIndex = 0;
                     }
+
                     if (this.m_SelectedRoomObject.AboveTextureIndex < 0)
                     {
                         this.m_SelectedRoomObject.AboveTextureIndex = 80;
@@ -741,37 +803,6 @@
                     break;
                 }
             }
-        }
-
-        private void HandleNew(IGameContext gameContext, IUpdateContext updateContext)
-        {
-            var roundedX = (int)Math.Round(this.m_SelectedMouseStartPosition.X);
-            var roundedY = (int)Math.Round(this.m_SelectedMouseStartPosition.Y);
-            var roundedZ = (int)Math.Round(this.m_SelectedMouseStartPosition.Z);
-
-            var tempObject = new RoomObject { X = roundedX, Y = roundedY, Z = roundedZ };
-
-            if (tempObject.X >= this.X + this.m_Room.Width)
-            {
-                tempObject.X = (int)(this.X + this.m_Room.Width - tempObject.Width);
-            }
-
-            if (tempObject.Y >= this.Y + this.m_Room.Height)
-            {
-                tempObject.Y = (int)(this.Y + this.m_Room.Height - tempObject.Height);
-            }
-
-            if (tempObject.Z >= this.Z + this.m_Room.Depth)
-            {
-                tempObject.Z = (int)(this.Z + this.m_Room.Depth - tempObject.Depth);
-            }
-
-            this.m_Room.Objects.Add(tempObject);
-        }
-
-        private void HandleDelete(IGameContext gameContext, IUpdateContext updateContext)
-        {
-            this.m_Room.Objects.Remove(this.m_SelectedRoomObject);
         }
     }
 }

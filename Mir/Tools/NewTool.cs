@@ -1,8 +1,10 @@
 ﻿namespace Mir
 {
+    using System;
+
     public class NewTool : ITool
     {
-        public string Name
+        public virtual string Name
         {
             get
             {
@@ -15,6 +17,14 @@
             get
             {
                 return "new";
+            }
+        }
+
+        public virtual Type NewType
+        {
+            get
+            {
+                return typeof(RoomObject);
             }
         }
     }

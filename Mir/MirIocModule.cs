@@ -17,6 +17,7 @@ namespace Mir
             this.Bind<ITool>().To<AngleTool>();
             this.Bind<ITool>().To<TextureTool>();
             this.Bind<ITool>().To<NewTool>();
+            this.Bind<ITool>().To<NewLightTool>();
             this.Bind<ITool>().To<DeleteTool>();
             this.Bind<ITool>().To<DCPUTool>();
         }

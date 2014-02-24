@@ -1,10 +1,10 @@
-using System;
-using Protogame;
-using Microsoft.Xna.Framework;
-
 namespace Mir
 {
-    public class PlayerEntity : IEntity
+    using System;
+    using Microsoft.Xna.Framework;
+    using Protogame;
+
+    public class PlayerEntity : IEntity, ILight
     {
         private float m_RelativeX;
 
@@ -12,9 +12,73 @@ namespace Mir
 
         private float m_RelativeZ;
 
-        public PlayerEntity()
+        public Vector3 ForwardVector
         {
+            get
+            {
+                return Vector3.Transform(Vector3.Forward, Matrix.CreateRotationY(this.Yaw));
+            }
         }
+
+        public Vector3 LeftVector
+        {
+            get
+            {
+                return Vector3.Transform(Vector3.Forward, Matrix.CreateRotationY(this.Yaw + MathHelper.PiOver2));
+            }
+        }
+
+        public Color LightColor
+        {
+            get
+            {
+                return new Color(0.5f, 0.5f, 0.5f);
+            }
+        }
+
+        public float LightDistance
+        {
+            get
+            {
+                return 15;
+            }
+        }
+
+        public Vector3 LightPosition
+        {
+            get
+            {
+                return new Vector3(this.X, this.Y, this.Z);
+            }
+        }
+
+        public float MovementSpeed
+        {
+            get
+            {
+                return 0.3f;
+            }
+        }
+
+        public IArea ParentArea { get; set; }
+
+        public float Pitch { get; set; }
+
+        public Vector3 RightVector
+        {
+            get
+            {
+                return Vector3.Transform(Vector3.Forward, Matrix.CreateRotationY(this.Yaw - MathHelper.PiOver2));
+            }
+        }
+
+        public float TargetPitch { get; set; }
+
+        public float TargetYaw { get; set; }
+
+        public float WalkCounter { get; set; }
+
+        public bool Walked { get; set; }
 
         public float X
         {
@@ -22,6 +86,7 @@ namespace Mir
             {
                 return this.ParentArea.X + this.m_RelativeX;
             }
+
             set
             {
                 this.m_RelativeX = value - this.ParentArea.X;
@@ -34,11 +99,14 @@ namespace Mir
             {
                 return this.ParentArea.Y + this.m_RelativeY;
             }
+
             set
             {
                 this.m_RelativeY = value - this.ParentArea.Y;
             }
         }
+
+        public float Yaw { get; set; }
 
         public float Z
         {
@@ -46,96 +114,21 @@ namespace Mir
             {
                 return this.ParentArea.Z + this.m_RelativeZ;
             }
+
             set
             {
                 this.m_RelativeZ = value - this.ParentArea.Z;
             }
         }
 
-        public float Yaw
-        {
-            get;
-            set;
-        }
-
-        public float Pitch
-        {
-            get;
-            set;
-        }
-
-        public float TargetYaw
-        {
-            get;
-            set;
-        }
-
-        public float TargetPitch
-        {
-            get;
-            set;
-        }
-
-        public Vector3 ForwardVector
-        {
-            get
-            {
-                return Vector3.Transform(
-                    Vector3.Forward,
-                    Matrix.CreateRotationY(this.Yaw));
-            }
-        }
-
-        public Vector3 LeftVector
-        {
-            get
-            {
-                return Vector3.Transform(
-                    Vector3.Forward,
-                    Matrix.CreateRotationY(this.Yaw + MathHelper.PiOver2));
-            }
-        }
-
-        public Vector3 RightVector
-        {
-            get
-            {
-                return Vector3.Transform(
-                    Vector3.Forward,
-                    Matrix.CreateRotationY(this.Yaw - MathHelper.PiOver2));
-            }
-        }
-
-        public float MovementSpeed
-        {
-            get
-            {
-                return 0.3f;
-            }
-        }
-
-        public bool Walked
-        {
-            get;
-            set;
-        }
-
-        public float WalkCounter
-        {
-            get;
-            set;
-        }
-
-        public IArea ParentArea 
-        {
-            get;
-            set;
-        }
-
         public void Constrain()
         {
-            //this.X = MathHelper.Clamp(this.X, -12, 12);
-            //this.Z = MathHelper.Clamp(this.Z, -17, 17);
+            // this.X = MathHelper.Clamp(this.X, -12, 12);
+            // this.Z = MathHelper.Clamp(this.Z, -17, 17);
+        }
+
+        public void Render(IGameContext gameContext, IRenderContext renderContext)
+        {
         }
 
         public void SetCamera(IRenderContext renderContext)
@@ -148,28 +141,16 @@ namespace Mir
             var pos = new Vector3(this.X, this.Y, this.Z);
             var headAdjust = new Vector3(0, 8 + bob / 5f, 0);
 
-            var reference = Vector3.Transform(
-                Vector3.Forward,
-                Matrix.CreateFromYawPitchRoll(
-                    this.Yaw,
-                    this.Pitch,
-                    0));
+            var reference = Vector3.Transform(Vector3.Forward, Matrix.CreateFromYawPitchRoll(this.Yaw, this.Pitch, 0));
 
-            renderContext.View = Matrix.CreateLookAt(
-                pos + headAdjust,
-                pos + headAdjust + reference,
-                Vector3.Up);
+            renderContext.View = Matrix.CreateLookAt(pos + headAdjust, pos + headAdjust + reference, Vector3.Up);
 
             var viewport = renderContext.GraphicsDevice.Viewport;
             renderContext.Projection = Matrix.CreatePerspectiveFieldOfView(
-                MathHelper.PiOver4,
-                (float)viewport.Width / (float)viewport.Height,
-                1f,
+                MathHelper.PiOver4, 
+                viewport.Width / (float)viewport.Height, 
+                1f, 
                 5000f);
-        }
-
-        public void Render(IGameContext gameContext, IRenderContext renderContext)
-        {
         }
 
         public void Update(IGameContext gameContext, IUpdateContext updateContext)
@@ -179,13 +160,6 @@ namespace Mir
                 this.WalkCounter++;
                 this.Walked = false;
             }
-
-            var world = gameContext.World as RoomEditorWorld;
-            if (world != null)
-            {
-                world.SetLight(1, new Vector3(this.X, this.Y, this.Z), 15, new Color(0.5f, 0.5f, 0.5f));
-            }
         }
     }
 }
-

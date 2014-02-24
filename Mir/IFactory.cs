@@ -13,5 +13,7 @@ namespace Mir
         RoomEditorEntity CreateRoomEditorEntity(Room room);
 
         DCPUEntity CreateDCPUEntity();
+
+        LightEntity CreateLightEntity(LightRoomObject lightRoomObject);
     }
 }

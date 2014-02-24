@@ -104,7 +104,7 @@ namespace Mir
             return new Vector2(x, y);
         }
 
-        public void Render(IRenderContext renderContext, RoomObject focused, bool renderFocusedTransparently)
+        public void Render(IGameContext gameContext, IRenderContext renderContext, RoomObject focused, bool renderFocusedTransparently)
         {
             var oldWorld = renderContext.World;
 
@@ -126,7 +126,7 @@ namespace Mir
                         continue;
                     }
 
-                    obj.Render(renderContext);
+                    obj.Render(gameContext, renderContext);
                 }
             }
 
@@ -139,7 +139,7 @@ namespace Mir
                 {
                     pass.Apply();
 
-                    focused.Render(renderContext);
+                    focused.Render(gameContext, renderContext);
                 }
 
                 renderContext.GraphicsDevice.BlendState = BlendState.Opaque;

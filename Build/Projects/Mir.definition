@@ -17,6 +17,7 @@
   </References>
   <Files>
     <Compile Include="DCPUEntity.cs" />
+    <Compile Include="EmptyLight.cs" />
     <Compile Include="Events\MouseMoveAction.cs" />
     <Compile Include="Events\MoveBackwardAction.cs" />
     <Compile Include="Events\MoveForwardAction.cs" />
@@ -28,8 +29,11 @@
     <Compile Include="Events\ToolUseAction.cs" />
     <Compile Include="IArea.cs" />
     <Compile Include="IFactory.cs" />
+    <Compile Include="ILight.cs" />
     <Compile Include="IMesh.cs" />
     <Compile Include="IMeshCollider.cs" />
+    <Compile Include="LightEntity.cs" />
+    <Compile Include="LightRoomObject.cs" />
     <Compile Include="MeshCollider.cs" />
     <Compile Include="MirActivity.cs" />
     <Compile Include="MirGame.cs" />
@@ -47,6 +51,7 @@
     <Compile Include="Tools\DeleteTool.cs" />
     <Compile Include="Tools\ITool.cs" />
     <Compile Include="Tools\MoveTool.cs" />
+    <Compile Include="Tools\NewLightTool.cs" />
     <Compile Include="Tools\NewTool.cs" />
     <Compile Include="Tools\SizeTool.cs" />
     <Compile Include="Tools\TextureTool.cs" />
