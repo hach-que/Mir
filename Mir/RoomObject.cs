@@ -9,11 +9,11 @@ namespace Mir
 
     public class RoomObject : IMesh
     {
-        private static readonly float m_AtlasRatio = m_AtlasSize / m_CellSize;
+        private const float m_AtlasRatio = m_AtlasSize / m_CellSize;
 
-        private static float m_AtlasSize = 144f;
+        private const float m_AtlasSize = 144f;
 
-        private static float m_CellSize = 16f;
+        private const float m_CellSize = 16f;
 
         private readonly int[] m_TouchAnim = { 72, 73, 74, 75, 76, 77, 78, 79, 80, 79, 78, 77, 76, 75, 74, 73 };
 
@@ -26,11 +26,11 @@ namespace Mir
             this.Depth = 1;
 
             this.FrontTextureIndex = 0;
-            this.BackTextureIndex = 1;
-            this.LeftTextureIndex = 2;
-            this.RightTextureIndex = 3;
-            this.AboveTextureIndex = 4;
-            this.BelowTextureIndex = 5;
+            this.BackTextureIndex = 0;
+            this.LeftTextureIndex = 0;
+            this.RightTextureIndex = 0;
+            this.AboveTextureIndex = 0;
+            this.BelowTextureIndex = 0;
         }
 
         public event EventHandler Deleted;
