@@ -2,6 +2,7 @@ namespace Mir
 {
     using System.Collections.Generic;
     using System.Linq;
+    using System.Windows.Forms;
     using Jitter;
     using Jitter.Collision;
     using Jitter.Collision.Shapes;
@@ -33,6 +34,17 @@ namespace Mir
 
         private RigidBody m_RigidBody;
 
+        private struct Light
+        {
+            public Vector3 Position { get; set; }
+
+            public float Distance { get; set; }
+
+            public Color Color { get; set; }
+        }
+
+        private Light[] m_Lights;
+
         public RoomEditorWorld(
             IFactory factory, 
             I2DRenderUtilities twoDRenderUtilities, 
@@ -46,6 +58,10 @@ namespace Mir
             this.m_Tools = tools;
             this.m_DefaultFont = this.m_AssetManager.Get<FontAsset>("font.Default");
             this.m_LightingEffect = this.m_AssetManager.Get<EffectAsset>("effect.Light");
+            this.m_Lights = new Light[3];
+
+            this.m_LightingEffect.Effect.Parameters["Ambient"].SetValue(new Vector3(0.2f, 0.2f, 0.2f));
+            this.m_LightingEffect.Effect.Parameters["AmbientRemaining"].SetValue(new Vector3(0.8f, 0.8f, 0.8f));
 
             var ship = factory.CreateShipEntity();
             var player = factory.CreatePlayerEntity();
@@ -95,6 +111,13 @@ namespace Mir
         {
         }
 
+        public void SetLight(int idx, Vector3 position, float distance, Color color)
+        {
+            this.m_Lights[idx].Position = position;
+            this.m_Lights[idx].Distance = distance;
+            this.m_Lights[idx].Color = color;
+        }
+
         public void RenderAbove(IGameContext gameContext, IRenderContext renderContext)
         {
             if (renderContext.Is3DContext)
@@ -137,6 +160,18 @@ namespace Mir
             }
 
             renderContext.GraphicsDevice.Clear(Color.Black);
+
+            this.m_LightingEffect.Effect.Parameters["LightColours"].SetValue(new Matrix(
+                this.m_Lights[0].Color.R / 255f, this.m_Lights[0].Color.G / 255f, this.m_Lights[0].Color.B / 255f, 1,
+                this.m_Lights[1].Color.R / 255f, this.m_Lights[1].Color.G / 255f, this.m_Lights[1].Color.B / 255f, 1,
+                this.m_Lights[2].Color.R / 255f, this.m_Lights[2].Color.G / 255f, this.m_Lights[2].Color.B / 255f, 1,
+                1, 1, 1, 1));
+
+            this.m_LightingEffect.Effect.Parameters["Lights"].SetValue(new Matrix(
+                this.m_Lights[0].Position.X, this.m_Lights[0].Position.Y, this.m_Lights[0].Position.Z, this.m_Lights[0].Distance,
+                this.m_Lights[1].Position.X, this.m_Lights[1].Position.Y, this.m_Lights[1].Position.Z, this.m_Lights[1].Distance,
+                this.m_Lights[2].Position.X, this.m_Lights[2].Position.Y, this.m_Lights[2].Position.Z, this.m_Lights[2].Distance,
+                1, 1, 1, 1));
 
             renderContext.PushEffect(this.m_LightingEffect.Effect);
 

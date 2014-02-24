@@ -179,6 +179,12 @@ namespace Mir
                 this.WalkCounter++;
                 this.Walked = false;
             }
+
+            var world = gameContext.World as RoomEditorWorld;
+            if (world != null)
+            {
+                world.SetLight(1, new Vector3(this.X, this.Y, this.Z), 15, new Color(0.5f, 0.5f, 0.5f));
+            }
         }
     }
 }

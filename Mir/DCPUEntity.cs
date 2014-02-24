@@ -81,6 +81,8 @@ namespace Mir
 
             var world = (RoomEditorWorld)gameContext.World;
 
+            world.SetLight(0, new Vector3(this.X, this.Y, this.Z), 20, Color.White);
+
             if (!(world.ActiveTool is DCPUTool))
             {
                 return;

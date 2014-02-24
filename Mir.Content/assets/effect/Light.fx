@@ -4,6 +4,12 @@ float4x4 World;
 float4x4 View;
 float4x4 Projection;
 
+float4x4 LightColours;
+float4x4 Lights;
+
+float3 Ambient;
+float3 AmbientRemaining;
+
 struct VertexShaderInput
 {
     float4 Position : PROTOGAME_POSITION;
@@ -37,23 +43,42 @@ VertexShaderOutput DefaultVertexShader(VertexShaderInput input)
     return output;
 }
 
+float3 GetLightImpactAtPixel(VertexShaderOutput input, int idx)
+{
+	float lightDistance = Lights[idx].w;
+
+	if (lightDistance == 0)
+	{
+		return float3(0, 0, 0);
+	}
+
+	float3 lightPosition = Lights[idx].xyz;
+	float3 lightColor = LightColours[idx].xyz;
+
+	float distance = length(input.WorldPosition - lightPosition);
+	float invDistance = max(0, lightDistance - distance) / lightDistance;
+	return float3(invDistance * lightColor.r, invDistance * lightColor.g, invDistance * lightColor.b);
+}
+
 PixelShaderOutput DefaultPixelShader(VertexShaderOutput input)
 {
 	PixelShaderOutput output;
 
-	float4 LightPosition = float4(16, 8, 16, 0);
-	float LightDistance = 30;
-	float4 Ambient = float4(0.2, 0.2, 0.2, 1);
-	float4 AmbientRemaining = float4(1, 1, 1, 1) - Ambient;
+	// Calculate lights
+	float3 light1 = GetLightImpactAtPixel(input, 0);
+	float3 light2 = GetLightImpactAtPixel(input, 1);
+	float3 light3 = GetLightImpactAtPixel(input, 2);
+	
+	// Combine light values.
+	float3 lightResult = light1 + light2 + light3;
 
-	// Calculate light distance
-	float4 relative = input.WorldPosition - LightPosition;
-	float distance = length(relative);
+	// Normalize values so that they don't exceed 1.
+	//lightResult.r = min(1, lightResult.r);
+	//lightResult.g = min(1, lightResult.g);
+	//lightResult.b = min(1, lightResult.b);
 
-	// Calculate lighting effect
-	float invDistance = max(0, LightDistance - distance) / LightDistance;
-	float4 lightingModifier = float4(invDistance, invDistance, invDistance, 1);
-	float4 lightingRemaining = Ambient + (lightingModifier * AmbientRemaining);
+	// Calculate final lighting impact.
+	float4 lightingRemaining = float4(Ambient + (lightResult * AmbientRemaining), 1);
 
 	output.Color = PROTOGAME_SAMPLE_TEXTURE(Texture, input.TexCoord) * lightingRemaining;
     
