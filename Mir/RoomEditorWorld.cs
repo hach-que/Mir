@@ -20,6 +20,8 @@ namespace Mir
 
         private readonly ITool[] m_Tools;
 
+        private readonly IPhysicsEngine m_PhysicsEngine;
+
         private readonly RoomEditorEntity m_RoomEditorEntity;
 
         private readonly FontAsset m_DefaultFont;
@@ -38,6 +40,7 @@ namespace Mir
             IFactory factory, 
             I2DRenderUtilities twoDRenderUtilities, 
             IAssetManagerProvider assetManagerProvider, 
+            IPhysicsEngine physicsEngine,
             ITool[] tools)
         {
             this.Entities = new List<IEntity>();
@@ -72,6 +75,8 @@ namespace Mir
 
             this.Entities.Add(this.m_RoomEditorEntity);
 
+            this.m_PhysicsEngine = physicsEngine;
+
             this.m_JitterWorld = new JitterWorld(new CollisionSystemSAP());
             this.m_JitterWorld.Gravity = new JVector(0, -10, 0);
 
@@ -86,6 +91,14 @@ namespace Mir
         }
 
         public IList<IEntity> Entities { get; private set; }
+
+        public JitterWorld JitterWorld
+        {
+            get
+            {
+                return this.m_JitterWorld;
+            }
+        }
 
         public ITool ActiveTool
         {
@@ -173,12 +186,9 @@ namespace Mir
         public void Update(IGameContext gameContext, IUpdateContext updateContext)
         {
             var dcpu = this.Entities.OfType<DCPUEntity>().First();
-            dcpu.X = this.m_RigidBody.Position.X;
-            dcpu.Y = this.m_RigidBody.Position.Y;
-            dcpu.Z = this.m_RigidBody.Position.Z;
-            dcpu.Orientation = this.m_RigidBody.Orientation.ToXNAMatrix();
+            this.m_PhysicsEngine.MapPhysicsToEntity(this.m_RigidBody, dcpu);
 
-            this.m_JitterWorld.Step((float)gameContext.GameTime.ElapsedGameTime.TotalSeconds, true);
+            this.m_PhysicsEngine.UpdateWorld(this.m_JitterWorld, gameContext, updateContext);
 
             // TODO: Do this through the event system
             var mouse = Mouse.GetState();

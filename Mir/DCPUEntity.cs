@@ -13,7 +13,7 @@ namespace Mir
     using Tomato;
     using Tomato.Hardware;
 
-    public class DCPUEntity : IEntity
+    public class DCPUEntity : IEntity, IPhysicsEntity
     {
         private readonly I3DRenderUtilities m_3DRenderUtilities;
 
@@ -56,7 +56,7 @@ namespace Mir
 
         public bool AcceptingInput { get; set; }
 
-        public Matrix Orientation { get; set; }
+        public Matrix Rotation { get; set; }
 
         public void Render(IGameContext gameContext, IRenderContext renderContext)
         {
@@ -69,7 +69,7 @@ namespace Mir
 
             this.m_3DRenderUtilities.RenderCube(
                 renderContext,
-                Matrix.CreateScale(2, 2, 2) * this.Orientation * Matrix.CreateTranslation(this.X, this.Y, this.Z),
+                Matrix.CreateScale(2, 2, 2) * this.Rotation * Matrix.CreateTranslation(this.X, this.Y, this.Z),
                 new TextureAsset(this.m_DCPURenderTarget),
                 Vector2.Zero,
                 Vector2.One);
