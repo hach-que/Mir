@@ -1,17 +1,40 @@
 namespace Mir
 {
     using System;
+    using Jitter.Collision.Shapes;
+    using Jitter.Dynamics;
+    using Jitter.LinearMath;
     using Microsoft.Xna.Framework;
+    using Microsoft.Xna.Framework.Graphics;
+    using Microsoft.Xna.Framework.Input;
     using Protogame;
 
-    public class PlayerEntity : IEntity, ILight
+    public class PlayerEntity : IPhysicsEntity, IEntity, ILight
     {
+        private readonly IPhysicsEngine m_PhysicsEngine;
+
         private float m_RelativeX;
 
         private float m_RelativeY;
 
         private float m_RelativeZ;
 
+        private bool m_PhysicsSpawned;
+
+        private RigidBody m_RigidBody;
+
+        private PhysicsCharacterController m_PhysicsCharacterController;
+
+        private Vector3 m_PendingMovement;
+
+        private bool m_JumpRequested;
+
+        public PlayerEntity(
+            IPhysicsEngine physicsEngine)
+        {
+            this.m_PhysicsEngine = physicsEngine;
+        }
+        
         public Vector3 ForwardVector
         {
             get
@@ -72,6 +95,8 @@ namespace Mir
             }
         }
 
+        public Matrix Rotation { get; set; }
+
         public float TargetPitch { get; set; }
 
         public float TargetYaw { get; set; }
@@ -121,12 +146,6 @@ namespace Mir
             }
         }
 
-        public void Constrain()
-        {
-            // this.X = MathHelper.Clamp(this.X, -12, 12);
-            // this.Z = MathHelper.Clamp(this.Z, -17, 17);
-        }
-
         public void Render(IGameContext gameContext, IRenderContext renderContext)
         {
         }
@@ -153,13 +172,64 @@ namespace Mir
                 5000f);
         }
 
+        public void ApplyDirection(Vector3 vector)
+        {
+            this.m_PendingMovement += vector;
+        }
+
+        public void InitiateJump()
+        {
+            this.m_JumpRequested = true;
+            this.m_PhysicsCharacterController.JumpVelocity = 6f;
+        }
+
         public void Update(IGameContext gameContext, IUpdateContext updateContext)
         {
-            if (this.Walked)
+            if (this.Walked && this.m_PhysicsCharacterController.OnFloor)
             {
                 this.WalkCounter++;
                 this.Walked = false;
             }
+
+            var roomEditorWorld = gameContext.World as RoomEditorWorld;
+
+            if (!this.m_PhysicsSpawned)
+            {
+                this.m_RigidBody = new RigidBody(new CapsuleShape(10.0f, 1.5f));
+                this.m_RigidBody.SetMassProperties(JMatrix.Zero, 1.0f, true);
+                this.m_RigidBody.AllowDeactivation = false;
+                this.m_RigidBody.EnableSpeculativeContacts = true;
+                this.m_RigidBody.EnableDebugDraw = true;
+
+                this.m_RigidBody.Position = new JVector(
+                    this.X,
+                    this.Y + 5f,
+                    this.Z);
+
+                var jitterWorld = roomEditorWorld.JitterWorld;
+
+                this.m_PhysicsCharacterController = new PhysicsCharacterController(jitterWorld, this.m_RigidBody);
+                this.m_PhysicsCharacterController.Stiffness = 0.5f;
+                jitterWorld.AddBody(this.m_RigidBody);
+                jitterWorld.AddConstraint(this.m_PhysicsCharacterController);
+
+                this.m_PhysicsSpawned = true;
+            }
+
+            this.m_PhysicsCharacterController.TryJump = this.m_JumpRequested;
+            if (this.m_PendingMovement != Vector3.Zero)
+            {
+                this.m_PendingMovement = Vector3.Normalize(this.m_PendingMovement) * 15.0f;
+            }
+
+            this.m_PhysicsCharacterController.TargetVelocity = this.m_PendingMovement.ToJitterVector();
+
+            this.X = this.m_RigidBody.Position.X;
+            this.Y = this.m_RigidBody.Position.Y - 5f;
+            this.Z = this.m_RigidBody.Position.Z;
+
+            this.m_JumpRequested = false;
+            this.m_PendingMovement = Vector3.Zero;
         }
     }
 }

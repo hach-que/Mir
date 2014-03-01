@@ -77,8 +77,9 @@ namespace Mir
 
             this.m_PhysicsEngine = physicsEngine;
 
-            this.m_JitterWorld = new JitterWorld(new CollisionSystemSAP());
-            this.m_JitterWorld.Gravity = new JVector(0, -10, 0);
+            this.m_JitterWorld = new JitterWorld(new CollisionSystemSAP() { EnableSpeculativeContacts = true });
+            this.m_JitterWorld.Gravity = new JVector(0, -50, 0);
+            this.m_JitterWorld.ContactSettings.MaterialCoefficientMixing = ContactSettings.MaterialCoefficientMixingType.TakeMinimum;
 
             var shape = new BoxShape(new JVector(2, 2, 2));
             var body = new RigidBody(shape);
@@ -186,7 +187,10 @@ namespace Mir
         public void Update(IGameContext gameContext, IUpdateContext updateContext)
         {
             var dcpu = this.Entities.OfType<DCPUEntity>().First();
-            this.m_PhysicsEngine.MapPhysicsToEntity(this.m_RigidBody, dcpu);
+            dcpu.X = this.m_RigidBody.Position.X;
+            dcpu.Y = this.m_RigidBody.Position.Y;
+            dcpu.Z = this.m_RigidBody.Position.Z;
+            dcpu.Rotation = this.m_RigidBody.Orientation.ToXNAMatrix();
 
             this.m_PhysicsEngine.UpdateWorld(this.m_JitterWorld, gameContext, updateContext);
 
@@ -233,40 +237,58 @@ namespace Mir
         private void SetupRoomPhysics()
         {
             // Set up the static physics bodies for each wall.
-            var floorShape = new BoxShape(new JVector(this.m_Room.Width * 2, 1, this.m_Room.Depth * 2));
+            var floorShape = new BoxShape(new JVector(this.m_Room.Width, 1, this.m_Room.Depth));
             var floorBody = new RigidBody(floorShape);
             this.m_JitterWorld.AddBody(floorBody);
-            floorBody.Position = new JVector(this.m_Room.X, this.m_Room.Y - 1, this.m_Room.Z);
+            floorBody.Position = new JVector(
+                this.m_Room.X + (this.m_Room.Width / 2f),
+                this.m_Room.Y - 0.5f,
+                this.m_Room.Z + (this.m_Room.Depth / 2f));
             floorBody.IsStatic = true;
 
-            var roofShape = new BoxShape(new JVector(this.m_Room.Width * 2, 1, this.m_Room.Depth * 2));
+            var roofShape = new BoxShape(new JVector(this.m_Room.Width, 1, this.m_Room.Depth));
             var roofBody = new RigidBody(roofShape);
             this.m_JitterWorld.AddBody(roofBody);
-            roofBody.Position = new JVector(this.m_Room.X, this.m_Room.Y + this.m_Room.Height, this.m_Room.Z);
+            roofBody.Position = new JVector(
+                this.m_Room.X + (this.m_Room.Width / 2f),
+                this.m_Room.Y + this.m_Room.Height + 0.5f,
+                this.m_Room.Z + (this.m_Room.Depth / 2f));
             roofBody.IsStatic = true;
 
-            var leftShape = new BoxShape(new JVector(1, this.m_Room.Height * 2, this.m_Room.Depth * 2));
+            var leftShape = new BoxShape(new JVector(1, this.m_Room.Height, this.m_Room.Depth));
             var leftBody = new RigidBody(leftShape);
             this.m_JitterWorld.AddBody(leftBody);
-            leftBody.Position = new JVector(this.m_Room.X - 1, this.m_Room.Y, this.m_Room.Z);
+            leftBody.Position = new JVector(
+                this.m_Room.X - 0.5f,
+                this.m_Room.Y + (this.m_Room.Height / 2f),
+                this.m_Room.Z + (this.m_Room.Depth / 2f));
             leftBody.IsStatic = true;
 
-            var rightShape = new BoxShape(new JVector(1, this.m_Room.Height * 2, this.m_Room.Depth * 2));
+            var rightShape = new BoxShape(new JVector(1, this.m_Room.Height, this.m_Room.Depth));
             var rightBody = new RigidBody(rightShape);
             this.m_JitterWorld.AddBody(rightBody);
-            rightBody.Position = new JVector(this.m_Room.X + this.m_Room.Width, this.m_Room.Y, this.m_Room.Z);
+            rightBody.Position = new JVector(
+                this.m_Room.X + this.m_Room.Width + 0.5f,
+                this.m_Room.Y + (this.m_Room.Height / 2f),
+                this.m_Room.Z + (this.m_Room.Depth / 2f));
             rightBody.IsStatic = true;
 
-            var backShape = new BoxShape(new JVector(this.m_Room.Width * 2, this.m_Room.Height * 2, 1));
+            var backShape = new BoxShape(new JVector(this.m_Room.Width, this.m_Room.Height, 1));
             var backBody = new RigidBody(backShape);
             this.m_JitterWorld.AddBody(backBody);
-            backBody.Position = new JVector(this.m_Room.X, this.m_Room.Y, this.m_Room.Z - 1);
+            backBody.Position = new JVector(
+                this.m_Room.X + (this.m_Room.Width / 2f),
+                this.m_Room.Y + (this.m_Room.Height / 2f),
+                this.m_Room.Z - 0.5f);
             backBody.IsStatic = true;
 
-            var frontShape = new BoxShape(new JVector(this.m_Room.Width * 2, this.m_Room.Height * 2, 1));
+            var frontShape = new BoxShape(new JVector(this.m_Room.Width, this.m_Room.Height, 1));
             var frontBody = new RigidBody(frontShape);
             this.m_JitterWorld.AddBody(frontBody);
-            frontBody.Position = new JVector(this.m_Room.X, this.m_Room.Y, this.m_Room.Z + this.m_Room.Depth);
+            frontBody.Position = new JVector(
+                this.m_Room.X + (this.m_Room.Width / 2f),
+                this.m_Room.Y + (this.m_Room.Height / 2f),
+                this.m_Room.Z + this.m_Room.Depth + 0.5f);
             frontBody.IsStatic = true;
         }
     }

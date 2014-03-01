@@ -3,21 +3,67 @@ namespace Mir
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Jitter;
+    using Jitter.Collision.Shapes;
+    using Jitter.Dynamics;
+    using Jitter.LinearMath;
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Graphics;
     using Protogame;
 
     public class RoomObject : IMesh
     {
-        private const float m_AtlasRatio = m_AtlasSize / m_CellSize;
+        private const float AtlasRatio = AtlasSize / CellSize;
 
-        private const float m_AtlasSize = 144f;
+        private const float AtlasSize = 144f;
 
-        private const float m_CellSize = 16f;
+        private const float CellSize = 16f;
 
         private readonly int[] m_TouchAnim = { 72, 73, 74, 75, 76, 77, 78, 79, 80, 79, 78, 77, 76, 75, 74, 73 };
 
+        private int m_AboveTextureIndex;
+
+        private int m_BackTextureIndex;
+
+        private int m_BelowTextureIndex;
+
+        private int m_Depth;
+
+        private int m_FrontTextureIndex;
+
+        private int m_Height;
+
+        private IndexBuffer m_IndexBuffer;
+
+        private int m_LeftBackEdgeMode;
+
+        private int m_LeftFrontEdgeMode;
+
+        private int m_LeftTextureIndex;
+
+        private bool m_PendRecalculation;
+
+        private int m_RightBackEdgeMode;
+
+        private int m_RightFrontEdgeMode;
+
+        private int m_RightTextureIndex;
+
+        private RigidBody m_RigidBody;
+
+        private JitterWorld m_JitterWorld;
+
         private int m_TouchAnimIndex;
+
+        private VertexBuffer m_VertexBuffer;
+
+        private int m_Width;
+
+        private int m_X;
+
+        private int m_Y;
+
+        private int m_Z;
 
         public RoomObject()
         {
@@ -31,27 +77,182 @@ namespace Mir
             this.RightTextureIndex = 0;
             this.AboveTextureIndex = 0;
             this.BelowTextureIndex = 0;
+
+            this.m_PendRecalculation = true;
         }
 
         public event EventHandler Deleted;
 
-        public int AboveTextureIndex { get; set; }
+        public int AboveTextureIndex
+        {
+            get
+            {
+                return this.m_AboveTextureIndex;
+            }
 
-        public int BackTextureIndex { get; set; }
+            set
+            {
+                if (this.m_AboveTextureIndex == value)
+                {
+                    return;
+                }
 
-        public int BelowTextureIndex { get; set; }
+                this.m_AboveTextureIndex = value;
+                this.m_PendRecalculation = true;
+            }
+        }
 
-        public int Depth { get; set; }
+        public int BackTextureIndex
+        {
+            get
+            {
+                return this.m_BackTextureIndex;
+            }
 
-        public int FrontTextureIndex { get; set; }
+            set
+            {
+                if (this.m_BackTextureIndex == value)
+                {
+                    return;
+                }
 
-        public int Height { get; set; }
+                this.m_BackTextureIndex = value;
+                this.m_PendRecalculation = true;
+            }
+        }
 
-        public int LeftBackEdgeMode { get; set; }
+        public int BelowTextureIndex
+        {
+            get
+            {
+                return this.m_BelowTextureIndex;
+            }
 
-        public int LeftFrontEdgeMode { get; set; }
+            set
+            {
+                if (this.m_BelowTextureIndex == value)
+                {
+                    return;
+                }
 
-        public int LeftTextureIndex { get; set; }
+                this.m_BelowTextureIndex = value;
+                this.m_PendRecalculation = true;
+            }
+        }
+
+        public int Depth
+        {
+            get
+            {
+                return this.m_Depth;
+            }
+
+            set
+            {
+                if (this.m_Depth == value)
+                {
+                    return;
+                }
+
+                this.m_Depth = value;
+                this.m_PendRecalculation = true;
+            }
+        }
+
+        public int FrontTextureIndex
+        {
+            get
+            {
+                return this.m_FrontTextureIndex;
+            }
+
+            set
+            {
+                if (this.m_FrontTextureIndex == value)
+                {
+                    return;
+                }
+
+                this.m_FrontTextureIndex = value;
+                this.m_PendRecalculation = true;
+            }
+        }
+
+        public int Height
+        {
+            get
+            {
+                return this.m_Height;
+            }
+
+            set
+            {
+                if (this.m_Height == value)
+                {
+                    return;
+                }
+
+                this.m_Height = value;
+                this.m_PendRecalculation = true;
+            }
+        }
+
+        public int LeftBackEdgeMode
+        {
+            get
+            {
+                return this.m_LeftBackEdgeMode;
+            }
+
+            set
+            {
+                if (this.m_LeftBackEdgeMode == value)
+                {
+                    return;
+                }
+
+                this.m_LeftBackEdgeMode = value;
+                this.m_PendRecalculation = true;
+            }
+        }
+
+        public int LeftFrontEdgeMode
+        {
+            get
+            {
+                return this.m_LeftFrontEdgeMode;
+            }
+
+            set
+            {
+                if (this.m_LeftFrontEdgeMode == value)
+                {
+                    return;
+                }
+
+                this.m_LeftFrontEdgeMode = value;
+                this.m_PendRecalculation = true;
+            }
+        }
+
+        public int LeftTextureIndex
+        {
+            get
+            {
+                return this.m_LeftTextureIndex;
+            }
+
+            set
+            {
+                if (this.m_LeftTextureIndex == value)
+                {
+                    return;
+                }
+
+                this.m_LeftTextureIndex = value;
+                this.m_PendRecalculation = true;
+            }
+        }
 
         public short[] MeshIndicies
         {
@@ -100,11 +301,62 @@ namespace Mir
             }
         }
 
-        public int RightBackEdgeMode { get; set; }
+        public int RightBackEdgeMode
+        {
+            get
+            {
+                return this.m_RightBackEdgeMode;
+            }
 
-        public int RightFrontEdgeMode { get; set; }
+            set
+            {
+                if (this.m_RightBackEdgeMode == value)
+                {
+                    return;
+                }
 
-        public int RightTextureIndex { get; set; }
+                this.m_RightBackEdgeMode = value;
+                this.m_PendRecalculation = true;
+            }
+        }
+
+        public int RightFrontEdgeMode
+        {
+            get
+            {
+                return this.m_RightFrontEdgeMode;
+            }
+
+            set
+            {
+                if (this.m_RightFrontEdgeMode == value)
+                {
+                    return;
+                }
+
+                this.m_RightFrontEdgeMode = value;
+                this.m_PendRecalculation = true;
+            }
+        }
+
+        public int RightTextureIndex
+        {
+            get
+            {
+                return this.m_RightTextureIndex;
+            }
+
+            set
+            {
+                if (this.m_RightTextureIndex == value)
+                {
+                    return;
+                }
+
+                this.m_RightTextureIndex = value;
+                this.m_PendRecalculation = true;
+            }
+        }
 
         public bool SizeLocked { get; set; }
 
@@ -116,22 +368,91 @@ namespace Mir
             }
         }
 
-        public int Width { get; set; }
+        public int Width
+        {
+            get
+            {
+                return this.m_Width;
+            }
 
-        public int X { get; set; }
+            set
+            {
+                if (this.m_Width == value)
+                {
+                    return;
+                }
 
-        public int Y { get; set; }
+                this.m_Width = value;
+                this.m_PendRecalculation = true;
+            }
+        }
 
-        public int Z { get; set; }
+        public int X
+        {
+            get
+            {
+                return this.m_X;
+            }
+
+            set
+            {
+                if (this.m_X == value)
+                {
+                    return;
+                }
+
+                this.m_X = value;
+                this.m_PendRecalculation = true;
+            }
+        }
+
+        public int Y
+        {
+            get
+            {
+                return this.m_Y;
+            }
+
+            set
+            {
+                if (this.m_Y == value)
+                {
+                    return;
+                }
+
+                this.m_Y = value;
+                this.m_PendRecalculation = true;
+            }
+        }
+
+        public int Z
+        {
+            get
+            {
+                return this.m_Z;
+            }
+
+            set
+            {
+                if (this.m_Z == value)
+                {
+                    return;
+                }
+
+                this.m_Z = value;
+                this.m_PendRecalculation = true;
+            }
+        }
 
         public Vector2 GetBottomRightTextureUV(int idx)
         {
-            var x = (float)(idx % (int)m_AtlasRatio);
-            var y = (float)(idx / (int)m_AtlasRatio);
-            x = (x * m_CellSize) / m_AtlasSize;
-            y = (y * m_CellSize) / m_AtlasSize;
-            x += 1f / m_AtlasRatio;
-            y += 1f / m_AtlasRatio;
+            var x = (float)(idx % (int)AtlasRatio);
+            // ReSharper disable once PossibleLossOfFraction
+            var y = (float)(idx / (int)AtlasRatio);
+            x = (x * CellSize) / AtlasSize;
+            y = (y * CellSize) / AtlasSize;
+            x += 1f / AtlasRatio;
+            y += 1f / AtlasRatio;
 
             return new Vector2(x, y);
         }
@@ -173,10 +494,11 @@ namespace Mir
 
         public Vector2 GetTopLeftTextureUV(int idx)
         {
-            var x = (float)(idx % (int)m_AtlasRatio);
-            var y = (float)(idx / (int)m_AtlasRatio);
-            x = (x * m_CellSize) / m_AtlasSize;
-            y = (y * m_CellSize) / m_AtlasSize;
+            var x = (float)(idx % (int)AtlasRatio);
+            // ReSharper disable once PossibleLossOfFraction
+            var y = (float)(idx / (int)AtlasRatio);
+            x = (x * CellSize) / AtlasSize;
+            y = (y * CellSize) / AtlasSize;
 
             return new Vector2(x, y);
         }
@@ -208,6 +530,13 @@ namespace Mir
 
         public void OnDelete()
         {
+            if (this.m_JitterWorld != null && this.m_RigidBody != null)
+            {
+                this.m_JitterWorld.RemoveBody(this.m_RigidBody);
+                this.m_JitterWorld = null;
+                this.m_RigidBody = null;
+            }
+
             if (this.Deleted != null)
             {
                 this.Deleted(this, new EventArgs());
@@ -216,17 +545,21 @@ namespace Mir
 
         public virtual void Render(IGameContext gameContext, IRenderContext renderContext)
         {
-            var vertexes = this.GetVertexPositionNormalTextures(false);
-            var indicies = this.MeshIndicies;
+            if (this.m_PendRecalculation)
+            {
+                this.RecalculateObject(gameContext, renderContext);
+            }
 
-            renderContext.GraphicsDevice.DrawUserIndexedPrimitives(
+            renderContext.GraphicsDevice.Indices = this.m_IndexBuffer;
+            renderContext.GraphicsDevice.SetVertexBuffer(this.m_VertexBuffer);
+
+            renderContext.GraphicsDevice.DrawIndexedPrimitives(
                 PrimitiveType.TriangleList, 
-                vertexes, 
                 0, 
-                vertexes.Length, 
-                indicies, 
                 0, 
-                indicies.Length / 3);
+                this.m_VertexBuffer.VertexCount, 
+                0, 
+                this.m_IndexBuffer.IndexCount / 3);
 
             this.m_TouchAnimIndex++;
             if (this.m_TouchAnimIndex >= this.m_TouchAnim.Length * 3)
@@ -407,8 +740,6 @@ namespace Mir
                         0, 
                         2);
                     break;
-                default:
-                    break;
             }
 
             renderContext.GraphicsDevice.BlendState = BlendState.Opaque;
@@ -416,7 +747,6 @@ namespace Mir
 
         public void RenderVerticalEdge(IRenderContext renderContext, int verticalEdge)
         {
-            // TODO: Maybe render this a bit nicer?
             switch (verticalEdge)
             {
                 case 0:
@@ -565,6 +895,127 @@ namespace Mir
                     new Vector3(0, 0, 1), 
                     new Vector2(frontBottomRightUV.X, frontTopLeftUV.Y))
             };
+        }
+
+        private IEnumerable<Vector3> GetVertexes()
+        {
+            var matrix = Matrix.CreateScale(this.Width, this.Height, this.Depth)
+                         * Matrix.CreateTranslation(this.X, this.Y, this.Z);
+
+            var leftBackBelowMod = this.LeftBackEdgeMode == 2 ? 1 : 0;
+            var leftBackAboveMod = this.LeftBackEdgeMode == 1 ? -1 : 0;
+            var leftFrontBelowMod = this.LeftFrontEdgeMode == 2 ? 1 : 0;
+            var leftFrontAboveMod = this.LeftFrontEdgeMode == 1 ? -1 : 0;
+
+            var rightBackBelowMod = this.RightBackEdgeMode == 2 ? 1 : 0;
+            var rightBackAboveMod = this.RightBackEdgeMode == 1 ? -1 : 0;
+            var rightFrontBelowMod = this.RightFrontEdgeMode == 2 ? 1 : 0;
+            var rightFrontAboveMod = this.RightFrontEdgeMode == 1 ? -1 : 0;
+
+            return new[]
+            {
+                Vector3.Transform(new Vector3(0, 0 + leftBackBelowMod, 0), matrix), 
+                Vector3.Transform(new Vector3(0, 0 + leftFrontBelowMod, 1), matrix), 
+                Vector3.Transform(new Vector3(0, 1 + leftBackAboveMod, 0), matrix), 
+                Vector3.Transform(new Vector3(0, 1 + leftFrontAboveMod, 1), matrix), 
+                Vector3.Transform(new Vector3(1, 0 + rightBackBelowMod, 0), matrix), 
+                Vector3.Transform(new Vector3(1, 0 + rightFrontBelowMod, 1), matrix), 
+                Vector3.Transform(new Vector3(1, 1 + rightBackAboveMod, 0), matrix), 
+                Vector3.Transform(new Vector3(1, 1 + rightFrontAboveMod, 1), matrix)
+            };
+        }
+
+        private void RecalculateObject(IGameContext gameContext, IRenderContext renderContext)
+        {
+            // Recalculate vertex and index buffers.
+            if (this.m_IndexBuffer != null)
+            {
+                this.m_IndexBuffer.Dispose();
+            }
+
+            if (this.m_VertexBuffer != null)
+            {
+                this.m_VertexBuffer.Dispose();
+            }
+
+            this.m_IndexBuffer = new IndexBuffer(
+                renderContext.GraphicsDevice,
+                typeof(short), 
+                this.MeshIndicies.Length, 
+                BufferUsage.None);
+            this.m_IndexBuffer.SetData(this.MeshIndicies);
+
+            var vertexes = this.GetVertexPositionNormalTextures(false);
+            this.m_VertexBuffer = new VertexBuffer(
+                renderContext.GraphicsDevice, 
+                typeof(VertexPositionNormalTexture), 
+                vertexes.Length, 
+                BufferUsage.None);
+            this.m_VertexBuffer.SetData(vertexes);
+
+            // Recalculate physics object.
+            var world = gameContext.World as RoomEditorWorld;
+            if (world != null)
+            {
+                if (this.m_RigidBody != null)
+                {
+                    this.m_JitterWorld.RemoveBody(this.m_RigidBody);
+                }
+
+                var shape = new ConvexHullShape(this.GetVertexes().Select(x => x.ToJitterVector()).ToList());
+                this.m_JitterWorld = world.JitterWorld;
+                this.m_RigidBody = new RigidBody(shape);
+                this.m_RigidBody.IsStatic = true;
+
+                // The shape vertexes include X, Y, Z position offset, so
+                // the shift moves the object completely into the correct
+                // position.
+                this.m_RigidBody.Position = new JVector(0, 0, 0) - shape.Shift;
+                this.m_JitterWorld.AddBody(this.m_RigidBody);
+            }
+            else
+            {
+                // We can't update the physics entity, so pend until we can.
+                this.m_PendRecalculation = true;
+            }
+        }
+    }
+
+    public class XnaDebugDrawer : IDebugDrawer
+    {
+        private readonly GraphicsDevice m_GraphicsDevice;
+
+        public XnaDebugDrawer(GraphicsDevice graphicsDevice)
+        {
+            this.m_GraphicsDevice = graphicsDevice;
+        }
+
+        public void DrawLine(JVector start, JVector end)
+        {
+        }
+
+        public void DrawPoint(JVector pos)
+        {
+        }
+
+        public void DrawTriangle(JVector pos1, JVector pos2, JVector pos3)
+        {
+            var other = this.m_GraphicsDevice.RasterizerState.CullMode;
+
+            this.m_GraphicsDevice.RasterizerState.CullMode = CullMode.None;
+
+            this.m_GraphicsDevice.DrawUserPrimitives(
+                PrimitiveType.TriangleList,
+                new[]
+                {
+                    new VertexPositionNormalTexture(pos1.ToXNAVector(), Vector3.One, Vector2.Zero),
+                    new VertexPositionNormalTexture(pos2.ToXNAVector(), Vector3.One, Vector2.Zero),
+                    new VertexPositionNormalTexture(pos3.ToXNAVector(), Vector3.One, Vector2.Zero),
+                },
+                0,
+                1);
+
+            this.m_GraphicsDevice.RasterizerState.CullMode = other;
         }
     }
 }

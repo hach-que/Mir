@@ -29,7 +29,6 @@ namespace Mir
 
         public LightEntity(
             LightRoomObject lightRoomObject,
-            IPhysicsEngine physicsEngine,
             I3DRenderUtilities threedRenderUtilities,
             IAssetManagerProvider assetManagerProvider)
         {

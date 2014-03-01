@@ -3,7 +3,7 @@ namespace Mir
     using System.Linq;
     using Protogame;
 
-    public class MoveBackwardAction : IEventAction<IGameContext>
+    public class JumpAction : IEventAction<IGameContext>
     {
         public void Handle(IGameContext context, Event @event)
         {
@@ -16,8 +16,7 @@ namespace Mir
 
             var player = world.Entities.OfType<PlayerEntity>().First();
 
-            player.Walked = true;
-            player.ApplyDirection(-player.ForwardVector * player.MovementSpeed);
+            player.InitiateJump();
         }
     }
 }

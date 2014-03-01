@@ -69,7 +69,7 @@ namespace Mir
 
             this.m_3DRenderUtilities.RenderCube(
                 renderContext,
-                Matrix.CreateScale(2, 2, 2) * this.Rotation * Matrix.CreateTranslation(this.X, this.Y, this.Z),
+                Matrix.CreateScale(2, 2, 2) * Matrix.CreateTranslation(-1f, -1f, -1f) * this.Rotation * Matrix.CreateTranslation(this.X, this.Y, this.Z),
                 new TextureAsset(this.m_DCPURenderTarget),
                 Vector2.Zero,
                 Vector2.One);

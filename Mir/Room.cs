@@ -133,7 +133,7 @@ namespace Mir
             if (renderFocusedTransparently && focused != null && this.m_RoomObjects.Contains(focused))
             {
                 renderContext.GraphicsDevice.BlendState = BlendState.AlphaBlend;
-                ((BasicEffect)renderContext.Effect).Alpha = 0.5f;
+                //((BasicEffect)renderContext.Effect).Alpha = 0.5f;
 
                 foreach (var pass in renderContext.Effect.CurrentTechnique.Passes)
                 {
@@ -143,7 +143,7 @@ namespace Mir
                 }
 
                 renderContext.GraphicsDevice.BlendState = BlendState.Opaque;
-                ((BasicEffect)renderContext.Effect).Alpha = 1f;
+                //((BasicEffect)renderContext.Effect).Alpha = 1f;
             }
 
             renderContext.World = oldWorld;

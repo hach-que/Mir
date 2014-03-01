@@ -16,10 +16,8 @@ namespace Mir
 
             var player = world.Entities.OfType<PlayerEntity>().First();
 
-            player.X += player.RightVector.X * player.MovementSpeed;
-            player.Z += player.RightVector.Z * player.MovementSpeed;
             player.Walked = true;
-            player.Constrain();
+            player.ApplyDirection(player.RightVector * player.MovementSpeed);
         }
     }
 }

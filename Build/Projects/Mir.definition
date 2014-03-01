@@ -18,6 +18,7 @@
   <Files>
     <Compile Include="DCPUEntity.cs" />
     <Compile Include="EmptyLight.cs" />
+    <Compile Include="Events\JumpAction.cs" />
     <Compile Include="Events\MouseMoveAction.cs" />
     <Compile Include="Events\MoveBackwardAction.cs" />
     <Compile Include="Events\MoveForwardAction.cs" />
