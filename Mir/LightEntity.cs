@@ -66,7 +66,7 @@ namespace Mir
                         new JVector(
                             baseX,
                             baseY - (i * 0.6f) + 0.3f,
-                            baseZ));
+                            baseZ)) { BiasFactor = 0.8f, Softness = 0.4f };
                     this.m_PendingConstraints.Add(constraint);
                 }
             }
