@@ -1,14 +1,11 @@
-using System;
-using Microsoft.Xna.Framework;
-using System.Collections.Generic;
-
 namespace Mir
 {
+    using Microsoft.Xna.Framework;
+
     public interface IMesh
     {
-        Vector3[] MeshVertexPositions { get; }
-
         short[] MeshIndicies { get; }
+
+        Vector3[] MeshVertexPositions { get; }
     }
 }
-

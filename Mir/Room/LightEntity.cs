@@ -1,25 +1,24 @@
-﻿using Jitter.Dynamics;
-using Jitter.Collision.Shapes;
-using Jitter.LinearMath;
-using Jitter.Dynamics.Constraints;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework.Input;
-
-namespace Mir
+﻿namespace Mir
 {
     using System;
+    using System.Collections.Generic;
+    using Jitter.Collision.Shapes;
+    using Jitter.Dynamics;
+    using Jitter.Dynamics.Constraints;
+    using Jitter.LinearMath;
     using Microsoft.Xna.Framework;
+    using Microsoft.Xna.Framework.Input;
     using Protogame;
 
     public class LightEntity : IEntity, ILight, IPhysicsEntity
     {
-        private readonly LightRoomObject m_LightRoomObject;
+        private readonly I3DRenderUtilities m_3DRenderUtilities;
 
-        private readonly RigidBody[] m_RopeComponents;
+        private readonly LightRoomObject m_LightRoomObject;
 
         private readonly List<Constraint> m_PendingConstraints;
 
-        private readonly I3DRenderUtilities m_3DRenderUtilities;
+        private readonly RigidBody[] m_RopeComponents;
 
         private readonly TextureAsset m_TextureAsset;
 
@@ -28,8 +27,8 @@ namespace Mir
         private bool m_SetPhysics;
 
         public LightEntity(
-            LightRoomObject lightRoomObject,
-            I3DRenderUtilities threedRenderUtilities,
+            LightRoomObject lightRoomObject, 
+            I3DRenderUtilities threedRenderUtilities, 
             IAssetManagerProvider assetManagerProvider)
         {
             this.m_LightRoomObject = lightRoomObject;
@@ -48,10 +47,7 @@ namespace Mir
             {
                 var shape = new BoxShape(0.5f, 0.5f, 0.5f);
                 var rigidBody = new RigidBody(shape);
-                rigidBody.Position = new JVector(
-                    baseX,
-                    baseY - (i * 0.6f),
-                    baseZ);
+                rigidBody.Position = new JVector(baseX, baseY - (i * 0.6f), baseZ);
                 this.m_RopeComponents[i] = rigidBody;
 
                 if (i == 0)
@@ -61,12 +57,11 @@ namespace Mir
                 else
                 {
                     var constraint = new PointOnPoint(
-                        rigidBody,
-                        this.m_RopeComponents[i - 1],
-                        new JVector(
-                            baseX,
-                            baseY - (i * 0.6f) + 0.3f,
-                            baseZ)) { BiasFactor = 0.8f, Softness = 0.4f };
+                        rigidBody, 
+                        this.m_RopeComponents[i - 1], 
+                        new JVector(baseX, baseY - (i * 0.6f) + 0.3f, baseZ)) {
+                                                                                 BiasFactor = 0.8f, Softness = 0.4f 
+                                                                              };
                     this.m_PendingConstraints.Add(constraint);
                 }
             }
@@ -96,13 +91,13 @@ namespace Mir
             }
         }
 
+        public Matrix Rotation { get; set; }
+
         public float X { get; set; }
 
         public float Y { get; set; }
 
         public float Z { get; set; }
-
-        public Matrix Rotation { get; set; }
 
         public void Render(IGameContext gameContext, IRenderContext renderContext)
         {
@@ -117,24 +112,22 @@ namespace Mir
                 var secondBody = this.m_RopeComponents[i + 1];
 
                 this.m_3DRenderUtilities.RenderLine(
-                    renderContext,
-                    firstBody.Position.ToXNAVector(),
-                    secondBody.Position.ToXNAVector(),
-                    this.m_TextureAsset,
-                    new Vector2(0.5f, 0.5f),
+                    renderContext, 
+                    firstBody.Position.ToXNAVector(), 
+                    secondBody.Position.ToXNAVector(), 
+                    this.m_TextureAsset, 
+                    new Vector2(0.5f, 0.5f), 
                     new Vector2(0.5f, 0.5f));
             }
 
             var lastBody = this.m_RopeComponents[this.m_RopeComponents.Length - 1];
 
             this.m_3DRenderUtilities.RenderCube(
-                renderContext,
-                Matrix.CreateScale(0.5f) * 
-                Matrix.CreateTranslation(-0.25f, -0.25f, -0.25f) *
-                lastBody.Orientation.ToXNAMatrix() * 
-                Matrix.CreateTranslation(lastBody.Position.ToXNAVector()),
-                new TextureAsset(renderContext.SingleWhitePixel),
-                Vector2.Zero,
+                renderContext, 
+                Matrix.CreateScale(0.5f) * Matrix.CreateTranslation(-0.25f, -0.25f, -0.25f)
+                * lastBody.Orientation.ToXNAMatrix() * Matrix.CreateTranslation(lastBody.Position.ToXNAVector()), 
+                new TextureAsset(renderContext.SingleWhitePixel), 
+                Vector2.Zero, 
                 Vector2.One);
         }
 

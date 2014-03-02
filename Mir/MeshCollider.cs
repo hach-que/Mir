@@ -1,10 +1,8 @@
-using System;
-using Microsoft.Xna.Framework;
-using Protogame;
-
 namespace Mir
 {
     using System.Collections.Generic;
+    using Microsoft.Xna.Framework;
+    using Protogame;
 
     public class MeshCollider : IMeshCollider
     {
@@ -15,10 +13,15 @@ namespace Mir
             this.m_Collision = collision;
         }
 
-        public bool Collides(Ray testRay, IEnumerable<IMesh> meshes, out Vector3 position, out IMesh hitMesh, bool furthest = false)
+        public bool Collides(
+            Ray testRay, 
+            IEnumerable<IMesh> meshes, 
+            out Vector3 position, 
+            out IMesh hitMesh, 
+            bool furthest = false)
         {
-            float distance = furthest ? 0f : 10000f;
-            Vector3 closestPosition = Vector3.Zero;
+            var distance = furthest ? 0f : 10000f;
+            var closestPosition = Vector3.Zero;
             IMesh closestMesh = null;
 
             foreach (var mesh in meshes)
@@ -36,11 +39,11 @@ namespace Mir
 
                     float tempDistance;
                     var point = this.m_Collision.CollidesWithTriangle(
-                        testRay,
-                        vertexA,
-                        vertexB,
-                        vertexC,
-                        out tempDistance,
+                        testRay, 
+                        vertexA, 
+                        vertexB, 
+                        vertexC, 
+                        out tempDistance, 
                         false);
                     if (point != null)
                     {
@@ -72,4 +75,3 @@ namespace Mir
         }
     }
 }
-

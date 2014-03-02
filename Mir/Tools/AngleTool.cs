@@ -1,7 +1,5 @@
 ﻿namespace Mir
 {
-    using Protogame;
-
     public class AngleTool : ITool
     {
         public string Name

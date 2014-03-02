@@ -27,6 +27,12 @@ namespace Mir
 
         private int m_BelowTextureIndex;
 
+        private Vector3[] m_CachedHitTestVertexPositionNormalTextures;
+
+        private short[] m_CachedMeshIndicies;
+
+        private VertexPositionNormalTexture[] m_CachedNoHitTestVertexPositionNormalTextures;
+
         private int m_Depth;
 
         private int m_FrontTextureIndex;
@@ -34,6 +40,8 @@ namespace Mir
         private int m_Height;
 
         private IndexBuffer m_IndexBuffer;
+
+        private JitterWorld m_JitterWorld;
 
         private int m_LeftBackEdgeMode;
 
@@ -51,8 +59,6 @@ namespace Mir
 
         private RigidBody m_RigidBody;
 
-        private JitterWorld m_JitterWorld;
-
         private int m_TouchAnimIndex;
 
         private VertexBuffer m_VertexBuffer;
@@ -64,12 +70,6 @@ namespace Mir
         private int m_Y;
 
         private int m_Z;
-
-        private short[] m_CachedMeshIndicies;
-
-        private Vector3[] m_CachedHitTestVertexPositionNormalTextures;
-
-        private VertexPositionNormalTexture[] m_CachedNoHitTestVertexPositionNormalTextures;
 
         public RoomObject()
         {
@@ -426,6 +426,7 @@ namespace Mir
         public Vector2 GetBottomRightTextureUV(int idx)
         {
             var x = (float)(idx % (int)AtlasRatio);
+
             // ReSharper disable once PossibleLossOfFraction
             var y = (float)(idx / (int)AtlasRatio);
             x = (x * CellSize) / AtlasSize;
@@ -474,6 +475,7 @@ namespace Mir
         public Vector2 GetTopLeftTextureUV(int idx)
         {
             var x = (float)(idx % (int)AtlasRatio);
+
             // ReSharper disable once PossibleLossOfFraction
             var y = (float)(idx / (int)AtlasRatio);
             x = (x * CellSize) / AtlasSize;
@@ -904,10 +906,48 @@ namespace Mir
             };
         }
 
+        private void RecalculateMeshIndicies()
+        {
+            var indiciesList = new List<short>();
+
+            // Left
+            indiciesList.AddRange(new short[] { 0, 2, 1, 3, 1, 2, 0, 1, 2, 3, 2, 1 });
+
+            // Right
+            indiciesList.AddRange(new short[] { 4, 5, 6, 7, 6, 5, 4, 6, 5, 7, 5, 6 });
+
+            // Below
+            indiciesList.AddRange(
+                new short[] { 0 + 8, 1 + 8, 4 + 8, 5 + 8, 4 + 8, 1 + 8, 0 + 8, 4 + 8, 1 + 8, 5 + 8, 1 + 8, 4 + 8 });
+
+            // Above
+            indiciesList.AddRange(
+                new short[] { 2 + 8, 6 + 8, 3 + 8, 7 + 8, 3 + 8, 6 + 8, 2 + 8, 3 + 8, 6 + 8, 7 + 8, 6 + 8, 3 + 8 });
+
+            // Back
+            indiciesList.AddRange(
+                new short[]
+                {
+                   0 + 16, 4 + 16, 2 + 16, 6 + 16, 2 + 16, 4 + 16, 0 + 16, 2 + 16, 4 + 16, 6 + 16, 4 + 16, 2 + 16 
+                });
+
+            // Front
+            indiciesList.AddRange(
+                new short[]
+                {
+                   1 + 16, 3 + 16, 5 + 16, 7 + 16, 5 + 16, 3 + 16, 1 + 16, 5 + 16, 3 + 16, 7 + 16, 3 + 16, 5 + 16 
+                });
+
+            var indicies = indiciesList.ToArray();
+
+            this.m_CachedMeshIndicies = indicies;
+        }
+
         private void RecalculateObject(IGameContext gameContext, IRenderContext renderContext)
         {
             // Recalculate vertex caches.
-            this.m_CachedHitTestVertexPositionNormalTextures = this.CalculateVertexPositionNormalTextures(true).Select(x => x.Position).ToArray();
+            this.m_CachedHitTestVertexPositionNormalTextures =
+                this.CalculateVertexPositionNormalTextures(true).Select(x => x.Position).ToArray();
             this.m_CachedNoHitTestVertexPositionNormalTextures = this.CalculateVertexPositionNormalTextures(false);
 
             // Recalculate vertex and index buffers.
@@ -922,7 +962,7 @@ namespace Mir
             }
 
             this.m_IndexBuffer = new IndexBuffer(
-                renderContext.GraphicsDevice,
+                renderContext.GraphicsDevice, 
                 typeof(short), 
                 this.MeshIndicies.Length, 
                 BufferUsage.None);
@@ -947,13 +987,15 @@ namespace Mir
 
                 var shape = new ConvexHullShape(this.GetVertexes().Select(x => x.ToJitterVector()).ToList());
                 this.m_JitterWorld = world.JitterWorld;
-                this.m_RigidBody = new RigidBody(shape);
-                this.m_RigidBody.IsStatic = true;
+                this.m_RigidBody = new RigidBody(shape)
+                {
+                    IsStatic = true,
+                    Position = new JVector(0, 0, 0) - shape.Shift
+                };
 
                 // The shape vertexes include X, Y, Z position offset, so
                 // the shift moves the object completely into the correct
                 // position.
-                this.m_RigidBody.Position = new JVector(0, 0, 0) - shape.Shift;
                 this.m_JitterWorld.AddBody(this.m_RigidBody);
 
                 this.m_PendRecalculation = false;
@@ -963,77 +1005,6 @@ namespace Mir
                 // We can't update the physics entity, so pend until we can.
                 this.m_PendRecalculation = true;
             }
-        }
-
-        private void RecalculateMeshIndicies()
-        {
-            var indiciesList = new List<short>();
-
-            // Left
-            indiciesList.AddRange(new short[] { 0, 2, 1, 3, 1, 2, 0, 1, 2, 3, 2, 1 });
-
-            // Right
-            indiciesList.AddRange(new short[] { 4, 5, 6, 7, 6, 5, 4, 6, 5, 7, 5, 6 });
-
-            // Below
-            indiciesList.AddRange(
-                new short[] { 0 + 8, 1 + 8, 4 + 8, 5 + 8, 4 + 8, 1 + 8, 0 + 8, 4 + 8, 1 + 8, 5 + 8, 1 + 8, 4 + 8 });
-
-            // Above
-            indiciesList.AddRange(
-                new short[] { 2 + 8, 6 + 8, 3 + 8, 7 + 8, 3 + 8, 6 + 8, 2 + 8, 3 + 8, 6 + 8, 7 + 8, 6 + 8, 3 + 8 });
-
-            // Back
-            indiciesList.AddRange(
-                new short[]
-                { 0 + 16, 4 + 16, 2 + 16, 6 + 16, 2 + 16, 4 + 16, 0 + 16, 2 + 16, 4 + 16, 6 + 16, 4 + 16, 2 + 16 });
-
-            // Front
-            indiciesList.AddRange(
-                new short[]
-                { 1 + 16, 3 + 16, 5 + 16, 7 + 16, 5 + 16, 3 + 16, 1 + 16, 5 + 16, 3 + 16, 7 + 16, 3 + 16, 5 + 16 });
-
-            var indicies = indiciesList.ToArray();
-
-            this.m_CachedMeshIndicies = indicies;
-        }
-    }
-
-    public class XnaDebugDrawer : IDebugDrawer
-    {
-        private readonly GraphicsDevice m_GraphicsDevice;
-
-        public XnaDebugDrawer(GraphicsDevice graphicsDevice)
-        {
-            this.m_GraphicsDevice = graphicsDevice;
-        }
-
-        public void DrawLine(JVector start, JVector end)
-        {
-        }
-
-        public void DrawPoint(JVector pos)
-        {
-        }
-
-        public void DrawTriangle(JVector pos1, JVector pos2, JVector pos3)
-        {
-            var other = this.m_GraphicsDevice.RasterizerState.CullMode;
-
-            this.m_GraphicsDevice.RasterizerState.CullMode = CullMode.None;
-
-            this.m_GraphicsDevice.DrawUserPrimitives(
-                PrimitiveType.TriangleList,
-                new[]
-                {
-                    new VertexPositionNormalTexture(pos1.ToXNAVector(), Vector3.One, Vector2.Zero),
-                    new VertexPositionNormalTexture(pos2.ToXNAVector(), Vector3.One, Vector2.Zero),
-                    new VertexPositionNormalTexture(pos3.ToXNAVector(), Vector3.One, Vector2.Zero),
-                },
-                0,
-                1);
-
-            this.m_GraphicsDevice.RasterizerState.CullMode = other;
         }
     }
 }

@@ -1,7 +1,5 @@
 ﻿namespace Mir
 {
-    using Protogame;
-
     public class MoveTool : ITool
     {
         public string Name

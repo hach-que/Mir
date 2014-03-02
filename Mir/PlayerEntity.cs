@@ -1,18 +1,21 @@
 namespace Mir
 {
     using System;
-    using System.Windows.Forms.VisualStyles;
     using Jitter.Collision.Shapes;
     using Jitter.Dynamics;
     using Jitter.LinearMath;
     using Microsoft.Xna.Framework;
-    using Microsoft.Xna.Framework.Graphics;
-    using Microsoft.Xna.Framework.Input;
     using Protogame;
 
     public class PlayerEntity : IPhysicsEntity, IEntity, ILight
     {
-        private readonly IPhysicsEngine m_PhysicsEngine;
+        private bool m_JumpRequested;
+
+        private Vector3 m_PendingMovement;
+
+        private PhysicsCharacterController m_PhysicsCharacterController;
+
+        private bool m_PhysicsSpawned;
 
         private float m_RelativeX;
 
@@ -20,22 +23,8 @@ namespace Mir
 
         private float m_RelativeZ;
 
-        private bool m_PhysicsSpawned;
-
         private RigidBody m_RigidBody;
 
-        private PhysicsCharacterController m_PhysicsCharacterController;
-
-        private Vector3 m_PendingMovement;
-
-        private bool m_JumpRequested;
-
-        public PlayerEntity(
-            IPhysicsEngine physicsEngine)
-        {
-            this.m_PhysicsEngine = physicsEngine;
-        }
-        
         public Vector3 ForwardVector
         {
             get
@@ -147,6 +136,17 @@ namespace Mir
             }
         }
 
+        public void ApplyDirection(Vector3 vector)
+        {
+            this.m_PendingMovement += vector;
+        }
+
+        public void InitiateJump()
+        {
+            this.m_JumpRequested = true;
+            this.m_PhysicsCharacterController.JumpVelocity = 6f;
+        }
+
         public void Render(IGameContext gameContext, IRenderContext renderContext)
         {
         }
@@ -159,7 +159,7 @@ namespace Mir
             var bob = (float)Math.Sin(this.WalkCounter / 4f);
 
             var pos = new Vector3(this.X, this.Y, this.Z);
-            var headAdjust = new Vector3(0, 8 + bob / 5f, 0);
+            var headAdjust = new Vector3(0, 8 + (bob / 5f), 0);
 
             var reference = Vector3.Transform(Vector3.Forward, Matrix.CreateFromYawPitchRoll(this.Yaw, this.Pitch, 0));
 
@@ -173,17 +173,6 @@ namespace Mir
                 5000f);
         }
 
-        public void ApplyDirection(Vector3 vector)
-        {
-            this.m_PendingMovement += vector;
-        }
-
-        public void InitiateJump()
-        {
-            this.m_JumpRequested = true;
-            this.m_PhysicsCharacterController.JumpVelocity = 6f;
-        }
-
         public void Update(IGameContext gameContext, IUpdateContext updateContext)
         {
             if (this.Walked && this.m_PhysicsCharacterController.OnFloor)
@@ -194,6 +183,11 @@ namespace Mir
 
             var roomEditorWorld = gameContext.World as RoomEditorWorld;
 
+            if (roomEditorWorld == null)
+            {
+                throw new InvalidOperationException("Not in the room editor!");
+            }
+
             if (!this.m_PhysicsSpawned)
             {
                 this.m_RigidBody = new RigidBody(new CapsuleShape(10.0f, 1.5f));
@@ -203,10 +197,7 @@ namespace Mir
                 this.m_RigidBody.EnableDebugDraw = true;
                 this.m_RigidBody.Material.Restitution = 0;
 
-                this.m_RigidBody.Position = new JVector(
-                    this.X,
-                    this.Y + 5f,
-                    this.Z);
+                this.m_RigidBody.Position = new JVector(this.X, this.Y + 5f, this.Z);
 
                 var jitterWorld = roomEditorWorld.JitterWorld;
 

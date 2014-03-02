@@ -1,6 +1,5 @@
 ﻿namespace Mir
 {
-    using System.Windows.Forms.VisualStyles;
     using Protogame;
 
     public class LightRoomObject : RoomObject

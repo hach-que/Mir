@@ -12,19 +12,19 @@
             }
         }
 
-        public string TextureName
-        {
-            get
-            {
-                return "new";
-            }
-        }
-
         public virtual Type NewType
         {
             get
             {
                 return typeof(RoomObject);
+            }
+        }
+
+        public string TextureName
+        {
+            get
+            {
+                return "new";
             }
         }
     }

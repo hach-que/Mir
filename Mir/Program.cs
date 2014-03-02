@@ -1,9 +1,9 @@
+
 #if PLATFORM_WINDOWS || PLATFORM_MACOS || PLATFORM_LINUX
 
 namespace Mir
 {
     using Ninject;
-
     using Protogame;
 
     public static class Program

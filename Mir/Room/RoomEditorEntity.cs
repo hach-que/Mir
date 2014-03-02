@@ -99,9 +99,9 @@
 
             if (world.ActiveTool is NewTool && this.m_HoveredMouseStartPosition != Vector3.Zero)
             {
-                var tempObject = (RoomObject)this.m_Kernel.Get(
-                    ((NewTool)world.ActiveTool).NewType,
-                    new ConstructorArgument("temporary", true));
+                var tempObject =
+                    (RoomObject)
+                    this.m_Kernel.Get(((NewTool)world.ActiveTool).NewType, new ConstructorArgument("temporary", true));
                 tempObject.X = (int)Math.Round(this.m_HoveredMouseStartPosition.X);
                 tempObject.Y = (int)Math.Round(this.m_HoveredMouseStartPosition.Y);
                 tempObject.Z = (int)Math.Round(this.m_HoveredMouseStartPosition.Z);
@@ -202,7 +202,7 @@
             this.m_SelectedMouseStartPosition = this.m_HoveredMouseStartPosition;
             this.m_SelectedRoomObjectDistanceToPlayer = -1;
 
-            if (this.m_HoveredRoomObject != null)
+            if (this.m_HoveredRoomObject != null && this.m_SelectedRoomObject != null)
             {
                 this.m_SelectedMouseStartPositionRelative = this.m_HoveredMouseStartPosition
                                                             - new Vector3(
@@ -302,7 +302,7 @@
                         this.m_RenderSelectionTransparently = true;
                     }
 
-                    if (this.m_SelectedRoomObjectDistanceToPlayer == -1f)
+                    if (Math.Abs(this.m_SelectedRoomObjectDistanceToPlayer - (-1f)) < 0.0001f)
                     {
                         var player = world.Entities.OfType<PlayerEntity>().First();
                         this.m_SelectedRoomObjectDistanceToPlayer =
@@ -311,30 +311,30 @@
 
                     if (world.ActiveTool is SizeTool)
                     {
-                        this.HandleResize(gameContext, updateContext);
+                        this.HandleResize(gameContext);
                     }
                     else if (world.ActiveTool is MoveTool)
                     {
-                        this.HandleMove(gameContext, updateContext);
+                        this.HandleMove(gameContext);
                     }
                     else if (world.ActiveTool is AngleTool)
                     {
-                        this.HandleAngle(gameContext, updateContext);
+                        this.HandleAngle();
                         this.ReleaseCurrentSelection();
                     }
                     else if (world.ActiveTool is TextureTool)
                     {
-                        this.HandleTexture(gameContext, updateContext);
+                        this.HandleTexture();
                         this.ReleaseCurrentSelection();
                     }
                     else if (world.ActiveTool is NewTool)
                     {
-                        this.HandleNew(gameContext, updateContext);
+                        this.HandleNew(gameContext);
                         this.ReleaseCurrentSelection();
                     }
                     else if (world.ActiveTool is DeleteTool)
                     {
-                        this.HandleDelete(gameContext, updateContext);
+                        this.HandleDelete();
                         this.ReleaseCurrentSelection();
                     }
 
@@ -343,7 +343,7 @@
             }
         }
 
-        private void HandleAngle(IGameContext gameContext, IUpdateContext updateContext)
+        private void HandleAngle()
         {
             switch (this.m_SelectedRoomObjectVerticalEdge)
             {
@@ -393,13 +393,13 @@
             }
         }
 
-        private void HandleDelete(IGameContext gameContext, IUpdateContext updateContext)
+        private void HandleDelete()
         {
             this.m_SelectedRoomObject.OnDelete();
             this.m_Room.Objects.Remove(this.m_SelectedRoomObject);
         }
 
-        private void HandleMove(IGameContext gameContext, IUpdateContext updateContext)
+        private void HandleMove(IGameContext gameContext)
         {
             var targetLoc = gameContext.MouseRay.Position
                             + (gameContext.MouseRay.Direction * this.m_SelectedRoomObjectDistanceToPlayer);
@@ -439,7 +439,7 @@
             }
         }
 
-        private void HandleNew(IGameContext gameContext, IUpdateContext updateContext)
+        private void HandleNew(IGameContext gameContext)
         {
             var roundedX = (int)Math.Round(this.m_SelectedMouseStartPosition.X);
             var roundedY = (int)Math.Round(this.m_SelectedMouseStartPosition.Y);
@@ -447,9 +447,9 @@
 
             var world = (RoomEditorWorld)gameContext.World;
 
-            var tempObject = (RoomObject)this.m_Kernel.Get(
-                ((NewTool)world.ActiveTool).NewType,
-                new ConstructorArgument("temporary", false));
+            var tempObject =
+                (RoomObject)
+                this.m_Kernel.Get(((NewTool)world.ActiveTool).NewType, new ConstructorArgument("temporary", false));
             tempObject.X = roundedX;
             tempObject.Y = roundedY;
             tempObject.Z = roundedZ;
@@ -472,7 +472,7 @@
             this.m_Room.Objects.Add(tempObject);
         }
 
-        private void HandleResize(IGameContext gameContext, IUpdateContext updateContext)
+        private void HandleResize(IGameContext gameContext)
         {
             switch (this.m_SelectedRoomObjectFace)
             {
@@ -701,7 +701,7 @@
             }
         }
 
-        private void HandleTexture(IGameContext gameContext, IUpdateContext updateContext)
+        private void HandleTexture()
         {
             var adj = this.m_IsSecondaryAlternateMode ? -1 : 1;
 

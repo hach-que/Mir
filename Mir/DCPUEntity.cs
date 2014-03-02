@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Mir
+﻿namespace Mir
 {
+    using System;
+    using System.Linq;
     using System.Reflection;
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Graphics;
@@ -13,18 +10,42 @@ namespace Mir
     using Tomato;
     using Tomato.Hardware;
 
+    /// <summary>
+    /// The dcpu entity.
+    /// </summary>
     public class DCPUEntity : IEntity, IPhysicsEntity
     {
+        /// <summary>
+        /// The m_3 d render utilities.
+        /// </summary>
         private readonly I3DRenderUtilities m_3DRenderUtilities;
 
+        /// <summary>
+        /// The m_ dcpu.
+        /// </summary>
         private readonly DCPU m_DCPU;
 
+        /// <summary>
+        /// The m_ generic keyboard.
+        /// </summary>
         private readonly GenericKeyboard m_GenericKeyboard;
 
+        /// <summary>
+        /// The m_ le m 1802.
+        /// </summary>
         private readonly LEM1802 m_LEM1802;
 
+        /// <summary>
+        /// The m_ dcpu render target.
+        /// </summary>
         private RenderTarget2D m_DCPURenderTarget;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DCPUEntity"/> class.
+        /// </summary>
+        /// <param name="threedRenderUtilities">
+        /// The threed render utilities.
+        /// </param>
         public DCPUEntity(I3DRenderUtilities threedRenderUtilities)
         {
             this.m_3DRenderUtilities = threedRenderUtilities;
@@ -48,16 +69,40 @@ namespace Mir
             this.m_DCPU.FlashMemory(program);
         }
 
-        public float X { get; set; }
-
-        public float Y { get; set; }
-
-        public float Z { get; set; }
-
+        /// <summary>
+        /// Gets or sets a value indicating whether accepting input.
+        /// </summary>
         public bool AcceptingInput { get; set; }
 
+        /// <summary>
+        /// Gets or sets the rotation.
+        /// </summary>
         public Matrix Rotation { get; set; }
 
+        /// <summary>
+        /// Gets or sets the x.
+        /// </summary>
+        public float X { get; set; }
+
+        /// <summary>
+        /// Gets or sets the y.
+        /// </summary>
+        public float Y { get; set; }
+
+        /// <summary>
+        /// Gets or sets the z.
+        /// </summary>
+        public float Z { get; set; }
+
+        /// <summary>
+        /// The render.
+        /// </summary>
+        /// <param name="gameContext">
+        /// The game context.
+        /// </param>
+        /// <param name="renderContext">
+        /// The render context.
+        /// </param>
         public void Render(IGameContext gameContext, IRenderContext renderContext)
         {
             if (!renderContext.Is3DContext)
@@ -68,13 +113,23 @@ namespace Mir
             this.RenderDCPU(renderContext);
 
             this.m_3DRenderUtilities.RenderCube(
-                renderContext,
-                Matrix.CreateScale(2, 2, 2) * Matrix.CreateTranslation(-1f, -1f, -1f) * this.Rotation * Matrix.CreateTranslation(this.X, this.Y, this.Z),
-                new TextureAsset(this.m_DCPURenderTarget),
-                Vector2.Zero,
+                renderContext, 
+                Matrix.CreateScale(2, 2, 2) * Matrix.CreateTranslation(-1f, -1f, -1f) * this.Rotation
+                * Matrix.CreateTranslation(this.X, this.Y, this.Z), 
+                new TextureAsset(this.m_DCPURenderTarget), 
+                Vector2.Zero, 
                 Vector2.One);
         }
 
+        /// <summary>
+        /// The update.
+        /// </summary>
+        /// <param name="gameContext">
+        /// The game context.
+        /// </param>
+        /// <param name="updateContext">
+        /// The update context.
+        /// </param>
         public void Update(IGameContext gameContext, IUpdateContext updateContext)
         {
             this.m_DCPU.Execute((int)(100000 * gameContext.GameTime.ElapsedGameTime.TotalSeconds));
@@ -122,13 +177,19 @@ namespace Mir
             }
         }
 
+        /// <summary>
+        /// The render dcpu.
+        /// </summary>
+        /// <param name="renderContext">
+        /// The render context.
+        /// </param>
         private void RenderDCPU(IRenderContext renderContext)
         {
             if (this.m_DCPURenderTarget == null)
             {
                 this.m_DCPURenderTarget = new RenderTarget2D(
-                    renderContext.GraphicsDevice,
-                    LEM1802.Width,
+                    renderContext.GraphicsDevice, 
+                    LEM1802.Width, 
                     LEM1802.Height);
             }
 

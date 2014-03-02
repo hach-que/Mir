@@ -1,7 +1,5 @@
 ﻿namespace Mir
 {
-    using Protogame;
-
     public class SizeTool : ITool
     {
         public string Name

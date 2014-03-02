@@ -2,12 +2,11 @@ namespace Mir
 {
     using System.Collections.Generic;
     using System.Linq;
-    using System.Windows.Forms;
     using Jitter;
     using Jitter.Collision;
     using Jitter.Collision.Shapes;
-    using Jitter.LinearMath;
     using Jitter.Dynamics;
+    using Jitter.LinearMath;
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Input;
     using Protogame;
@@ -18,29 +17,29 @@ namespace Mir
 
         private readonly IAssetManager m_AssetManager;
 
-        private readonly ITool[] m_Tools;
-
-        private readonly IPhysicsEngine m_PhysicsEngine;
-
-        private readonly RoomEditorEntity m_RoomEditorEntity;
-
         private readonly FontAsset m_DefaultFont;
+
+        private readonly JitterWorld m_JitterWorld;
 
         private readonly EffectAsset m_LightingEffect;
 
+        private readonly IPhysicsEngine m_PhysicsEngine;
+
+        private readonly RigidBody m_RigidBody;
+
         private readonly Room m_Room;
 
+        private readonly RoomEditorEntity m_RoomEditorEntity;
+
+        private readonly ITool[] m_Tools;
+
         private int m_ActiveTool;
-
-        private JitterWorld m_JitterWorld;
-
-        private RigidBody m_RigidBody;
 
         public RoomEditorWorld(
             IFactory factory, 
             I2DRenderUtilities twoDRenderUtilities, 
             IAssetManagerProvider assetManagerProvider, 
-            IPhysicsEngine physicsEngine,
+            IPhysicsEngine physicsEngine, 
             ITool[] tools)
         {
             this.Entities = new List<IEntity>();
@@ -77,9 +76,17 @@ namespace Mir
 
             this.m_PhysicsEngine = physicsEngine;
 
-            this.m_JitterWorld = new JitterWorld(new CollisionSystemSAP() { EnableSpeculativeContacts = true });
-            this.m_JitterWorld.Gravity = new JVector(0, -50, 0);
-            this.m_JitterWorld.ContactSettings.MaterialCoefficientMixing = ContactSettings.MaterialCoefficientMixingType.TakeMinimum;
+            this.m_JitterWorld = new JitterWorld(
+                new CollisionSystemSAP
+                {
+                    EnableSpeculativeContacts = true
+                })
+            {
+                Gravity = new JVector(0, -50, 0)
+            };
+
+            this.m_JitterWorld.ContactSettings.MaterialCoefficientMixing =
+                ContactSettings.MaterialCoefficientMixingType.TakeMinimum;
 
             var shape = new BoxShape(new JVector(2, 2, 2));
             var body = new RigidBody(shape);
@@ -89,6 +96,14 @@ namespace Mir
             this.m_RigidBody = body;
 
             this.SetupRoomPhysics();
+        }
+
+        public ITool ActiveTool
+        {
+            get
+            {
+                return this.m_Tools[this.m_ActiveTool];
+            }
         }
 
         public IList<IEntity> Entities { get; private set; }
@@ -101,16 +116,23 @@ namespace Mir
             }
         }
 
-        public ITool ActiveTool
+        public void ActivateAlternate()
         {
-            get
-            {
-                return this.m_Tools[this.m_ActiveTool];
-            }
+            this.m_RoomEditorEntity.UseAlternative = true;
+        }
+
+        public void DeactivateAlternate()
+        {
+            this.m_RoomEditorEntity.UseAlternative = false;
         }
 
         public void Dispose()
         {
+        }
+
+        public void ReleaseTool()
+        {
+            this.m_RoomEditorEntity.ReleaseCurrentSelection();
         }
 
         public void RenderAbove(IGameContext gameContext, IRenderContext renderContext)
@@ -137,9 +159,9 @@ namespace Mir
                 if (this.m_ActiveTool == i)
                 {
                     this.m_2DRenderUtilities.RenderText(
-                        renderContext,
-                        new Vector2(16 + 32, 16 + (i * 32) + 5),
-                        this.m_Tools[this.m_ActiveTool].Name,
+                        renderContext, 
+                        new Vector2(16 + 32, 16 + (i * 32) + 5), 
+                        this.m_Tools[this.m_ActiveTool].Name, 
                         this.m_DefaultFont);
                 }
 
@@ -160,28 +182,60 @@ namespace Mir
             var playerPos = new Vector3(player.X, player.Y, player.Z);
 
             var emptyLight = new EmptyLight();
-            var allLights = this.Entities.OfType<ILight>().OrderBy(x => (playerPos - x.LightPosition).LengthSquared()).ToArray();
-            var lights = new ILight[]
+            var allLights =
+                this.Entities.OfType<ILight>().OrderBy(x => (playerPos - x.LightPosition).LengthSquared()).ToArray();
+            var lights = new[]
             {
-                allLights.Length > 0 ? allLights[0] : emptyLight, allLights.Length > 1 ? allLights[1] : emptyLight,
+                allLights.Length > 0 ? allLights[0] : emptyLight, allLights.Length > 1 ? allLights[1] : emptyLight, 
                 allLights.Length > 2 ? allLights[2] : emptyLight
             };
 
-            this.m_LightingEffect.Effect.Parameters["LightColours"].SetValue(new Matrix(
-                lights[0].LightColor.R / 255f, lights[0].LightColor.G / 255f, lights[0].LightColor.B / 255f, 1,
-                lights[1].LightColor.R / 255f, lights[1].LightColor.G / 255f, lights[1].LightColor.B / 255f, 1,
-                lights[2].LightColor.R / 255f, lights[2].LightColor.G / 255f, lights[2].LightColor.B / 255f, 1,
-                1, 1, 1, 1));
+            this.m_LightingEffect.Effect.Parameters["LightColours"].SetValue(
+                new Matrix(
+                    lights[0].LightColor.R / 255f, 
+                    lights[0].LightColor.G / 255f, 
+                    lights[0].LightColor.B / 255f, 
+                    1, 
+                    lights[1].LightColor.R / 255f, 
+                    lights[1].LightColor.G / 255f, 
+                    lights[1].LightColor.B / 255f, 
+                    1, 
+                    lights[2].LightColor.R / 255f, 
+                    lights[2].LightColor.G / 255f, 
+                    lights[2].LightColor.B / 255f, 
+                    1, 
+                    1, 
+                    1, 
+                    1, 
+                    1));
 
-            this.m_LightingEffect.Effect.Parameters["Lights"].SetValue(new Matrix(
-                lights[0].LightPosition.X, lights[0].LightPosition.Y, lights[0].LightPosition.Z, lights[0].LightDistance,
-                lights[1].LightPosition.X, lights[1].LightPosition.Y, lights[1].LightPosition.Z, lights[1].LightDistance,
-                lights[2].LightPosition.X, lights[2].LightPosition.Y, lights[2].LightPosition.Z, lights[2].LightDistance,
-                1, 1, 1, 1));
+            this.m_LightingEffect.Effect.Parameters["Lights"].SetValue(
+                new Matrix(
+                    lights[0].LightPosition.X, 
+                    lights[0].LightPosition.Y, 
+                    lights[0].LightPosition.Z, 
+                    lights[0].LightDistance, 
+                    lights[1].LightPosition.X, 
+                    lights[1].LightPosition.Y, 
+                    lights[1].LightPosition.Z, 
+                    lights[1].LightDistance, 
+                    lights[2].LightPosition.X, 
+                    lights[2].LightPosition.Y, 
+                    lights[2].LightPosition.Z, 
+                    lights[2].LightDistance, 
+                    1, 
+                    1, 
+                    1, 
+                    1));
 
             renderContext.PushEffect(this.m_LightingEffect.Effect);
 
             player.SetCamera(renderContext);
+        }
+
+        public void TestPhysics()
+        {
+            this.m_RigidBody.ApplyImpulse(new JVector(0, 15, 0));
         }
 
         public void Update(IGameContext gameContext, IUpdateContext updateContext)
@@ -194,7 +248,6 @@ namespace Mir
 
             this.m_PhysicsEngine.UpdateWorld(this.m_JitterWorld, gameContext, updateContext);
 
-            // TODO: Do this through the event system
             var mouse = Mouse.GetState();
             var value = mouse.ScrollWheelValue;
             while (value < 0)
@@ -214,26 +267,6 @@ namespace Mir
             this.m_RoomEditorEntity.SelectCurrentHover(gameContext, secondaryAlt);
         }
 
-        public void ReleaseTool()
-        {
-            this.m_RoomEditorEntity.ReleaseCurrentSelection();
-        }
-
-        public void ActivateAlternate()
-        {
-            this.m_RoomEditorEntity.UseAlternative = true;
-        }
-
-        public void DeactivateAlternate()
-        {
-            this.m_RoomEditorEntity.UseAlternative = false;
-        }
-
-        public void TestPhysics()
-        {
-            this.m_RigidBody.ApplyImpulse(new JVector(0, 15, 0));
-        }
-
         private void SetupRoomPhysics()
         {
             // Set up the static physics bodies for each wall.
@@ -241,8 +274,8 @@ namespace Mir
             var floorBody = new RigidBody(floorShape);
             this.m_JitterWorld.AddBody(floorBody);
             floorBody.Position = new JVector(
-                this.m_Room.X + (this.m_Room.Width / 2f),
-                this.m_Room.Y - 0.5f,
+                this.m_Room.X + (this.m_Room.Width / 2f), 
+                this.m_Room.Y - 0.5f, 
                 this.m_Room.Z + (this.m_Room.Depth / 2f));
             floorBody.IsStatic = true;
 
@@ -250,8 +283,8 @@ namespace Mir
             var roofBody = new RigidBody(roofShape);
             this.m_JitterWorld.AddBody(roofBody);
             roofBody.Position = new JVector(
-                this.m_Room.X + (this.m_Room.Width / 2f),
-                this.m_Room.Y + this.m_Room.Height + 0.5f,
+                this.m_Room.X + (this.m_Room.Width / 2f), 
+                this.m_Room.Y + this.m_Room.Height + 0.5f, 
                 this.m_Room.Z + (this.m_Room.Depth / 2f));
             roofBody.IsStatic = true;
 
@@ -259,8 +292,8 @@ namespace Mir
             var leftBody = new RigidBody(leftShape);
             this.m_JitterWorld.AddBody(leftBody);
             leftBody.Position = new JVector(
-                this.m_Room.X - 0.5f,
-                this.m_Room.Y + (this.m_Room.Height / 2f),
+                this.m_Room.X - 0.5f, 
+                this.m_Room.Y + (this.m_Room.Height / 2f), 
                 this.m_Room.Z + (this.m_Room.Depth / 2f));
             leftBody.IsStatic = true;
 
@@ -268,8 +301,8 @@ namespace Mir
             var rightBody = new RigidBody(rightShape);
             this.m_JitterWorld.AddBody(rightBody);
             rightBody.Position = new JVector(
-                this.m_Room.X + this.m_Room.Width + 0.5f,
-                this.m_Room.Y + (this.m_Room.Height / 2f),
+                this.m_Room.X + this.m_Room.Width + 0.5f, 
+                this.m_Room.Y + (this.m_Room.Height / 2f), 
                 this.m_Room.Z + (this.m_Room.Depth / 2f));
             rightBody.IsStatic = true;
 
@@ -277,8 +310,8 @@ namespace Mir
             var backBody = new RigidBody(backShape);
             this.m_JitterWorld.AddBody(backBody);
             backBody.Position = new JVector(
-                this.m_Room.X + (this.m_Room.Width / 2f),
-                this.m_Room.Y + (this.m_Room.Height / 2f),
+                this.m_Room.X + (this.m_Room.Width / 2f), 
+                this.m_Room.Y + (this.m_Room.Height / 2f), 
                 this.m_Room.Z - 0.5f);
             backBody.IsStatic = true;
 
@@ -286,8 +319,8 @@ namespace Mir
             var frontBody = new RigidBody(frontShape);
             this.m_JitterWorld.AddBody(frontBody);
             frontBody.Position = new JVector(
-                this.m_Room.X + (this.m_Room.Width / 2f),
-                this.m_Room.Y + (this.m_Room.Height / 2f),
+                this.m_Room.X + (this.m_Room.Width / 2f), 
+                this.m_Room.Y + (this.m_Room.Height / 2f), 
                 this.m_Room.Z + this.m_Room.Depth + 0.5f);
             frontBody.IsStatic = true;
         }

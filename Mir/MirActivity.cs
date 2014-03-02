@@ -1,3 +1,4 @@
+
 #if PLATFORM_ANDROID || PLATFORM_OUYA
 
 namespace Mir
@@ -22,9 +23,9 @@ namespace Mir
     using Protogame;
   
     [Activity(
-        Label = "Mir",
-        MainLauncher = true,
-        ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.Keyboard | ConfigChanges.KeyboardHidden,
+        Label = "Mir", 
+        MainLauncher = true, 
+        ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.Keyboard | ConfigChanges.KeyboardHidden, 
         ScreenOrientation = ScreenOrientation.Landscape)]
     public class MirActivity : AndroidGameActivity
     {

@@ -1,7 +1,5 @@
 ﻿namespace Mir
 {
-    using Protogame;
-
     public class DCPUTool : ITool
     {
         public string Name
