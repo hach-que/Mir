@@ -9,6 +9,7 @@ float4x4 Lights;
 
 float3 Ambient;
 float3 AmbientRemaining;
+float Alpha;
 
 struct VertexShaderInput
 {
@@ -78,7 +79,7 @@ PixelShaderOutput DefaultPixelShader(VertexShaderOutput input)
 	//lightResult.b = min(1, lightResult.b);
 
 	// Calculate final lighting impact.
-	float4 lightingRemaining = float4(Ambient + (lightResult * AmbientRemaining), 1);
+	float4 lightingRemaining = float4(Ambient + (lightResult * AmbientRemaining), Alpha);
 
 	output.Color = PROTOGAME_SAMPLE_TEXTURE(Texture, input.TexCoord) * lightingRemaining;
     

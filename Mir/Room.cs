@@ -41,12 +41,6 @@ namespace Mir
             this.m_TextureAsset = assetManagerProvider.GetAssetManager().Get<TextureAsset>("ship");
 
             this.m_RoomObjects = new List<RoomObject>();
-
-            this.m_RoomObjects.Add(new RoomObject { X = 1, Y = 1, Z = 1 });
-            this.m_RoomObjects.Add(new RoomObject { X = 3, Y = 1, Z = 1 });
-            this.m_RoomObjects.Add(new RoomObject { X = 1, Y = 1, Z = 3 });
-
-            this.m_RoomObjects.Add(new RoomObject { X = 5, Y = 0, Z = 5, Width = 5 });
         }
 
         public float X { get; set; }
@@ -133,7 +127,7 @@ namespace Mir
             if (renderFocusedTransparently && focused != null && this.m_RoomObjects.Contains(focused))
             {
                 renderContext.GraphicsDevice.BlendState = BlendState.AlphaBlend;
-                //((BasicEffect)renderContext.Effect).Alpha = 0.5f;
+                renderContext.Effect.Parameters["Alpha"].SetValue(0.5f);
 
                 foreach (var pass in renderContext.Effect.CurrentTechnique.Passes)
                 {
@@ -143,7 +137,7 @@ namespace Mir
                 }
 
                 renderContext.GraphicsDevice.BlendState = BlendState.Opaque;
-                //((BasicEffect)renderContext.Effect).Alpha = 1f;
+                renderContext.Effect.Parameters["Alpha"].SetValue(1f);
             }
 
             renderContext.World = oldWorld;
