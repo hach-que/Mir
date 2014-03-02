@@ -6,7 +6,7 @@ namespace Mir
     /// <summary>
     /// The mir static event binder.
     /// </summary>
-    public class MirStaticEventBinder : StaticEventBinder<IGameContext>
+    public class RoomEditorStaticEventBinder : StaticEventBinder<IGameContext>
     {
         /// <summary>
         /// The configure.
@@ -28,6 +28,11 @@ namespace Mir
             this.Bind<KeyReleaseEvent>(x => x.Key == Keys.LeftShift).To<ToolAlternateAction>();
 
             this.Bind<KeyHeldEvent>(x => x.Key == Keys.Space).To<JumpAction>();
+        }
+
+        protected override bool Filter(IGameContext context, Event @event)
+        {
+            return context.World is RoomEditorWorld;
         }
     }
 }

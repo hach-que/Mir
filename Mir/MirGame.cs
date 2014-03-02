@@ -4,7 +4,7 @@ namespace Mir
     using Ninject;
     using Protogame;
 
-    public class MirGame : CoreGame<RoomEditorWorld, Default3DWorldManager>
+    public class MirGame : CoreGame<MainMenuWorld, Default3DWorldManager>
     {
         public MirGame(StandardKernel kernel)
             : base(kernel)

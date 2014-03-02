@@ -16,6 +16,11 @@ namespace Mir
                 return;
             }
 
+            if (!(context.World is RoomEditorWorld))
+            {
+                return;
+            }
+
             var viewport = ((MirGame)context.Game).RenderContext.GraphicsDevice.Viewport;
 
             var diffX = mouseEvent.X - (viewport.Width / 2);

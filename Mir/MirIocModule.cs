@@ -8,7 +8,9 @@ namespace Mir
     {
         public override void Load()
         {
-            this.Bind<IEventBinder<IGameContext>>().To<MirStaticEventBinder>();
+            this.Bind<IEventBinder<IGameContext>>().To<RoomEditorStaticEventBinder>();
+            this.Bind<IEventBinder<IGameContext>>().To<MainMenuStaticEventBinder>();
+
             this.Bind<IFactory>().ToFactory();
             this.Bind<IMeshCollider>().To<MeshCollider>();
 
