@@ -200,6 +200,7 @@ namespace Mir
                 this.m_RigidBody.AllowDeactivation = false;
                 this.m_RigidBody.EnableSpeculativeContacts = true;
                 this.m_RigidBody.EnableDebugDraw = true;
+                this.m_RigidBody.Material.Restitution = 0;
 
                 this.m_RigidBody.Position = new JVector(
                     this.X,
@@ -209,7 +210,7 @@ namespace Mir
                 var jitterWorld = roomEditorWorld.JitterWorld;
 
                 this.m_PhysicsCharacterController = new PhysicsCharacterController(jitterWorld, this.m_RigidBody);
-                this.m_PhysicsCharacterController.Stiffness = 0.5f;
+                this.m_PhysicsCharacterController.Stiffness = 0.05f;
                 jitterWorld.AddBody(this.m_RigidBody);
                 jitterWorld.AddConstraint(this.m_PhysicsCharacterController);
 
