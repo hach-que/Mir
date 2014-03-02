@@ -84,7 +84,7 @@ namespace Mir
         {
             get
             {
-                return 30;
+                return 60;
             }
         }
 

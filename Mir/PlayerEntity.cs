@@ -1,6 +1,7 @@
 namespace Mir
 {
     using System;
+    using System.Windows.Forms.VisualStyles;
     using Jitter.Collision.Shapes;
     using Jitter.Dynamics;
     using Jitter.LinearMath;

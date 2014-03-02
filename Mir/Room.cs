@@ -34,9 +34,9 @@ namespace Mir
             this.AboveTextureIndex = 2;
             this.BelowTextureIndex = 1;
 
-            this.Width = 40;
-            this.Height = 20;
-            this.Depth = 50;
+            this.Width = 80;
+            this.Height = 60;
+            this.Depth = 100;
 
             this.m_TextureAsset = assetManagerProvider.GetAssetManager().Get<TextureAsset>("ship");
 

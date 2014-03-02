@@ -23,6 +23,11 @@ namespace Mir
 
             foreach (var mesh in meshes)
             {
+                if (mesh.MeshVertexPositions == null)
+                {
+                    continue;
+                }
+
                 for (var a = 0; a < mesh.MeshIndicies.Length; a += 3)
                 {
                     var vertexA = mesh.MeshVertexPositions[mesh.MeshIndicies[a]];
