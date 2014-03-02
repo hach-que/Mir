@@ -22,6 +22,8 @@ namespace Mir
             this.Bind<ITool>().To<NewLightTool>();
             this.Bind<ITool>().To<DeleteTool>();
             this.Bind<ITool>().To<DCPUTool>();
+
+            this.Bind<IShipStorage>().To<ShipStorage>();
         }
     }
 }

@@ -23,6 +23,7 @@
     <Compile Include="ILight.cs" />
     <Compile Include="IMesh.cs" />
     <Compile Include="IMeshCollider.cs" />
+    <Compile Include="IShipStorage.cs" />
     <Compile Include="MainMenu\Events\MenuSelectAction.cs" />
     <Compile Include="MainMenu\MainMenuStaticEventBinder.cs" />
     <Compile Include="MainMenu\MainMenuWorld.cs" />
@@ -50,6 +51,8 @@
     <Compile Include="RoomEditor\RoomObject.cs" />
     <Compile Include="RoomEditor\XnaDebugDrawer.cs" />
     <Compile Include="ShipEntity.cs" />
+    <Compile Include="ShipSelect\ShipSelectWorld.cs" />
+    <Compile Include="ShipStorage.cs" />
     <Compile Include="Tools\AngleTool.cs" />
     <Compile Include="Tools\DCPUTool.cs" />
     <Compile Include="Tools\DeleteTool.cs" />
