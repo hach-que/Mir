@@ -187,10 +187,16 @@ namespace Mir
             var lights = new[]
             {
                 allLights.Length > 0 ? allLights[0] : emptyLight, allLights.Length > 1 ? allLights[1] : emptyLight, 
-                allLights.Length > 2 ? allLights[2] : emptyLight
+                allLights.Length > 2 ? allLights[2] : emptyLight, allLights.Length > 3 ? allLights[3] : emptyLight, 
+                allLights.Length > 4 ? allLights[4] : emptyLight, allLights.Length > 5 ? allLights[5] : emptyLight, 
+                allLights.Length > 6 ? allLights[6] : emptyLight, allLights.Length > 7 ? allLights[7] : emptyLight, 
+                allLights.Length > 8 ? allLights[8] : emptyLight, allLights.Length > 9 ? allLights[9] : emptyLight, 
+                allLights.Length > 10 ? allLights[10] : emptyLight, allLights.Length > 11 ? allLights[11] : emptyLight, 
+                allLights.Length > 12 ? allLights[12] : emptyLight, allLights.Length > 13 ? allLights[13] : emptyLight, 
+                allLights.Length > 14 ? allLights[14] : emptyLight, allLights.Length > 15 ? allLights[15] : emptyLight
             };
 
-            this.m_LightingEffect.Effect.Parameters["LightColours"].SetValue(
+            this.m_LightingEffect.Effect.Parameters["LightColours1"].SetValue(
                 new Matrix(
                     lights[0].LightColor.R / 255f, 
                     lights[0].LightColor.G / 255f, 
@@ -201,15 +207,72 @@ namespace Mir
                     lights[1].LightColor.B / 255f, 
                     1, 
                     lights[2].LightColor.R / 255f, 
-                    lights[2].LightColor.G / 255f, 
-                    lights[2].LightColor.B / 255f, 
-                    1, 
-                    1, 
-                    1, 
-                    1, 
+                    lights[2].LightColor.G / 255f,
+                    lights[2].LightColor.B / 255f,
+                    1,
+                    lights[3].LightColor.R / 255f,
+                    lights[3].LightColor.G / 255f,
+                    lights[3].LightColor.B / 255f, 
                     1));
 
-            this.m_LightingEffect.Effect.Parameters["Lights"].SetValue(
+            this.m_LightingEffect.Effect.Parameters["LightColours2"].SetValue(
+                new Matrix(
+                    lights[4].LightColor.R / 255f,
+                    lights[4].LightColor.G / 255f,
+                    lights[4].LightColor.B / 255f,
+                    1,
+                    lights[5].LightColor.R / 255f,
+                    lights[5].LightColor.G / 255f,
+                    lights[5].LightColor.B / 255f,
+                    1,
+                    lights[6].LightColor.R / 255f,
+                    lights[6].LightColor.G / 255f,
+                    lights[6].LightColor.B / 255f,
+                    1,
+                    lights[7].LightColor.R / 255f,
+                    lights[7].LightColor.G / 255f,
+                    lights[7].LightColor.B / 255f,
+                    1));
+
+            this.m_LightingEffect.Effect.Parameters["LightColours3"].SetValue(
+                new Matrix(
+                    lights[8].LightColor.R / 255f,
+                    lights[8].LightColor.G / 255f,
+                    lights[8].LightColor.B / 255f,
+                    1,
+                    lights[9].LightColor.R / 255f,
+                    lights[9].LightColor.G / 255f,
+                    lights[9].LightColor.B / 255f,
+                    1,
+                    lights[10].LightColor.R / 255f,
+                    lights[10].LightColor.G / 255f,
+                    lights[10].LightColor.B / 255f,
+                    1,
+                    lights[11].LightColor.R / 255f,
+                    lights[11].LightColor.G / 255f,
+                    lights[11].LightColor.B / 255f,
+                    1));
+
+            this.m_LightingEffect.Effect.Parameters["LightColours4"].SetValue(
+                new Matrix(
+                    lights[12].LightColor.R / 255f,
+                    lights[12].LightColor.G / 255f,
+                    lights[12].LightColor.B / 255f,
+                    1,
+                    lights[13].LightColor.R / 255f,
+                    lights[13].LightColor.G / 255f,
+                    lights[13].LightColor.B / 255f,
+                    1,
+                    lights[14].LightColor.R / 255f,
+                    lights[14].LightColor.G / 255f,
+                    lights[14].LightColor.B / 255f,
+                    1,
+                    lights[15].LightColor.R / 255f,
+                    lights[15].LightColor.G / 255f,
+                    lights[15].LightColor.B / 255f,
+                    1));
+
+            this.m_LightingEffect.Effect.Parameters["Lights1"].SetValue(
                 new Matrix(
                     lights[0].LightPosition.X, 
                     lights[0].LightPosition.Y, 
@@ -223,10 +286,67 @@ namespace Mir
                     lights[2].LightPosition.Y, 
                     lights[2].LightPosition.Z, 
                     lights[2].LightDistance, 
-                    1, 
-                    1, 
-                    1, 
-                    1));
+                    lights[3].LightPosition.X, 
+                    lights[3].LightPosition.Y, 
+                    lights[3].LightPosition.Z,
+                    lights[3].LightDistance));
+
+            this.m_LightingEffect.Effect.Parameters["Lights2"].SetValue(
+                new Matrix(
+                    lights[4].LightPosition.X,
+                    lights[4].LightPosition.Y,
+                    lights[4].LightPosition.Z,
+                    lights[4].LightDistance,
+                    lights[5].LightPosition.X,
+                    lights[5].LightPosition.Y,
+                    lights[5].LightPosition.Z,
+                    lights[5].LightDistance,
+                    lights[6].LightPosition.X,
+                    lights[6].LightPosition.Y,
+                    lights[6].LightPosition.Z,
+                    lights[6].LightDistance,
+                    lights[7].LightPosition.X,
+                    lights[7].LightPosition.Y,
+                    lights[7].LightPosition.Z,
+                    lights[7].LightDistance));
+
+            this.m_LightingEffect.Effect.Parameters["Lights3"].SetValue(
+                new Matrix(
+                    lights[8].LightPosition.X,
+                    lights[8].LightPosition.Y,
+                    lights[8].LightPosition.Z,
+                    lights[8].LightDistance,
+                    lights[9].LightPosition.X,
+                    lights[9].LightPosition.Y,
+                    lights[9].LightPosition.Z,
+                    lights[9].LightDistance,
+                    lights[10].LightPosition.X,
+                    lights[10].LightPosition.Y,
+                    lights[10].LightPosition.Z,
+                    lights[10].LightDistance,
+                    lights[11].LightPosition.X,
+                    lights[11].LightPosition.Y,
+                    lights[11].LightPosition.Z,
+                    lights[11].LightDistance));
+
+            this.m_LightingEffect.Effect.Parameters["Lights4"].SetValue(
+                new Matrix(
+                    lights[12].LightPosition.X,
+                    lights[12].LightPosition.Y,
+                    lights[12].LightPosition.Z,
+                    lights[12].LightDistance,
+                    lights[13].LightPosition.X,
+                    lights[13].LightPosition.Y,
+                    lights[13].LightPosition.Z,
+                    lights[13].LightDistance,
+                    lights[14].LightPosition.X,
+                    lights[14].LightPosition.Y,
+                    lights[14].LightPosition.Z,
+                    lights[14].LightDistance,
+                    lights[15].LightPosition.X,
+                    lights[15].LightPosition.Y,
+                    lights[15].LightPosition.Z,
+                    lights[15].LightDistance));
 
             renderContext.PushEffect(this.m_LightingEffect.Effect);
 

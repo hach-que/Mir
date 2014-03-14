@@ -8,7 +8,7 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="protobuf-net" />
     <Reference Include="Ninject" />
-    <Reference Include="MonoGame" />
+    <Reference Include="MonoGame.Framework" />
     <Reference Include="Protogame" />
     <Reference Include="Protogame.ThirdParty" />
     <Reference Include="Mir.Content" />
@@ -62,7 +62,16 @@
     <Compile Include="Tools\NewTool.cs" />
     <Compile Include="Tools\SizeTool.cs" />
     <Compile Include="Tools\TextureTool.cs" />
+    <Content Include="Light.fx">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Light.tt</DependentUpon>
+    </Content>
     <EmbeddedResource Include="test.bin" />
+    <None Include="Light.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Light.fx</LastGenOutput>
+    </None>
     <None Include="Properties\AndroidManifest.xml" />
   </Files>
 </Project>

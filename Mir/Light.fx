@@ -1,4 +1,4 @@
-PROTOGAME_DECLARE_TEXTURE(Texture);
+﻿PROTOGAME_DECLARE_TEXTURE(Texture);
 
 float4x4 World;
 float4x4 View;

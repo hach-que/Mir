@@ -1,0 +1,117 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ output extension=".fx" #>
+<#
+/*
+This file must be copied into the Light.fx file.
+*/
+    var maxLights = 16;
+#>
+PROTOGAME_DECLARE_TEXTURE(Texture);
+
+float4x4 World;
+float4x4 View;
+float4x4 Projection;
+
+<#
+for (var i = 0; i < maxLights; i += 4)
+{
+    #>
+float4x4 LightColours<#=i/4 + 1#>;
+float4x4 Lights<#=i/4 + 1#>;
+<#
+}
+#>
+
+float3 Ambient;
+float3 AmbientRemaining;
+float Alpha;
+
+struct VertexShaderInput
+{
+    float4 Position : PROTOGAME_POSITION;
+    float2 TexCoord : PROTOGAME_TEXCOORD(0);
+};
+
+struct VertexShaderOutput
+{
+    float4 Position : PROTOGAME_POSITION;
+    float2 TexCoord : PROTOGAME_TEXCOORD(0);
+	float4 WorldPosition : PROTOGAME_TARGET(0);
+};
+
+struct PixelShaderOutput
+{
+	float4 Color : PROTOGAME_TARGET(0);
+};
+
+VertexShaderOutput DefaultVertexShader(VertexShaderInput input)
+{
+    VertexShaderOutput output;
+    
+    float4 worldPosition = mul(input.Position, World);
+    float4 viewPosition = mul(worldPosition, View);
+    output.Position = mul(viewPosition, Projection);
+
+	output.WorldPosition = worldPosition;
+
+    output.TexCoord = input.TexCoord;
+
+    return output;
+}
+
+<#
+for (var i = 0; i < maxLights; i += 4)
+{
+    #>
+float3 GetLightImpactAtPixel<#=i/4 + 1#>(VertexShaderOutput input, int idx)
+{
+	float lightDistance = Lights<#=i/4 + 1#>[idx].w;
+
+	if (lightDistance == 0)
+	{
+		return float3(0, 0, 0);
+	}
+
+	float3 lightPosition = Lights<#=i/4 + 1#>[idx].xyz;
+	float3 lightColor = LightColours<#=i/4 + 1#>[idx].xyz;
+
+	float distance = length(input.WorldPosition - lightPosition);
+	float invDistance = max(0, lightDistance - distance) / lightDistance;
+	return float3(invDistance * lightColor.r, invDistance * lightColor.g, invDistance * lightColor.b);
+}
+
+<#
+}
+#>
+PixelShaderOutput DefaultPixelShader(VertexShaderOutput input)
+{
+	PixelShaderOutput output;
+
+	// Calculate lights
+	float3 lightResult = float3(0, 0, 0);
+<#
+for (var i = 0; i < maxLights; i++)
+{
+    #>
+	lightResult += GetLightImpactAtPixel<#=i/4 + 1#>(input, <#=i%4#>);
+<#
+}
+#>
+
+	// Calculate final lighting impact.
+	float4 lightingRemaining = float4(Ambient + (lightResult * AmbientRemaining), Alpha);
+
+	output.Color = PROTOGAME_SAMPLE_TEXTURE(Texture, input.TexCoord) * lightingRemaining;
+    
+    return output;
+}
+
+technique
+{
+	pass
+	{
+		VertexShader = compile PROTOGAME_VERTEX_HIGH_SHADER DefaultVertexShader();
+		PixelShader = compile PROTOGAME_PIXEL_HIGH_SHADER DefaultPixelShader();
+	}
+}
