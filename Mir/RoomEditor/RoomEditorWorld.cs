@@ -31,7 +31,7 @@ namespace Mir
 
         private readonly RoomEditorEntity m_RoomEditorEntity;
 
-        private readonly ITool[] m_Tools;
+        private readonly IRoomTool[] m_RoomTools;
 
         private int m_ActiveTool;
 
@@ -40,13 +40,13 @@ namespace Mir
             I2DRenderUtilities twoDRenderUtilities, 
             IAssetManagerProvider assetManagerProvider, 
             IPhysicsEngine physicsEngine, 
-            ITool[] tools)
+            IRoomTool[] roomTools)
         {
             this.Entities = new List<IEntity>();
 
             this.m_2DRenderUtilities = twoDRenderUtilities;
             this.m_AssetManager = assetManagerProvider.GetAssetManager();
-            this.m_Tools = tools;
+            this.m_RoomTools = roomTools;
             this.m_DefaultFont = this.m_AssetManager.Get<FontAsset>("font.Default");
             this.m_LightingEffect = this.m_AssetManager.Get<EffectAsset>("effect.Light");
 
@@ -98,11 +98,11 @@ namespace Mir
             this.SetupRoomPhysics();
         }
 
-        public ITool ActiveTool
+        public IRoomTool ActiveRoomTool
         {
             get
             {
-                return this.m_Tools[this.m_ActiveTool];
+                return this.m_RoomTools[this.m_ActiveTool];
             }
         }
 
@@ -144,9 +144,9 @@ namespace Mir
                 return;
             }
 
-            for (var i = 0; i < this.m_Tools.Length; i++)
+            for (var i = 0; i < this.m_RoomTools.Length; i++)
             {
-                var tool = this.m_Tools[i];
+                var tool = this.m_RoomTools[i];
 
                 var texture = this.m_AssetManager.Get<TextureAsset>(tool.TextureName);
 
@@ -161,7 +161,7 @@ namespace Mir
                     this.m_2DRenderUtilities.RenderText(
                         renderContext, 
                         new Vector2(16 + 32, 16 + (i * 32) + 5), 
-                        this.m_Tools[this.m_ActiveTool].Name, 
+                        this.m_RoomTools[this.m_ActiveTool].Name, 
                         this.m_DefaultFont);
                 }
 
@@ -372,11 +372,11 @@ namespace Mir
             var value = mouse.ScrollWheelValue;
             while (value < 0)
             {
-                value += 120 * this.m_Tools.Length;
+                value += 120 * this.m_RoomTools.Length;
             }
 
-            this.m_ActiveTool = this.m_Tools.Length - ((value / 120) % this.m_Tools.Length);
-            if (this.m_ActiveTool == this.m_Tools.Length)
+            this.m_ActiveTool = this.m_RoomTools.Length - ((value / 120) % this.m_RoomTools.Length);
+            if (this.m_ActiveTool == this.m_RoomTools.Length)
             {
                 this.m_ActiveTool = 0;
             }

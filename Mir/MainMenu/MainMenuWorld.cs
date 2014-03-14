@@ -146,7 +146,7 @@
 
         private void DoShipEditor(IGameContext gameContext)
         {
-            gameContext.SwitchWorld<RoomEditorWorld>();
+            gameContext.SwitchWorld<ShipEditorWorld>();
         }
 
         private void DoSingleplayer(IGameContext obj)

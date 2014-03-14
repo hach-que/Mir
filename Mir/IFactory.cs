@@ -14,6 +14,10 @@ namespace Mir
 
         RoomObject CreateRoomObject();
 
+        Ship CreateShip();
+
+        ShipEditorEntity CreateShipEditorEntity(Ship ship);
+
         ShipEntity CreateShipEntity();
     }
 }

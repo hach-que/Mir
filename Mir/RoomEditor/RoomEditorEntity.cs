@@ -97,11 +97,11 @@
 
             var world = (RoomEditorWorld)gameContext.World;
 
-            if (world.ActiveTool is NewTool && this.m_HoveredMouseStartPosition != Vector3.Zero)
+            if (world.ActiveRoomTool is NewRoomTool && this.m_HoveredMouseStartPosition != Vector3.Zero)
             {
                 var tempObject =
                     (RoomObject)
-                    this.m_Kernel.Get(((NewTool)world.ActiveTool).NewType, new ConstructorArgument("temporary", true));
+                    this.m_Kernel.Get(((NewRoomTool)world.ActiveRoomTool).NewType, new ConstructorArgument("temporary", true));
                 tempObject.X = (int)Math.Round(this.m_HoveredMouseStartPosition.X);
                 tempObject.Y = (int)Math.Round(this.m_HoveredMouseStartPosition.Y);
                 tempObject.Z = (int)Math.Round(this.m_HoveredMouseStartPosition.Z);
@@ -130,7 +130,7 @@
                 tempObject.RenderSelection(renderContext, 5);
                 tempObject.OnDelete();
             }
-            else if (world.ActiveTool is SizeTool || world.ActiveTool is TextureTool)
+            else if (world.ActiveRoomTool is SizeRoomTool || world.ActiveRoomTool is TextureRoomTool)
             {
                 if (this.m_RoomEditorMode == RoomEditorMode.Hovering && this.m_HoveredRoomObject != null)
                 {
@@ -142,7 +142,7 @@
                     this.m_SelectedRoomObject.RenderSelection(renderContext, this.m_SelectedRoomObjectFace);
                 }
             }
-            else if (world.ActiveTool is MoveTool || world.ActiveTool is DeleteTool)
+            else if (world.ActiveRoomTool is MoveRoomTool || world.ActiveRoomTool is DeleteRoomTool)
             {
                 if (this.m_RoomEditorMode == RoomEditorMode.Hovering && this.m_HoveredRoomObject != null)
                 {
@@ -164,7 +164,7 @@
                     this.m_SelectedRoomObject.RenderSelection(renderContext, 5);
                 }
             }
-            else if (world.ActiveTool is AngleTool)
+            else if (world.ActiveRoomTool is AngleRoomTool)
             {
                 if (this.m_RoomEditorMode == RoomEditorMode.Hovering && this.m_HoveredRoomObject != null)
                 {
@@ -182,12 +182,18 @@
         {
             var world = (RoomEditorWorld)gameContext.World;
 
-            if (this.m_HoveredRoomObject == null && !(world.ActiveTool is NewTool))
+            if (world.ActiveRoomTool is ExitRoomTool)
+            {
+                gameContext.SwitchWorld<ShipEditorWorld>();
+                return;
+            }
+
+            if (this.m_HoveredRoomObject == null && !(world.ActiveRoomTool is NewRoomTool))
             {
                 return;
             }
 
-            if (this.m_HoveredRoomObject != null && this.m_HoveredRoomObject.SizeLocked && world.ActiveTool is SizeTool)
+            if (this.m_HoveredRoomObject != null && this.m_HoveredRoomObject.SizeLocked && world.ActiveRoomTool is SizeRoomTool)
             {
                 // Can't select this object.
                 return;
@@ -259,7 +265,7 @@
                         out mesh))
                     {
                         var roomObject = mesh as RoomObject;
-                        if (roomObject != null && (!roomObject.SizeLocked || !(world.ActiveTool is SizeTool)))
+                        if (roomObject != null && (!roomObject.SizeLocked || !(world.ActiveRoomTool is SizeRoomTool)))
                         {
                             this.m_HoveredRoomObject = roomObject;
                             this.m_HoveredRoomObjectFace = this.m_HoveredRoomObject.GetFaceForTouchPosition(position);
@@ -283,7 +289,7 @@
                                     position);
                             }
                         }
-                        else if (roomObject == null && mesh == this.m_Room && world.ActiveTool is NewTool)
+                        else if (roomObject == null && mesh == this.m_Room && world.ActiveRoomTool is NewRoomTool)
                         {
                             this.m_HoveredRoomObject = null;
                             this.m_HoveredRoomObjectFace = -1;
@@ -309,30 +315,30 @@
                             (this.m_SelectedMouseStartPosition - new Vector3(player.X, player.Y, player.Z)).Length();
                     }
 
-                    if (world.ActiveTool is SizeTool)
+                    if (world.ActiveRoomTool is SizeRoomTool)
                     {
                         this.HandleResize(gameContext);
                     }
-                    else if (world.ActiveTool is MoveTool)
+                    else if (world.ActiveRoomTool is MoveRoomTool)
                     {
                         this.HandleMove(gameContext);
                     }
-                    else if (world.ActiveTool is AngleTool)
+                    else if (world.ActiveRoomTool is AngleRoomTool)
                     {
                         this.HandleAngle();
                         this.ReleaseCurrentSelection();
                     }
-                    else if (world.ActiveTool is TextureTool)
+                    else if (world.ActiveRoomTool is TextureRoomTool)
                     {
                         this.HandleTexture();
                         this.ReleaseCurrentSelection();
                     }
-                    else if (world.ActiveTool is NewTool)
+                    else if (world.ActiveRoomTool is NewRoomTool)
                     {
                         this.HandleNew(gameContext);
                         this.ReleaseCurrentSelection();
                     }
-                    else if (world.ActiveTool is DeleteTool)
+                    else if (world.ActiveRoomTool is DeleteRoomTool)
                     {
                         this.HandleDelete();
                         this.ReleaseCurrentSelection();
@@ -449,7 +455,7 @@
 
             var tempObject =
                 (RoomObject)
-                this.m_Kernel.Get(((NewTool)world.ActiveTool).NewType, new ConstructorArgument("temporary", false));
+                this.m_Kernel.Get(((NewRoomTool)world.ActiveRoomTool).NewType, new ConstructorArgument("temporary", false));
             tempObject.X = roundedX;
             tempObject.Y = roundedY;
             tempObject.Z = roundedZ;

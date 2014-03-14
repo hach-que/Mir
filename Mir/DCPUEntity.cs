@@ -136,7 +136,7 @@
 
             var world = (RoomEditorWorld)gameContext.World;
 
-            if (!(world.ActiveTool is DCPUTool))
+            if (!(world.ActiveRoomTool is DCPURoomTool))
             {
                 return;
             }
