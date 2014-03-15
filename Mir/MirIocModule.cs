@@ -26,11 +26,14 @@ namespace Mir
             this.Bind<IRoomTool>().To<ExitRoomTool>();
 
             this.Bind<IShipTool>().To<MoveViewShipTool>();
+            this.Bind<IShipTool>().To<RotateViewShipTool>();
             this.Bind<IShipTool>().To<ZoomViewShipTool>();
             this.Bind<IShipTool>().To<ShiftSelectionShipTool>();
             this.Bind<IShipTool>().To<ResizeSelectionShipTool>();
-            this.Bind<IShipTool>().To<FillShipTool>();
-            this.Bind<IShipTool>().To<EmptyShipTool>();
+            this.Bind<IShipTool>().To<RectangleFillShipTool>();
+            this.Bind<IShipTool>().To<RectangleClearShipTool>();
+            this.Bind<IShipTool>().To<PencilFillShipTool>();
+            this.Bind<IShipTool>().To<PencilClearShipTool>();
             this.Bind<IShipTool>().To<CreateRoomShipTool>();
             this.Bind<IShipTool>().To<EnterRoomShipTool>();
             this.Bind<IShipTool>().To<ExitShipTool>();

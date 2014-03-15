@@ -22,7 +22,8 @@ namespace Mir
             this.Bind<MousePressEvent>(x => x.Button == MouseButton.Left || x.Button == MouseButton.Right)
                 .To<RoomToolUseAction>();
 
-            this.Bind<MouseReleaseEvent>(x => x.Button == MouseButton.Left).To<RoomToolReleaseAction>();
+            this.Bind<MouseReleaseEvent>(x => x.Button == MouseButton.Left || x.Button == MouseButton.Right)
+                .To<RoomToolReleaseAction>();
 
             this.Bind<KeyPressEvent>(x => x.Key == Keys.LeftShift).To<RoomToolAlternateAction>();
             this.Bind<KeyReleaseEvent>(x => x.Key == Keys.LeftShift).To<RoomToolAlternateAction>();

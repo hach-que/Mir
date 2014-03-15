@@ -192,7 +192,7 @@
 
                 if (y == gridY + verticalSelection || y == gridY)
                 {
-                    color = Color.White;
+                    color = new Color(127, 127, 127);
                 }
 
                 if (y > gridY + vertRange - 5)
@@ -291,7 +291,7 @@
 
                 if (y == gridY + verticalSelection || y == gridY)
                 {
-                    color = Color.White;
+                    color = new Color(127, 127, 127);
                 }
 
                 if (y > gridY + vertRange - 5)

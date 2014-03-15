@@ -1,12 +1,12 @@
 ﻿namespace Mir
 {
-    public class EmptyShipTool : IShipTool
+    public class RectangleClearShipTool : IShipTool
     {
         public string Name
         {
             get
             {
-                return "Clear Space";
+                return "Clear Space (Rectangle)";
             }
         }
 

@@ -1,12 +1,12 @@
 ﻿namespace Mir
 {
-    public class FillShipTool : IShipTool
+    public class RotateViewShipTool : IShipTool
     {
         public string Name
         {
             get
             {
-                return "Fill Space";
+                return "Rotate View";
             }
         }
 
@@ -14,7 +14,7 @@
         {
             get
             {
-                return "editor.ship.tool.fill";
+                return "editor.ship.tool.rotate";
             }
         }
     }
