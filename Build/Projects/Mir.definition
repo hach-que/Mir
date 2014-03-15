@@ -60,10 +60,13 @@
     <Compile Include="RoomEditor\Tools\SizeRoomTool.cs" />
     <Compile Include="RoomEditor\Tools\TextureRoomTool.cs" />
     <Compile Include="RoomEditor\XnaDebugDrawer.cs" />
+    <Compile Include="ShipEditor\DefaultGridRenderer.cs" />
     <Compile Include="ShipEditor\Events\ShipToolAlternateAction.cs" />
     <Compile Include="ShipEditor\Events\ShipToolReleaseAction.cs" />
     <Compile Include="ShipEditor\Events\ShipToolUseAction.cs" />
+    <Compile Include="ShipEditor\IGridRenderer.cs" />
     <Compile Include="ShipEditor\Ship.cs" />
+    <Compile Include="ShipEditor\ShipCell.cs" />
     <Compile Include="ShipEditor\ShipEditorEntity.cs" />
     <Compile Include="ShipEditor\ShipEditorStaticEventBinder.cs" />
     <Compile Include="ShipEditor\ShipEditorWorld.cs" />
@@ -73,8 +76,10 @@
     <Compile Include="ShipEditor\Tools\ExitShipTool.cs" />
     <Compile Include="ShipEditor\Tools\FillShipTool.cs" />
     <Compile Include="ShipEditor\Tools\IShipTool.cs" />
+    <Compile Include="ShipEditor\Tools\MoveViewShipTool.cs" />
     <Compile Include="ShipEditor\Tools\ResizeSelectionShipTool.cs" />
     <Compile Include="ShipEditor\Tools\ShiftSelectionShipTool.cs" />
+    <Compile Include="ShipEditor\Tools\ZoomViewShipTool.cs" />
     <Compile Include="ShipEntity.cs" />
     <Compile Include="ShipSelect\ShipSelectWorld.cs" />
     <Compile Include="ShipStorage.cs" />

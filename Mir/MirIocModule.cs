@@ -25,6 +25,8 @@ namespace Mir
             this.Bind<IRoomTool>().To<DCPURoomTool>();
             this.Bind<IRoomTool>().To<ExitRoomTool>();
 
+            this.Bind<IShipTool>().To<MoveViewShipTool>();
+            this.Bind<IShipTool>().To<ZoomViewShipTool>();
             this.Bind<IShipTool>().To<ShiftSelectionShipTool>();
             this.Bind<IShipTool>().To<ResizeSelectionShipTool>();
             this.Bind<IShipTool>().To<FillShipTool>();
@@ -34,6 +36,8 @@ namespace Mir
             this.Bind<IShipTool>().To<ExitShipTool>();
 
             this.Bind<IShipStorage>().To<ShipStorage>();
+
+            this.Bind<IGridRenderer>().To<DefaultGridRenderer>();
         }
     }
 }
