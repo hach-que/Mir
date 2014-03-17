@@ -61,13 +61,13 @@ namespace Mir
             var ship = factory.CreateShipEntity();
             var player = factory.CreatePlayerEntity();
             player.ParentArea = ship;
-            player.X = 20;
-            player.Z = 30;
+            player.X = 5;
+            player.Z = 5;
 
             var dcpu = factory.CreateDCPUEntity();
-            dcpu.X = 20;
-            dcpu.Y = 6;
-            dcpu.Z = 20;
+            dcpu.X = 2;
+            dcpu.Y = 7;
+            dcpu.Z = 2;
 
             this.m_Room = room;
             foreach (var obj in this.m_Room.Objects)

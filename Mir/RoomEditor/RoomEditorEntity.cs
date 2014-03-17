@@ -95,6 +95,20 @@
                 this.m_RoomEditorMode == RoomEditorMode.Hovering ? this.m_HoveredRoomObject : this.m_SelectedRoomObject, 
                 this.m_RenderSelectionTransparently);
 
+            foreach (var room in this.m_Room.Ship.Rooms.Where(x => x != this.m_Room))
+            {
+                var matrix =
+                    Matrix.CreateTranslation(
+                        new Vector3(room.X, room.Y, room.Z) - new Vector3(this.m_Room.X, this.m_Room.Y, this.m_Room.Z));
+
+                room.Render(
+                    gameContext,
+                    renderContext,
+                    null,
+                    false,
+                    matrix);
+            }
+
             var world = (RoomEditorWorld)gameContext.World;
 
             if (world.ActiveRoomTool is NewRoomTool && this.m_HoveredMouseStartPosition != Vector3.Zero)

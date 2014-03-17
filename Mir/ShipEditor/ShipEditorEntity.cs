@@ -148,6 +148,8 @@
                         (int)(Math.Max(point.Value.X + 1, this.m_StartGridX) - Math.Min(point.Value.X + 1, this.m_StartGridX)),
                         this.VerticalSelection,
                         (int)(Math.Max(point.Value.Y + 1, this.m_StartGridZ) - Math.Min(point.Value.Y + 1, this.m_StartGridZ)));
+
+                    this.m_Ship.RecalculateRoomMeshes();
                 }
             }
             else if (world.ActiveShipTool is DeleteRoomShipTool)
@@ -163,6 +165,8 @@
                     {
                         this.m_Ship.DeleteRoom(cell.Room);
                     }
+
+                    this.m_Ship.RecalculateRoomMeshes();
                 }
             }
         }
