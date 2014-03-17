@@ -8,7 +8,7 @@ namespace Mir
         {
             var world = (ShipEditorWorld)context.World;
 
-            world.ReleaseTool();
+            world.ReleaseTool(context);
         }
     }
 }

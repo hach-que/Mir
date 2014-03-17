@@ -484,6 +484,10 @@ namespace Mir
             return new Vector2(x, y);
         }
 
+        public virtual void Reinitalize()
+        {
+        }
+
         public int GetVerticalEdge(Vector3 pos)
         {
             if (Math.Abs(pos.X - this.X) < 0.1f && Math.Abs(pos.Z - this.Z) < 0.1f)

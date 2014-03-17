@@ -36,6 +36,7 @@ namespace Mir
             this.Bind<IShipTool>().To<PencilClearShipTool>();
             this.Bind<IShipTool>().To<CreateRoomShipTool>();
             this.Bind<IShipTool>().To<EnterRoomShipTool>();
+            this.Bind<IShipTool>().To<DeleteRoomShipTool>();
             this.Bind<IShipTool>().To<ExitShipTool>();
 
             this.Bind<IShipStorage>().To<ShipStorage>();

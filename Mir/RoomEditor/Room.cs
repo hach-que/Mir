@@ -74,11 +74,11 @@ namespace Mir
 
                 // Below
                 indiciesList.AddRange(
-                    new short[] { 0 + 8, 1 + 8, 4 + 8, 5 + 8, 4 + 8, 1 + 8, 0 + 8, 4 + 8, 1 + 8, 5 + 8, 1 + 8, 4 + 8 });
+                    new short[] { /*0 + 8, 1 + 8, 4 + 8, 5 + 8, 4 + 8, 1 + 8,*/ 0 + 8, 4 + 8, 1 + 8, 5 + 8, 1 + 8, 4 + 8 });
 
                 // Above
                 indiciesList.AddRange(
-                    new short[] { 2 + 8, 6 + 8, 3 + 8, 7 + 8, 3 + 8, 6 + 8, 2 + 8, 3 + 8, 6 + 8, 7 + 8, 6 + 8, 3 + 8 });
+                    new short[] { /*2 + 8, 6 + 8, 3 + 8, 7 + 8, 3 + 8, 6 + 8,*/ 2 + 8, 3 + 8, 6 + 8, 7 + 8, 6 + 8, 3 + 8 });
 
                 // Back
                 indiciesList.AddRange(
@@ -153,11 +153,12 @@ namespace Mir
             IGameContext gameContext, 
             IRenderContext renderContext, 
             RoomObject focused, 
-            bool renderFocusedTransparently)
+            bool renderFocusedTransparently,
+            Matrix? matrix = null)
         {
             var oldWorld = renderContext.World;
 
-            renderContext.World = Matrix.Identity;
+            renderContext.World = matrix ?? Matrix.Identity;
 
             renderContext.EnableTextures();
             renderContext.SetActiveTexture(this.m_TextureAsset.Texture);

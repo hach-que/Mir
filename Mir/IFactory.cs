@@ -12,11 +12,15 @@ namespace Mir
 
         RoomEditorEntity CreateRoomEditorEntity(Room room);
 
+        RoomEditorWorld CreateRoomEditorWorld(ShipEditorWorld previousWorld, Room room);
+
         RoomObject CreateRoomObject();
 
         Ship CreateShip();
 
         ShipEditorEntity CreateShipEditorEntity(Ship ship);
+
+        ShipEditorWorld CreateShipEditorWorld();
 
         ShipEntity CreateShipEntity();
     }

@@ -65,9 +65,9 @@ namespace Mir
         {
         }
 
-        public void ReleaseTool()
+        public void ReleaseTool(IGameContext gameContext)
         {
-            this.m_ShipEditorEntity.ReleaseCurrentSelection();
+            this.m_ShipEditorEntity.ReleaseCurrentSelection(gameContext);
         }
 
         public void RenderAbove(IGameContext gameContext, IRenderContext renderContext)

@@ -184,7 +184,7 @@
 
             if (world.ActiveRoomTool is ExitRoomTool)
             {
-                gameContext.SwitchWorld<ShipEditorWorld>();
+                gameContext.SwitchWorld(world.PreviousWorld);
                 return;
             }
 
@@ -493,7 +493,7 @@
                         var newWidth = this.m_SelectedRoomObjectStartValue2
                                        + (int)Math.Round(intersectionDistance.Value);
                         var newX = this.m_SelectedRoomObjectStartValue1 - (int)Math.Round(intersectionDistance.Value);
-                        if (newWidth >= 1 && newX >= this.m_Room.X)
+                        if (newWidth >= 1 && newX >= this.X)
                         {
                             this.m_SelectedRoomObject.X = newX;
                             this.m_SelectedRoomObject.Width = newWidth;
@@ -510,7 +510,7 @@
                                            - (int)Math.Round(intersectionDistance.Value);
                             var newX = this.m_SelectedRoomObjectStartValue1
                                        + (int)Math.Round(intersectionDistance.Value);
-                            if (newWidth >= 1 && newX >= this.m_Room.X)
+                            if (newWidth >= 1 && newX >= this.X)
                             {
                                 this.m_SelectedRoomObject.X = newX;
                                 this.m_SelectedRoomObject.Width = newWidth;
@@ -531,7 +531,7 @@
                     {
                         var newWidth = this.m_SelectedRoomObjectStartValue1
                                        + (int)Math.Round(intersectionDistance.Value);
-                        if (newWidth >= 1 && this.m_SelectedRoomObject.X + newWidth <= this.m_Room.X + this.m_Room.Width)
+                        if (newWidth >= 1 && this.m_SelectedRoomObject.X + newWidth <= this.X + this.m_Room.Width)
                         {
                             this.m_SelectedRoomObject.Width = newWidth;
                         }
@@ -546,7 +546,7 @@
                             var newWidth = this.m_SelectedRoomObjectStartValue1
                                            - (int)Math.Round(intersectionDistance.Value);
                             if (newWidth >= 1
-                                && this.m_SelectedRoomObject.X + newWidth <= this.m_Room.X + this.m_Room.Width)
+                                && this.m_SelectedRoomObject.X + newWidth <= this.X + this.m_Room.Width)
                             {
                                 this.m_SelectedRoomObject.Width = newWidth;
                             }
@@ -567,7 +567,7 @@
                         var newDepth = this.m_SelectedRoomObjectStartValue2
                                        + (int)Math.Round(intersectionDistance.Value);
                         var newZ = this.m_SelectedRoomObjectStartValue1 - (int)Math.Round(intersectionDistance.Value);
-                        if (newDepth >= 1 && newZ >= this.m_Room.Z)
+                        if (newDepth >= 1 && newZ >= this.Z)
                         {
                             this.m_SelectedRoomObject.Z = newZ;
                             this.m_SelectedRoomObject.Depth = newDepth;
@@ -584,7 +584,7 @@
                                            - (int)Math.Round(intersectionDistance.Value);
                             var newZ = this.m_SelectedRoomObjectStartValue1
                                        + (int)Math.Round(intersectionDistance.Value);
-                            if (newDepth >= 1 && newZ >= this.m_Room.Z)
+                            if (newDepth >= 1 && newZ >= this.Z)
                             {
                                 this.m_SelectedRoomObject.Z = newZ;
                                 this.m_SelectedRoomObject.Depth = newDepth;
@@ -605,7 +605,7 @@
                     {
                         var newDepth = this.m_SelectedRoomObjectStartValue1
                                        + (int)Math.Round(intersectionDistance.Value);
-                        if (newDepth >= 1 && this.m_SelectedRoomObject.Z + newDepth <= this.m_Room.Z + this.m_Room.Depth)
+                        if (newDepth >= 1 && this.m_SelectedRoomObject.Z + newDepth <= this.Z + this.m_Room.Depth)
                         {
                             this.m_SelectedRoomObject.Depth = newDepth;
                         }
@@ -620,7 +620,7 @@
                             var newDepth = this.m_SelectedRoomObjectStartValue1
                                            - (int)Math.Round(intersectionDistance.Value);
                             if (newDepth >= 1
-                                && this.m_SelectedRoomObject.Z + newDepth <= this.m_Room.Z + this.m_Room.Depth)
+                                && this.m_SelectedRoomObject.Z + newDepth <= this.Z + this.m_Room.Depth)
                             {
                                 this.m_SelectedRoomObject.Depth = newDepth;
                             }
@@ -641,7 +641,7 @@
                         var newHeight = this.m_SelectedRoomObjectStartValue2
                                         + (int)Math.Round(intersectionDistance.Value);
                         var newY = this.m_SelectedRoomObjectStartValue1 - (int)Math.Round(intersectionDistance.Value);
-                        if (newHeight >= 1 && newY >= this.m_Room.Y)
+                        if (newHeight >= 1 && newY >= this.Y)
                         {
                             this.m_SelectedRoomObject.Y = newY;
                             this.m_SelectedRoomObject.Height = newHeight;
@@ -658,7 +658,7 @@
                                             - (int)Math.Round(intersectionDistance.Value);
                             var newY = this.m_SelectedRoomObjectStartValue1
                                        + (int)Math.Round(intersectionDistance.Value);
-                            if (newHeight >= 1 && newY >= this.m_Room.Y)
+                            if (newHeight >= 1 && newY >= this.Y)
                             {
                                 this.m_SelectedRoomObject.Y = newY;
                                 this.m_SelectedRoomObject.Height = newHeight;
@@ -680,7 +680,7 @@
                         var newHeight = this.m_SelectedRoomObjectStartValue1
                                         + (int)Math.Round(intersectionDistance.Value);
                         if (newHeight >= 1
-                            && this.m_SelectedRoomObject.Y + newHeight <= this.m_Room.Y + this.m_Room.Height)
+                            && this.m_SelectedRoomObject.Y + newHeight <= this.Y + this.m_Room.Height)
                         {
                             this.m_SelectedRoomObject.Height = newHeight;
                         }
@@ -695,7 +695,7 @@
                             var newHeight = this.m_SelectedRoomObjectStartValue1
                                             - (int)Math.Round(intersectionDistance.Value);
                             if (newHeight >= 1
-                                && this.m_SelectedRoomObject.Y + newHeight <= this.m_Room.Y + this.m_Room.Height)
+                                && this.m_SelectedRoomObject.Y + newHeight <= this.Y + this.m_Room.Height)
                             {
                                 this.m_SelectedRoomObject.Height = newHeight;
                             }

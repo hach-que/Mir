@@ -23,6 +23,8 @@
             this.BackTextureIndex = 10;
         }
 
+        public Room Room { get; set; }
+
         public int X { get; set; }
 
         public int Y { get; set; }
@@ -195,37 +197,45 @@
             };
         }
 
-        public int[] CalculateMeshIndicies()
+        public int[] CalculateMeshIndicies(bool hasAbove, bool hasBelow, bool hasLeft, bool hasRight, bool hasForward, bool hasBackward)
         {
             var indiciesList = new List<short>();
 
             // Left
-            indiciesList.AddRange(new short[] { 0, 2, 1, 3, 1, 2, 0, 1, 2, 3, 2, 1 });
+            if (!hasLeft)
+            {
+                indiciesList.AddRange(new short[] { 0, 2, 1, 3, 1, 2 });
+            }
 
             // Right
-            indiciesList.AddRange(new short[] { 4, 5, 6, 7, 6, 5, 4, 6, 5, 7, 5, 6 });
+            if (!hasRight)
+            {
+                indiciesList.AddRange(new short[] { 4, 5, 6, 7, 6, 5 });
+            }
 
             // Below
-            indiciesList.AddRange(
-                new short[] { 0 + 8, 1 + 8, 4 + 8, 5 + 8, 4 + 8, 1 + 8, 0 + 8, 4 + 8, 1 + 8, 5 + 8, 1 + 8, 4 + 8 });
+            if (!hasBelow)
+            {
+                indiciesList.AddRange(new short[] { 0 + 8, 1 + 8, 4 + 8, 5 + 8, 4 + 8, 1 + 8 });
+            }
 
             // Above
-            indiciesList.AddRange(
-                new short[] { 2 + 8, 6 + 8, 3 + 8, 7 + 8, 3 + 8, 6 + 8, 2 + 8, 3 + 8, 6 + 8, 7 + 8, 6 + 8, 3 + 8 });
+            if (!hasAbove)
+            {
+                indiciesList.AddRange(new short[] { 2 + 8, 6 + 8, 3 + 8, 7 + 8, 3 + 8, 6 + 8 });
+            }
 
             // Back
-            indiciesList.AddRange(
-                new short[]
-                {
-                   0 + 16, 4 + 16, 2 + 16, 6 + 16, 2 + 16, 4 + 16, 0 + 16, 2 + 16, 4 + 16, 6 + 16, 4 + 16, 2 + 16 
-                });
+            if (!hasBackward)
+            {
+                indiciesList.AddRange(new short[] { 0 + 16, 4 + 16, 2 + 16, 6 + 16, 2 + 16, 4 + 16 });
+            }
 
             // Front
-            indiciesList.AddRange(
-                new short[]
-                {
-                   1 + 16, 3 + 16, 5 + 16, 7 + 16, 5 + 16, 3 + 16, 1 + 16, 5 + 16, 3 + 16, 7 + 16, 3 + 16, 5 + 16 
-                });
+            if (!hasForward)
+            {
+                indiciesList.AddRange(new short[] { 1 + 16, 3 + 16, 5 + 16, 7 + 16, 5 + 16, 3 + 16 });
+            }
 
             return indiciesList.Select(x => (int)x).ToArray();
         }

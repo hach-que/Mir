@@ -26,6 +26,11 @@
             }
         }
 
+        public override void Reinitalize()
+        {
+            this.m_Spawned = false;
+        }
+
         public override void Render(IGameContext gameContext, IRenderContext renderContext)
         {
             base.Render(gameContext, renderContext);

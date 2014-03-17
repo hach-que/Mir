@@ -71,6 +71,7 @@
     <Compile Include="ShipEditor\ShipEditorStaticEventBinder.cs" />
     <Compile Include="ShipEditor\ShipEditorWorld.cs" />
     <Compile Include="ShipEditor\Tools\CreateRoomShipTool.cs" />
+    <Compile Include="ShipEditor\Tools\DeleteRoomShipTool.cs" />
     <Compile Include="ShipEditor\Tools\EnterRoomShipTool.cs" />
     <Compile Include="ShipEditor\Tools\ExitShipTool.cs" />
     <Compile Include="ShipEditor\Tools\IShipTool.cs" />

@@ -1,6 +1,7 @@
 ﻿namespace Mir
 {
     using System;
+    using System.Linq;
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Graphics;
     using Microsoft.Xna.Framework.Input;
@@ -10,6 +11,8 @@
     {
         private readonly I2DRenderUtilities m_2DRenderUtilities;
 
+        private readonly I3DRenderUtilities m_3DRenderUtilities;
+
         private readonly IGridRenderer m_GridRenderer;
 
         private readonly ICollision m_Collision;
@@ -17,6 +20,8 @@
         private readonly Ship m_Ship;
 
         private readonly FontAsset m_DefaultFont;
+
+        //private readonly TextureAsset m_ShipTextureAsset;
 
         private int m_StartMouseX;
 
@@ -47,12 +52,14 @@
         public ShipEditorEntity(
             IAssetManagerProvider assetManagerProvider,
             I2DRenderUtilities twoRenderUtilities,
+            I3DRenderUtilities threeRenderUtilities,
             IGridRenderer gridRenderer, 
             ICollision collision,
             Ship ship)
         {
             this.m_DefaultFont = assetManagerProvider.GetAssetManager().Get<FontAsset>("font.Default");
             this.m_2DRenderUtilities = twoRenderUtilities;
+            this.m_3DRenderUtilities = threeRenderUtilities;
             this.m_GridRenderer = gridRenderer;
             this.m_Collision = collision;
             this.m_Ship = ship;
@@ -86,9 +93,74 @@
 
         public float Z { get; set; }
 
-        public void ReleaseCurrentSelection()
+        public void ReleaseCurrentSelection(IGameContext gameContext)
         {
             this.m_ToolIsActive = false;
+
+            var world = (ShipEditorWorld)gameContext.World;
+
+            var point = this.GetMouseIntersectionPoint(gameContext);
+
+            if (world.ActiveShipTool is RectangleFillShipTool)
+            {
+                if (point != null)
+                {
+                    for (var x = Math.Min(point.Value.X, this.m_StartGridX); x <= Math.Max(point.Value.X, this.m_StartGridX); x++)
+                    {
+                        for (var z = Math.Min(point.Value.Y, this.m_StartGridZ); z <= Math.Max(point.Value.Y, this.m_StartGridZ); z++)
+                        {
+                            for (var i = 0; i < this.VerticalSelection; i++)
+                            {
+                                this.m_Ship.FillCell((int)x, this.GridY + i, (int)z);
+                            }
+                        }
+                    }
+                }
+            }
+            else if (world.ActiveShipTool is RectangleClearShipTool)
+            {
+                if (point != null)
+                {
+                    for (var x = Math.Min(point.Value.X, this.m_StartGridX); x <= Math.Max(point.Value.X, this.m_StartGridX); x++)
+                    {
+                        for (var z = Math.Min(point.Value.Y, this.m_StartGridZ); z <= Math.Max(point.Value.Y, this.m_StartGridZ); z++)
+                        {
+                            for (var i = 0; i < this.VerticalSelection; i++)
+                            {
+                                this.m_Ship.ClearCell((int)x, this.GridY + i, (int)z);
+                            }
+                        }
+                    }
+                }
+            }
+            else if (world.ActiveShipTool is CreateRoomShipTool)
+            {
+                if (point != null)
+                {
+                    this.m_Ship.CreateRoom(
+                        (int)Math.Min(point.Value.X + 1, this.m_StartGridX),
+                        this.GridY,
+                        (int)Math.Min(point.Value.Y + 1, this.m_StartGridZ),
+                        (int)(Math.Max(point.Value.X + 1, this.m_StartGridX) - Math.Min(point.Value.X + 1, this.m_StartGridX)),
+                        this.VerticalSelection,
+                        (int)(Math.Max(point.Value.Y + 1, this.m_StartGridZ) - Math.Min(point.Value.Y + 1, this.m_StartGridZ)));
+                }
+            }
+            else if (world.ActiveShipTool is DeleteRoomShipTool)
+            {
+                if (point != null)
+                {
+                    var cell =
+                        this.m_Ship.Cells.FirstOrDefault(
+                            a =>
+                            a.X == (int)point.Value.X && a.Y == this.GridY && a.Z == (int)point.Value.Y
+                            && a.Room != null);
+                    if (cell != null)
+                    {
+                        this.m_Ship.DeleteRoom(cell.Room);
+                    }
+                }
+            }
         }
 
         public void Render(IGameContext gameContext, IRenderContext renderContext)
@@ -122,6 +194,63 @@
                     new Color(95, 31, 31));
 
                 this.m_Ship.Render(gameContext, renderContext);
+
+                var point = this.GetMouseIntersectionPoint(gameContext);
+
+                if (point != null)
+                {
+                    this.m_3DRenderUtilities.RenderCube(
+                        renderContext,
+                        Matrix.CreateScale(1, this.VerticalSelection + 0.1f, 1)
+                        * Matrix.CreateTranslation(point.Value.X, this.GridY, point.Value.Y),
+                        Color.Green);
+                }
+
+                var world = (ShipEditorWorld)gameContext.World;
+
+                if (this.m_ToolIsActive)
+                {
+                    if (world.ActiveShipTool is RectangleFillShipTool || world.ActiveShipTool is RectangleClearShipTool
+                        || world.ActiveShipTool is CreateRoomShipTool)
+                    {
+                        if (point != null)
+                        {
+                            this.m_3DRenderUtilities.RenderCube(
+                                renderContext,
+                                Matrix.CreateScale(
+                                    Math.Max(point.Value.X + 1, this.m_StartGridX)
+                                    - Math.Min(point.Value.X + 1, this.m_StartGridX),
+                                    this.VerticalSelection + 0.1f,
+                                    Math.Max(point.Value.Y + 1, this.m_StartGridZ)
+                                    - Math.Min(point.Value.Y + 1, this.m_StartGridZ))
+                                * Matrix.CreateTranslation(
+                                    Math.Min(point.Value.X + 1, this.m_StartGridX),
+                                    this.GridY,
+                                    Math.Min(point.Value.Y + 1, this.m_StartGridZ)),
+                                Color.Green);
+                        }
+                    }
+                }
+
+                if (world.ActiveShipTool is EnterRoomShipTool || world.ActiveShipTool is DeleteRoomShipTool)
+                {
+                    if (point != null)
+                    {
+                        var cell =
+                            this.m_Ship.Cells.FirstOrDefault(
+                                a =>
+                                a.X == (int)point.Value.X && a.Y == this.GridY && a.Z == (int)point.Value.Y
+                                && a.Room != null);
+                        if (cell != null)
+                        {
+                            this.m_3DRenderUtilities.RenderCube(
+                                renderContext,
+                                Matrix.CreateScale(cell.Room.Width / 10, cell.Room.Height / 10 + 0.1f, cell.Room.Depth / 10)
+                                * Matrix.CreateTranslation(cell.Room.X / 10, cell.Room.Y / 10, cell.Room.Z / 10),
+                                world.ActiveShipTool is EnterRoomShipTool ? Color.GreenYellow : Color.Red);
+                        }
+                    }
+                }
 
                 renderContext.PushRenderTarget(this.m_PreviewTarget);
 
@@ -165,7 +294,20 @@
 
             if (world.ActiveShipTool is EnterRoomShipTool)
             {
-                gameContext.SwitchWorld<RoomEditorWorld>();
+                var point = this.GetMouseIntersectionPoint(gameContext);
+
+                if (point != null)
+                {
+                    var cell =
+                        this.m_Ship.Cells.FirstOrDefault(
+                            a =>
+                            a.X == (int)point.Value.X && a.Y == this.GridY && a.Z == (int)point.Value.Y
+                            && a.Room != null);
+                    if (cell != null)
+                    {
+                        gameContext.SwitchWorld<IFactory>(x => x.CreateRoomEditorWorld(world, cell.Room));
+                    }
+                }
             }
             else if (world.ActiveShipTool is ExitShipTool)
             {
@@ -189,14 +331,27 @@
                 this.m_StartVerticalSelection = this.VerticalSelection;
             }
             else if (world.ActiveShipTool is PencilFillShipTool || world.ActiveShipTool is PencilClearShipTool ||
-                world.ActiveShipTool is RectangleFillShipTool || world.ActiveShipTool is RectangleClearShipTool)
+                world.ActiveShipTool is RectangleFillShipTool || world.ActiveShipTool is RectangleClearShipTool ||
+                world.ActiveShipTool is CreateRoomShipTool)
             {
-                this.m_ToolIsActive = true;
+                var point = this.GetMouseIntersectionPoint(gameContext);
+
+                if (point != null)
+                {
+                    this.m_StartGridX = (int)point.Value.X;
+                    this.m_StartGridY = this.GridY;
+                    this.m_StartGridZ = (int)point.Value.Y;
+                    this.m_ToolIsActive = true;
+                }
             }
             else if (world.ActiveShipTool is RotateViewShipTool)
             {
                 this.m_ToolIsActive = true;
                 this.m_StartCameraRotation = this.m_CameraRotation;
+            }
+            else if (world.ActiveShipTool is DeleteRoomShipTool)
+            {
+                this.m_ToolIsActive = true;
             }
         }
 
@@ -246,42 +401,6 @@
                     10);
 
                 this.UpdateShipVisibilityCull();
-            }
-            else if (world.ActiveShipTool is RectangleFillShipTool)
-            {
-                var point = this.GetMouseIntersectionPoint(gameContext);
-
-                if (point != null)
-                {
-                    for (var x = -2; x <= 2; x++)
-                    {
-                        for (var z = -2; z <= 2; z++)
-                        {
-                            for (var i = 0; i < this.VerticalSelection; i++)
-                            {
-                                this.m_Ship.FillCell((int)point.Value.X + x, this.GridY + i, (int)point.Value.Y + z);
-                            }
-                        }
-                    }
-                }
-            }
-            else if (world.ActiveShipTool is RectangleClearShipTool)
-            {
-                var point = this.GetMouseIntersectionPoint(gameContext);
-
-                if (point != null)
-                {
-                    for (var x = -2; x <= 2; x++)
-                    {
-                        for (var z = -2; z <= 2; z++)
-                        {
-                            for (var i = 0; i < this.VerticalSelection; i++)
-                            {
-                                this.m_Ship.ClearCell((int)point.Value.X + x, this.GridY + i, (int)point.Value.Y + z);
-                            }
-                        }
-                    }
-                }
             }
             else if (world.ActiveShipTool is PencilFillShipTool)
             {
