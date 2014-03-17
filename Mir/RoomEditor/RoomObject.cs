@@ -486,6 +486,8 @@ namespace Mir
 
         public virtual void Reinitalize()
         {
+            this.m_RigidBody = null;
+            this.m_PendRecalculation = true;
         }
 
         public int GetVerticalEdge(Vector3 pos)

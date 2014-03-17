@@ -115,6 +115,8 @@
                             }
                         }
                     }
+
+                    this.m_Ship.RecalculateRoomMeshes();
                 }
             }
             else if (world.ActiveShipTool is RectangleClearShipTool)
@@ -131,6 +133,8 @@
                             }
                         }
                     }
+
+                    this.m_Ship.RecalculateRoomMeshes();
                 }
             }
             else if (world.ActiveShipTool is CreateRoomShipTool)
@@ -413,6 +417,8 @@
                         this.m_Ship.FillCell((int)point.Value.X, this.GridY + i, (int)point.Value.Y);
                     }
                 }
+
+                this.m_Ship.RecalculateRoomMeshes();
             }
             else if (world.ActiveShipTool is PencilClearShipTool)
             {
@@ -425,6 +431,8 @@
                         this.m_Ship.ClearCell((int)point.Value.X, this.GridY + i, (int)point.Value.Y);
                     }
                 }
+
+                this.m_Ship.RecalculateRoomMeshes();
             }
         }
 

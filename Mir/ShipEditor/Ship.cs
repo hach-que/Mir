@@ -79,12 +79,14 @@
                 a => a.X >= x && a.Y >= y && a.Z >= z && a.X < x + width && a.Y < y + height && a.Z < z + depth);
 
             var room = this.m_Factory.CreateRoom();
+            room.Ship = this;
             room.X = x * 10;
             room.Y = y * 10;
             room.Z = z * 10;
             room.Width = width * 10;
             room.Height = height * 10;
             room.Depth = depth * 10;
+            room.RecalculateMesh();
 
             for (var ix = x; ix < x + width; ix++)
             {
@@ -145,6 +147,14 @@
             this.Cells.Add(new ShipCell { X = x, Y = y, Z = z });
 
             this.m_BuffersNeedRecalculation = true;
+        }
+
+        public void RecalculateRoomMeshes()
+        {
+            foreach (var room in this.Rooms)
+            {
+                room.RecalculateMesh();
+            }
         }
 
         public void Render(IGameContext gameContext, IRenderContext renderContext, bool renderFull = false)
