@@ -21,8 +21,13 @@ namespace Mir
             this.Bind<IRoomTool>().To<TextureRoomTool>();
             this.Bind<IRoomTool>().To<NewRoomTool>();
             this.Bind<IRoomTool>().To<NewRoomLightTool>();
+            this.Bind<IRoomTool>().To<NewRoomDCPUTool>();
+            this.Bind<IRoomTool>().To<NewRoomLEM1802Tool>();
+            this.Bind<IRoomTool>().To<NewRoomKeyboardTool>();
+            this.Bind<IRoomTool>().To<NewRoomSPED3Tool>();
+            this.Bind<IRoomTool>().To<WireNewRoomTool>();
+            this.Bind<IRoomTool>().To<WireBreakRoomTool>();
             this.Bind<IRoomTool>().To<DeleteRoomTool>();
-            this.Bind<IRoomTool>().To<DCPURoomTool>();
             this.Bind<IRoomTool>().To<ExitRoomTool>();
 
             this.Bind<IShipTool>().To<MoveViewShipTool>();

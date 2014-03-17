@@ -64,11 +64,6 @@ namespace Mir
             player.X = 5;
             player.Z = 5;
 
-            var dcpu = factory.CreateDCPUEntity();
-            dcpu.X = 2;
-            dcpu.Y = 7;
-            dcpu.Z = 2;
-
             this.m_Room = room;
             foreach (var obj in this.m_Room.Objects)
             {
@@ -79,7 +74,6 @@ namespace Mir
 
             this.Entities.Add(ship);
             this.Entities.Add(player);
-            this.Entities.Add(dcpu);
 
             this.Entities.Add(this.m_RoomEditorEntity);
 
@@ -124,6 +118,8 @@ namespace Mir
                 return this.m_JitterWorld;
             }
         }
+
+        public KeyboardRoomObject FocusedKeyboard { get; set; }
 
         public void ActivateAlternate()
         {
@@ -362,19 +358,8 @@ namespace Mir
             player.SetCamera(renderContext);
         }
 
-        public void TestPhysics()
-        {
-            this.m_RigidBody.ApplyImpulse(new JVector(0, 15, 0));
-        }
-
         public void Update(IGameContext gameContext, IUpdateContext updateContext)
         {
-            var dcpu = this.Entities.OfType<DCPUEntity>().First();
-            dcpu.X = this.m_RigidBody.Position.X;
-            dcpu.Y = this.m_RigidBody.Position.Y;
-            dcpu.Z = this.m_RigidBody.Position.Z;
-            dcpu.Rotation = this.m_RigidBody.Orientation.ToXNAMatrix();
-
             this.m_PhysicsEngine.UpdateWorld(this.m_JitterWorld, gameContext, updateContext);
 
             var mouse = Mouse.GetState();

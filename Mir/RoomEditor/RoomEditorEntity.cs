@@ -13,6 +13,8 @@
 
         private readonly IMeshCollider m_MeshCollider;
 
+        private readonly I3DRenderUtilities m_3DRenderUtilities;
+
         private readonly Room m_Room;
 
         private Vector3 m_HoveredMouseStartPosition;
@@ -47,11 +49,22 @@
 
         private int m_SelectedRoomObjectVerticalEdge;
 
-        public RoomEditorEntity(IKernel kernel, IMeshCollider meshCollider, Room room)
+        private RoomObject m_WireSourceRoomObject;
+
+        private TextureAsset m_ShipTextureAsset;
+
+        public RoomEditorEntity(
+            IKernel kernel,
+            IMeshCollider meshCollider,
+            I3DRenderUtilities threeRenderUtilities,
+            IAssetManagerProvider assetManagerProvider,
+            Room room)
         {
             this.m_Kernel = kernel;
             this.m_MeshCollider = meshCollider;
+            this.m_3DRenderUtilities = threeRenderUtilities;
             this.m_Room = room;
+            this.m_ShipTextureAsset = assetManagerProvider.GetAssetManager().Get<TextureAsset>("ship");
 
             this.m_RoomEditorMode = RoomEditorMode.Hovering;
         }
@@ -111,6 +124,42 @@
 
             var world = (RoomEditorWorld)gameContext.World;
 
+            world.FocusedKeyboard = this.m_HoveredRoomObject as KeyboardRoomObject;
+
+            if (world.ActiveRoomTool is WireNewRoomTool || world.ActiveRoomTool is WireBreakRoomTool)
+            {
+                foreach (var source in this.m_Room.Objects.OfType<IConnectable>())
+                {
+                    foreach (var destination in source.Connections)
+                    {
+                        var sourceObject = (RoomObject)source;
+                        var destinationObject = (RoomObject)destination;
+
+                        this.m_3DRenderUtilities.RenderLine(
+                            renderContext,
+                            new Vector3(
+                                sourceObject.X,
+                                sourceObject.Y,
+                                sourceObject.Z)
+                            + new Vector3(
+                                  sourceObject.Width,
+                                  sourceObject.Height,
+                                  sourceObject.Depth) / 2,
+                            new Vector3(
+                                destinationObject.X,
+                                destinationObject.Y,
+                                destinationObject.Z)
+                            + new Vector3(
+                                  destinationObject.Width,
+                                  destinationObject.Height,
+                                  destinationObject.Depth) / 2,
+                            this.m_ShipTextureAsset,
+                            new Vector2(0.5f, 0.5f),
+                            new Vector2(0.5f, 0.5f));
+                    }
+                }
+            }
+
             if (world.ActiveRoomTool is NewRoomTool && this.m_HoveredMouseStartPosition != Vector3.Zero)
             {
                 var tempObject =
@@ -156,26 +205,60 @@
                     this.m_SelectedRoomObject.RenderSelection(renderContext, this.m_SelectedRoomObjectFace);
                 }
             }
-            else if (world.ActiveRoomTool is MoveRoomTool || world.ActiveRoomTool is DeleteRoomTool)
+            else if (world.ActiveRoomTool is MoveRoomTool || world.ActiveRoomTool is DeleteRoomTool || world.ActiveRoomTool is WireNewRoomTool)
             {
                 if (this.m_RoomEditorMode == RoomEditorMode.Hovering && this.m_HoveredRoomObject != null)
                 {
-                    this.m_HoveredRoomObject.RenderSelection(renderContext, 0);
-                    this.m_HoveredRoomObject.RenderSelection(renderContext, 1);
-                    this.m_HoveredRoomObject.RenderSelection(renderContext, 2);
-                    this.m_HoveredRoomObject.RenderSelection(renderContext, 3);
-                    this.m_HoveredRoomObject.RenderSelection(renderContext, 4);
-                    this.m_HoveredRoomObject.RenderSelection(renderContext, 5);
+                    if (!(world.ActiveRoomTool is WireNewRoomTool) || this.m_HoveredRoomObject is IConnectable)
+                    {
+                        this.m_HoveredRoomObject.RenderSelection(renderContext, 0);
+                        this.m_HoveredRoomObject.RenderSelection(renderContext, 1);
+                        this.m_HoveredRoomObject.RenderSelection(renderContext, 2);
+                        this.m_HoveredRoomObject.RenderSelection(renderContext, 3);
+                        this.m_HoveredRoomObject.RenderSelection(renderContext, 4);
+                        this.m_HoveredRoomObject.RenderSelection(renderContext, 5);
+                    }
                 }
 
                 if (this.m_RoomEditorMode == RoomEditorMode.Selected && this.m_SelectedRoomObject != null)
                 {
-                    this.m_SelectedRoomObject.RenderSelection(renderContext, 0);
-                    this.m_SelectedRoomObject.RenderSelection(renderContext, 1);
-                    this.m_SelectedRoomObject.RenderSelection(renderContext, 2);
-                    this.m_SelectedRoomObject.RenderSelection(renderContext, 3);
-                    this.m_SelectedRoomObject.RenderSelection(renderContext, 4);
-                    this.m_SelectedRoomObject.RenderSelection(renderContext, 5);
+                    if (!(world.ActiveRoomTool is WireNewRoomTool) || this.m_SelectedRoomObject is IConnectable)
+                    {
+                        this.m_SelectedRoomObject.RenderSelection(renderContext, 0);
+                        this.m_SelectedRoomObject.RenderSelection(renderContext, 1);
+                        this.m_SelectedRoomObject.RenderSelection(renderContext, 2);
+                        this.m_SelectedRoomObject.RenderSelection(renderContext, 3);
+                        this.m_SelectedRoomObject.RenderSelection(renderContext, 4);
+                        this.m_SelectedRoomObject.RenderSelection(renderContext, 5);
+                    }
+                }
+
+                if (world.ActiveRoomTool is WireNewRoomTool)
+                {
+                    if (this.m_WireSourceRoomObject != null && this.m_HoveredRoomObject != null)
+                    {
+                        this.m_3DRenderUtilities.RenderLine(
+                            renderContext,
+                            new Vector3(
+                                this.m_WireSourceRoomObject.X,
+                                this.m_WireSourceRoomObject.Y,
+                                this.m_WireSourceRoomObject.Z)
+                            + new Vector3(
+                                  this.m_WireSourceRoomObject.Width,
+                                  this.m_WireSourceRoomObject.Height,
+                                  this.m_WireSourceRoomObject.Depth) / 2,
+                            new Vector3(
+                                this.m_HoveredRoomObject.X,
+                                this.m_HoveredRoomObject.Y,
+                                this.m_HoveredRoomObject.Z)
+                            + new Vector3(
+                                  this.m_HoveredRoomObject.Width,
+                                  this.m_HoveredRoomObject.Height,
+                                  this.m_HoveredRoomObject.Depth) / 2,
+                            this.m_ShipTextureAsset,
+                            new Vector2(0.5f, 0.5f),
+                            new Vector2(0.5f, 0.5f));
+                    }
                 }
             }
             else if (world.ActiveRoomTool is AngleRoomTool)
@@ -211,6 +294,30 @@
             {
                 // Can't select this object.
                 return;
+            }
+
+            if (world.ActiveRoomTool is WireNewRoomTool)
+            {
+                if (this.m_WireSourceRoomObject == null)
+                {
+                    if (this.m_HoveredRoomObject is IConnectable)
+                    {
+                        this.m_WireSourceRoomObject = this.m_HoveredRoomObject;
+                    }
+
+                    return;
+                }
+                
+                if (this.m_HoveredRoomObject != this.m_WireSourceRoomObject)
+                {
+                    if (this.m_HoveredRoomObject is IConnectable)
+                    {
+                        this.HandleNewWire(this.m_WireSourceRoomObject, this.m_HoveredRoomObject);
+                        this.m_WireSourceRoomObject = null;
+                    }
+
+                    return;
+                }
             }
 
             this.m_IsAlternateMode = this.UseAlternative;
@@ -254,6 +361,24 @@
                         this.m_SelectedRoomObjectStartValue1 = this.m_SelectedRoomObject.Height;
                         break;
                 }
+            }
+        }
+
+        private void HandleNewWire(RoomObject sourceObject, RoomObject destinationObject)
+        {
+            var sourceConnectable = (IConnectable)sourceObject;
+            var destinationConnectable = (IConnectable)destinationObject;
+
+            if (!sourceConnectable.Connections.Contains(destinationConnectable))
+            {
+                sourceConnectable.Connections.Add(destinationConnectable);
+                sourceConnectable.ConnectionsUpdated();
+            }
+
+            if (!destinationConnectable.Connections.Contains(sourceConnectable))
+            {
+                destinationConnectable.Connections.Add(sourceConnectable);
+                destinationConnectable.ConnectionsUpdated();
             }
         }
 

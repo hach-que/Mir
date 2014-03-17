@@ -20,11 +20,11 @@
             }
         }
 
-        public string TextureName
+        public virtual string TextureName
         {
             get
             {
-                return "new";
+                return "editor.room.tool.new";
             }
         }
     }

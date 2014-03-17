@@ -16,7 +16,6 @@
     <Reference Include="Jitter" />
   </References>
   <Files>
-    <Compile Include="DCPUEntity.cs" />
     <Compile Include="EmptyLight.cs" />
     <Compile Include="IArea.cs" />
     <Compile Include="IFactory.cs" />
@@ -32,6 +31,7 @@
     <Compile Include="MirGame.cs" />
     <Compile Include="MirIocModule.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="RoomEditor\DCPURoomObject.cs" />
     <Compile Include="RoomEditor\Events\JumpRoomAction.cs" />
     <Compile Include="RoomEditor\Events\MouseMoveRoomAction.cs" />
     <Compile Include="RoomEditor\Events\MoveBackwardRoomAction.cs" />
@@ -41,6 +41,9 @@
     <Compile Include="RoomEditor\Events\RoomToolUseAction.cs" />
     <Compile Include="RoomEditor\Events\StrafeLeftRoomAction.cs" />
     <Compile Include="RoomEditor\Events\StrafeRightRoomAction.cs" />
+    <Compile Include="RoomEditor\IConnectable.cs" />
+    <Compile Include="RoomEditor\KeyboardRoomObject.cs" />
+    <Compile Include="RoomEditor\LEM1802RoomObject.cs" />
     <Compile Include="RoomEditor\LightEntity.cs" />
     <Compile Include="RoomEditor\LightRoomObject.cs" />
     <Compile Include="RoomEditor\PlayerEntity.cs" />
@@ -49,16 +52,22 @@
     <Compile Include="RoomEditor\RoomEditorStaticEventBinder.cs" />
     <Compile Include="RoomEditor\RoomEditorWorld.cs" />
     <Compile Include="RoomEditor\RoomObject.cs" />
+    <Compile Include="RoomEditor\SPED3RoomObject.cs" />
     <Compile Include="RoomEditor\Tools\AngleRoomTool.cs" />
-    <Compile Include="RoomEditor\Tools\DCPURoomTool.cs" />
     <Compile Include="RoomEditor\Tools\DeleteRoomTool.cs" />
     <Compile Include="RoomEditor\Tools\ExitRoomTool.cs" />
     <Compile Include="RoomEditor\Tools\IRoomTool.cs" />
     <Compile Include="RoomEditor\Tools\MoveRoomTool.cs" />
+    <Compile Include="RoomEditor\Tools\NewRoomDCPUTool.cs" />
+    <Compile Include="RoomEditor\Tools\NewRoomKeyboardTool.cs" />
+    <Compile Include="RoomEditor\Tools\NewRoomLEM1802Tool.cs" />
     <Compile Include="RoomEditor\Tools\NewRoomLightTool.cs" />
+    <Compile Include="RoomEditor\Tools\NewRoomSPED3Tool.cs" />
     <Compile Include="RoomEditor\Tools\NewRoomTool.cs" />
     <Compile Include="RoomEditor\Tools\SizeRoomTool.cs" />
     <Compile Include="RoomEditor\Tools\TextureRoomTool.cs" />
+    <Compile Include="RoomEditor\Tools\WireBreakRoomTool.cs" />
+    <Compile Include="RoomEditor\Tools\WireNewRoomTool.cs" />
     <Compile Include="RoomEditor\XnaDebugDrawer.cs" />
     <Compile Include="ShipEditor\DefaultGridRenderer.cs" />
     <Compile Include="ShipEditor\Events\ShipToolAlternateAction.cs" />

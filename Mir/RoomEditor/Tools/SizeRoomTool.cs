@@ -14,7 +14,7 @@
         {
             get
             {
-                return "resize";
+                return "editor.room.tool.resize";
             }
         }
     }

@@ -14,7 +14,7 @@
         {
             get
             {
-                return "delete";
+                return "editor.room.tool.delete";
             }
         }
     }

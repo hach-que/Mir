@@ -279,9 +279,10 @@ namespace Mir
                     focused.Render(gameContext, renderContext);
                 }
 
-                renderContext.GraphicsDevice.BlendState = BlendState.Opaque;
                 renderContext.Effect.Parameters["Alpha"].SetValue(1f);
             }
+
+            renderContext.GraphicsDevice.BlendState = BlendState.Opaque;
 
             renderContext.World = oldWorld;
         }

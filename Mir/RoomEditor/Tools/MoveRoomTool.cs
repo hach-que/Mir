@@ -14,7 +14,7 @@
         {
             get
             {
-                return "move";
+                return "editor.room.tool.move";
             }
         }
     }

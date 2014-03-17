@@ -19,7 +19,7 @@ namespace Mir
 
         private const float CellSize = 16f;
 
-        private readonly int[] m_TouchAnim = { 72, 73, 74, 75, 76, 77, 78, 79, 80, 79, 78, 77, 76, 75, 74, 73 };
+        protected readonly int[] m_TouchAnim = { 72, 73, 74, 75, 76, 77, 78, 79, 80, 79, 78, 77, 76, 75, 74, 73 };
 
         private int m_AboveTextureIndex;
 
@@ -39,7 +39,7 @@ namespace Mir
 
         private int m_Height;
 
-        private IndexBuffer m_IndexBuffer;
+        protected IndexBuffer m_IndexBuffer;
 
         private JitterWorld m_JitterWorld;
 
@@ -49,7 +49,7 @@ namespace Mir
 
         private int m_LeftTextureIndex;
 
-        private bool m_PendRecalculation;
+        protected bool m_PendRecalculation;
 
         private int m_RightBackEdgeMode;
 
@@ -59,9 +59,9 @@ namespace Mir
 
         private RigidBody m_RigidBody;
 
-        private int m_TouchAnimIndex;
+        protected int m_TouchAnimIndex;
 
-        private VertexBuffer m_VertexBuffer;
+        protected VertexBuffer m_VertexBuffer;
 
         private int m_Width;
 
@@ -92,6 +92,8 @@ namespace Mir
         }
 
         public event EventHandler Deleted;
+
+        public bool ForceFullTexture { get; set; }
 
         public int AboveTextureIndex
         {
@@ -423,8 +425,13 @@ namespace Mir
             }
         }
 
-        public Vector2 GetBottomRightTextureUV(int idx)
+        public Vector2 GetBottomRightTextureUV(int idx, bool ignoreFullTexture = false)
         {
+            if (this.ForceFullTexture && !ignoreFullTexture)
+            {
+                return new Vector2(1, 1);
+            }
+
             var x = (float)(idx % (int)AtlasRatio);
 
             // ReSharper disable once PossibleLossOfFraction
@@ -472,8 +479,13 @@ namespace Mir
             return -1;
         }
 
-        public Vector2 GetTopLeftTextureUV(int idx)
+        public Vector2 GetTopLeftTextureUV(int idx, bool ignoreFullTexture = false)
         {
+            if (this.ForceFullTexture && !ignoreFullTexture)
+            {
+                return new Vector2(0, 0);
+            }
+
             var x = (float)(idx % (int)AtlasRatio);
 
             // ReSharper disable once PossibleLossOfFraction
@@ -557,8 +569,8 @@ namespace Mir
 
         public void RenderSelection(IRenderContext renderContext, int face)
         {
-            var topLeftUV = this.GetTopLeftTextureUV(this.m_TouchAnim[this.m_TouchAnimIndex / 3]);
-            var bottomRightUV = this.GetBottomRightTextureUV(this.m_TouchAnim[this.m_TouchAnimIndex / 3]);
+            var topLeftUV = this.GetTopLeftTextureUV(this.m_TouchAnim[this.m_TouchAnimIndex / 3], true);
+            var bottomRightUV = this.GetBottomRightTextureUV(this.m_TouchAnim[this.m_TouchAnimIndex / 3], true);
 
             var matrix = Matrix.CreateScale(this.Width + 0.2f, this.Height + 0.2f, this.Depth + 0.2f)
                          * Matrix.CreateTranslation(this.X - 0.1f, this.Y - 0.1f, this.Z - 0.1f);
@@ -568,19 +580,19 @@ namespace Mir
                 new VertexPositionNormalTexture(
                     Vector3.Transform(new Vector3(0, 0, 0), matrix), 
                     new Vector3(-1, 0, 0), 
-                    new Vector2(bottomRightUV.X, bottomRightUV.Y)), 
+                    new Vector2(topLeftUV.X, bottomRightUV.Y)), 
                 new VertexPositionNormalTexture(
                     Vector3.Transform(new Vector3(0, 0, 1), matrix), 
                     new Vector3(-1, 0, 0), 
-                    new Vector2(topLeftUV.X, bottomRightUV.Y)), 
+                    new Vector2(bottomRightUV.X, bottomRightUV.Y)), 
                 new VertexPositionNormalTexture(
                     Vector3.Transform(new Vector3(0, 1, 0), matrix), 
                     new Vector3(-1, 0, 0), 
-                    new Vector2(bottomRightUV.X, topLeftUV.Y)), 
+                    new Vector2(topLeftUV.X, topLeftUV.Y)), 
                 new VertexPositionNormalTexture(
                     Vector3.Transform(new Vector3(0, 1, 1), matrix), 
                     new Vector3(-1, 0, 0), 
-                    new Vector2(topLeftUV.X, topLeftUV.Y)), 
+                    new Vector2(bottomRightUV.X, topLeftUV.Y)), 
                 new VertexPositionNormalTexture(
                     Vector3.Transform(new Vector3(1, 0, 0), matrix), 
                     new Vector3(1, 0, 0), 
@@ -788,19 +800,19 @@ namespace Mir
                 new VertexPositionNormalTexture(
                     Vector3.Transform(new Vector3(0, 0 + leftBackBelowMod, 0), matrix), 
                     new Vector3(-1, 0, 0), 
-                    new Vector2(leftBottomRightUV.X, leftBottomRightUV.Y)), 
+                    new Vector2(leftTopLeftUV.X, leftBottomRightUV.Y)), 
                 new VertexPositionNormalTexture(
                     Vector3.Transform(new Vector3(0, 0 + leftFrontBelowMod, 1), matrix), 
                     new Vector3(-1, 0, 0), 
-                    new Vector2(leftTopLeftUV.X, leftBottomRightUV.Y)), 
+                    new Vector2(leftBottomRightUV.X, leftBottomRightUV.Y)), 
                 new VertexPositionNormalTexture(
                     Vector3.Transform(new Vector3(0, 1 + leftBackAboveMod, 0), matrix), 
                     new Vector3(-1, 0, 0), 
-                    new Vector2(leftBottomRightUV.X, leftTopLeftUV.Y)), 
+                    new Vector2(leftTopLeftUV.X, leftTopLeftUV.Y)), 
                 new VertexPositionNormalTexture(
                     Vector3.Transform(new Vector3(0, 1 + leftFrontAboveMod, 1), matrix), 
                     new Vector3(-1, 0, 0), 
-                    new Vector2(leftTopLeftUV.X, leftTopLeftUV.Y)), 
+                    new Vector2(leftBottomRightUV.X, leftTopLeftUV.Y)), 
                 new VertexPositionNormalTexture(
                     Vector3.Transform(new Vector3(1, 0 + rightBackBelowMod, 0), matrix), 
                     new Vector3(1, 0, 0), 
@@ -852,7 +864,7 @@ namespace Mir
                 new VertexPositionNormalTexture(
                     Vector3.Transform(new Vector3(0, 0 + leftBackBelowMod, 0), matrix), 
                     new Vector3(0, 0, -1), 
-                    new Vector2(backTopLeftUV.X, backBottomRightUV.Y)), 
+                    new Vector2(backBottomRightUV.X, backBottomRightUV.Y)), 
                 new VertexPositionNormalTexture(
                     Vector3.Transform(new Vector3(0, 0 + leftFrontBelowMod, 1), matrix), 
                     new Vector3(0, 0, 1), 
@@ -860,7 +872,7 @@ namespace Mir
                 new VertexPositionNormalTexture(
                     Vector3.Transform(new Vector3(0, 1 + leftBackAboveMod, 0), matrix), 
                     new Vector3(0, 0, -1), 
-                    new Vector2(backTopLeftUV.X, backTopLeftUV.Y)), 
+                    new Vector2(backBottomRightUV.X, backTopLeftUV.Y)), 
                 new VertexPositionNormalTexture(
                     Vector3.Transform(new Vector3(0, 1 + leftFrontAboveMod, 1), matrix), 
                     new Vector3(0, 0, 1), 
@@ -868,7 +880,7 @@ namespace Mir
                 new VertexPositionNormalTexture(
                     Vector3.Transform(new Vector3(1, 0 + rightBackBelowMod, 0), matrix), 
                     new Vector3(0, 0, -1), 
-                    new Vector2(backBottomRightUV.X, backBottomRightUV.Y)), 
+                    new Vector2(backTopLeftUV.X, backBottomRightUV.Y)), 
                 new VertexPositionNormalTexture(
                     Vector3.Transform(new Vector3(1, 0 + rightFrontBelowMod, 1), matrix), 
                     new Vector3(0, 0, 1), 
@@ -876,7 +888,7 @@ namespace Mir
                 new VertexPositionNormalTexture(
                     Vector3.Transform(new Vector3(1, 1 + rightBackAboveMod, 0), matrix), 
                     new Vector3(0, 0, -1), 
-                    new Vector2(backBottomRightUV.X, backTopLeftUV.Y)), 
+                    new Vector2(backTopLeftUV.X, backTopLeftUV.Y)), 
                 new VertexPositionNormalTexture(
                     Vector3.Transform(new Vector3(1, 1 + rightFrontAboveMod, 1), matrix), 
                     new Vector3(0, 0, 1), 
@@ -949,7 +961,7 @@ namespace Mir
             this.m_CachedMeshIndicies = indicies;
         }
 
-        private void RecalculateObject(IGameContext gameContext, IRenderContext renderContext)
+        protected void RecalculateObject(IGameContext gameContext, IRenderContext renderContext)
         {
             // Recalculate vertex caches.
             this.m_CachedHitTestVertexPositionNormalTextures =

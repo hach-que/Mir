@@ -14,7 +14,7 @@
         {
             get
             {
-                return "angle";
+                return "editor.room.tool.angle";
             }
         }
     }

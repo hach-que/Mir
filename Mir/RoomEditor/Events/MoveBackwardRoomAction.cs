@@ -9,11 +9,6 @@ namespace Mir
         {
             var world = (RoomEditorWorld)context.World;
 
-            if (world.ActiveRoomTool is DCPURoomTool)
-            {
-                return;
-            }
-
             var player = world.Entities.OfType<PlayerEntity>().First();
 
             player.Walked = true;

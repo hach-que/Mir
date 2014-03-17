@@ -2,8 +2,6 @@ namespace Mir
 {
     public interface IFactory
     {
-        DCPUEntity CreateDCPUEntity();
-
         LightEntity CreateLightEntity(LightRoomObject lightRoomObject);
 
         PlayerEntity CreatePlayerEntity();

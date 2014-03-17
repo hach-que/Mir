@@ -14,7 +14,7 @@
         {
             get
             {
-                return "texture";
+                return "editor.room.tool.texture";
             }
         }
     }

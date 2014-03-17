@@ -33,7 +33,22 @@ namespace Mir
 
         protected override bool Filter(IGameContext context, Event @event)
         {
-            return context.World is RoomEditorWorld;
+            var roomEditorWorld = context.World as RoomEditorWorld;
+
+            if (roomEditorWorld == null)
+            {
+                return false;
+            }
+
+            if (@event is KeyboardEvent && roomEditorWorld.FocusedKeyboard != null)
+            {
+                if (!(roomEditorWorld.ActiveRoomTool is MoveRoomTool))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }
