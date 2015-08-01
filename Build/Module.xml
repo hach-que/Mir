@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ModuleInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<ModuleInfo xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Path>C:\Users\June\Documents\Projects\Mir</Path>
   <Name>Mir</Name>
+  <DefaultAction>resync</DefaultAction>
+  <GenerateNuGetRepositories>true</GenerateNuGetRepositories>
+  <DisableSynchronisation xsi:nil="true" />
   <ModuleAssemblies />
+  <Packages>
+    <PackageRef>
+      <Uri>http://protobuild.org/hach-que/Protogame</Uri>
+      <GitRef>master</GitRef>
+      <Folder>Protogame</Folder>
+    </PackageRef>
+  </Packages>
 </ModuleInfo>
