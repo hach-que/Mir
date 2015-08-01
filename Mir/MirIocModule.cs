@@ -47,6 +47,9 @@ namespace Mir
             this.Bind<IShipStorage>().To<ShipStorage>();
 
             this.Bind<IGridRenderer>().To<DefaultGridRenderer>();
+
+            this.Bind<ISkin>().To<BasicSkin>();
+            this.Bind<IBasicSkin>().To<DefaultBasicSkin>();
         }
     }
 }

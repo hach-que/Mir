@@ -8,7 +8,7 @@ rem del /S /Q compiled
 :compile
 echo Compiling assets...
 cd assets
-..\..\Protogame\ProtogameAssetTool\bin\Debug\ProtogameAssetTool.exe ^
+..\..\Protobuild.exe --execute ProtogameAssetTool ^
 	-o ..\compiled ^
 	-p Windows ^
 	-p MacOSX ^

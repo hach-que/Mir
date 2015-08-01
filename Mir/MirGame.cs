@@ -19,7 +19,12 @@ namespace Mir
             this.Window.Title = "Mir";
             this.Window.AllowUserResizing = true;
 
-            this.GraphicsDevice.SamplerStates[0].Filter = TextureFilter.Point;
+            this.GraphicsDevice.SamplerStates[0] = new SamplerState
+            {
+                Filter = TextureFilter.Point
+            };
+
+            //this.GraphicsDevice.SamplerStates[0].Filter = TextureFilter.Point;
         }
     }
 }
